@@ -76,7 +76,7 @@ export function ContactSection() {
   ]
 
   return (
-    <section id="contact" ref={sectionRef} className="relative py-20 md:py-32 overflow-hidden">
+    <section id="contact" ref={sectionRef} className="relative py-16 md:py-20 lg:py-32 overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0 bg-gradient-to-b from-secondary/30 via-background to-background" />
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] animate-blob" />
@@ -85,9 +85,9 @@ export function ContactSection() {
         style={{ animationDelay: "-5s" }}
       />
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
         {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div className="text-center max-w-2xl mx-auto mb-12 md:mb-16">
           <Badge
             variant="secondary"
             className={cn(
@@ -100,7 +100,7 @@ export function ContactSection() {
           </Badge>
           <h2
             className={cn(
-              "text-3xl md:text-4xl lg:text-5xl font-bold mb-4 transition-all duration-700 delay-100",
+              "text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 transition-all duration-700 delay-100 px-2",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
             )}
           >
@@ -108,7 +108,7 @@ export function ContactSection() {
           </h2>
           <p
             className={cn(
-              "text-muted-foreground text-lg transition-all duration-700 delay-200",
+              "text-muted-foreground text-base md:text-lg transition-all duration-700 delay-200 px-2",
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
             )}
           >
@@ -116,71 +116,71 @@ export function ContactSection() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 max-w-6xl mx-auto">
+        <div className="grid lg:grid-cols-5 gap-6 md:gap-8 lg:gap-12 max-w-6xl mx-auto">
           {/* Contact Info */}
           <div
             className={cn(
-              "lg:col-span-2 space-y-6 transition-all duration-700 delay-300",
+              "lg:col-span-2 space-y-4 md:space-y-6 transition-all duration-700 delay-300",
               isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8",
             )}
           >
-            <div className="bg-card rounded-3xl p-8 border border-border shadow-xl shadow-primary/5">
-              <h3 className="text-xl font-semibold mb-6">Быстрые контакты</h3>
+            <div className="bg-card rounded-2xl md:rounded-3xl p-6 md:p-8 border border-border shadow-xl shadow-primary/5">
+              <h3 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Быстрые контакты</h3>
 
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 <a
                   href="https://t.me/tw1zzzzz"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-secondary/50 hover:bg-primary/10 border border-transparent hover:border-primary/20 transition-all group"
+                  className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl md:rounded-2xl bg-secondary/50 hover:bg-primary/10 border border-transparent hover:border-primary/20 transition-all group"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <Send className="w-5 h-5 text-primary" />
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors flex-shrink-0">
+                    <Send className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                   </div>
-                  <div>
-                    <p className="font-medium">Telegram</p>
-                    <p className="text-sm text-muted-foreground">@tw1zzzzz</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm md:text-base">Telegram</p>
+                    <p className="text-xs md:text-sm text-muted-foreground truncate">@tw1zzzzz</p>
                   </div>
-                  <ArrowRight className="w-5 h-5 ml-auto text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
                 </a>
 
                 <a
                   href="mailto:projecttwizz54@gmail.com"
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-secondary/50 hover:bg-primary/10 border border-transparent hover:border-primary/20 transition-all group"
+                  className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl md:rounded-2xl bg-secondary/50 hover:bg-primary/10 border border-transparent hover:border-primary/20 transition-all group"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <Mail className="w-5 h-5 text-primary" />
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors flex-shrink-0">
+                    <Mail className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                   </div>
-                  <div>
-                    <p className="font-medium">Email</p>
-                    <p className="text-sm text-muted-foreground">projecttwizz54@gmail.com</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm md:text-base">Email</p>
+                    <p className="text-xs md:text-sm text-muted-foreground truncate">projecttwizz54@gmail.com</p>
                   </div>
-                  <ArrowRight className="w-5 h-5 ml-auto text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
                 </a>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-border">
-                <h4 className="font-medium mb-3">Время ответа</h4>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-border">
+                <h4 className="font-medium mb-2 md:mb-3 text-sm md:text-base">Время ответа</h4>
+                <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
                   Обычно отвечаем в течение 2-4 часов
                 </div>
               </div>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 md:gap-4">
               {[
                 { value: "50+", label: "Проектов" },
                 { value: "24/7", label: "Поддержка" },
               ].map((stat, i) => (
                 <div
                   key={stat.label}
-                  className="bg-card rounded-2xl p-6 text-center border border-border shadow-lg"
+                  className="bg-card rounded-xl md:rounded-2xl p-4 md:p-6 text-center border border-border shadow-lg"
                   style={{ transitionDelay: `${400 + i * 100}ms` }}
                 >
-                  <p className="text-2xl font-bold gradient-text">{stat.value}</p>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <p className="text-xl md:text-2xl font-bold gradient-text">{stat.value}</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -193,21 +193,21 @@ export function ContactSection() {
               isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8",
             )}
           >
-            <div className="bg-card rounded-3xl p-8 md:p-10 border border-border shadow-xl shadow-primary/5 relative overflow-hidden">
+            <div className="bg-card rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 border border-border shadow-xl shadow-primary/5 relative overflow-hidden">
               {/* Decorative gradient */}
-              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full" />
+              <div className="absolute top-0 right-0 w-32 h-32 md:w-40 md:h-40 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full" />
 
               {isSuccess ? (
-                <div className="text-center py-12">
-                  <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6 animate-bounce">
-                    <CheckCircle2 className="w-10 h-10 text-green-600" />
+                <div className="text-center py-8 md:py-12">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 md:mb-6 animate-bounce">
+                    <CheckCircle2 className="w-8 h-8 md:w-10 md:h-10 text-green-600" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-2">Сообщение отправлено!</h3>
-                  <p className="text-muted-foreground">Мы свяжемся с вами в ближайшее время.</p>
+                  <h3 className="text-xl md:text-2xl font-bold mb-2">Сообщение отправлено!</h3>
+                  <p className="text-muted-foreground text-sm md:text-base">Мы свяжемся с вами в ближайшее время.</p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
-                  <div className="grid sm:grid-cols-2 gap-6">
+                <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6 relative z-10">
+                  <div className="grid sm:grid-cols-2 gap-4 md:gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="name" className="flex items-center gap-2 text-sm font-medium">
                         <User className="w-4 h-4 text-primary" />
@@ -219,7 +219,7 @@ export function ContactSection() {
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         required
-                        className="h-12 rounded-xl bg-secondary/50 border-border focus:border-primary focus:ring-primary/20"
+                        className="h-11 md:h-12 rounded-xl bg-secondary/50 border-border focus:border-primary focus:ring-primary/20"
                       />
                     </div>
                     <div className="space-y-2">
@@ -234,7 +234,7 @@ export function ContactSection() {
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         required
-                        className="h-12 rounded-xl bg-secondary/50 border-border focus:border-primary focus:ring-primary/20"
+                        className="h-11 md:h-12 rounded-xl bg-secondary/50 border-border focus:border-primary focus:ring-primary/20"
                       />
                     </div>
                   </div>
@@ -251,13 +251,13 @@ export function ContactSection() {
                           type="button"
                           onClick={() => setFormData({ ...formData, subject: subject.label })}
                           className={cn(
-                            "px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border",
+                            "px-3 py-2 md:px-4 md:py-2.5 rounded-lg md:rounded-xl text-xs md:text-sm font-medium transition-all duration-200 border",
                             formData.subject === subject.label
                               ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/25"
                               : "bg-secondary/50 text-foreground border-border hover:border-primary/50 hover:bg-primary/5",
                           )}
                         >
-                          <span className="mr-1.5">{subject.icon}</span>
+                          <span className="mr-1 md:mr-1.5">{subject.icon}</span>
                           {subject.label}
                         </button>
                       ))}
@@ -275,7 +275,7 @@ export function ContactSection() {
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       required
-                      rows={5}
+                      rows={4}
                       className="rounded-xl bg-secondary/50 border-border focus:border-primary focus:ring-primary/20 resize-none"
                     />
                   </div>
@@ -284,22 +284,22 @@ export function ContactSection() {
                     type="submit"
                     size="lg"
                     disabled={isSubmitting}
-                    className="w-full h-14 rounded-xl text-lg font-medium bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all shadow-lg shadow-primary/30 hover:shadow-primary/50"
+                    className="w-full h-12 md:h-14 rounded-xl text-base md:text-lg font-medium bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all shadow-lg shadow-primary/30 hover:shadow-primary/50"
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        <Loader2 className="mr-2 h-4 w-4 md:h-5 md:w-5 animate-spin" />
                         Отправка...
                       </>
                     ) : (
                       <>
-                        <Send className="mr-2 h-5 w-5" />
+                        <Send className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                         Отправить сообщение
                       </>
                     )}
                   </Button>
 
-                  <p className="text-xs text-center text-muted-foreground">
+                  <p className="text-xs text-center text-muted-foreground px-2">
                     Нажимая кнопку, вы соглашаетесь с{" "}
                     <a href="#" className="text-primary hover:underline">
                       политикой конфиденциальности
