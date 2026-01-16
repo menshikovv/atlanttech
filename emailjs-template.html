@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новое сообщение с сайта</title>
+</head>
+
+<body
+    style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; line-height: 1.6;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+
+        <!-- Header -->
+        <div
+            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px 20px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">
+                Новое сообщение
+            </h1>
+            <p style="color: #e2e8f0; margin: 10px 0 0 0; font-size: 16px;">
+                Получено с контактной формы сайта
+            </p>
+        </div>
+
+        <!-- Content -->
+        <div style="padding: 40px 30px;">
+
+            <!-- Greeting -->
+            <div
+                style="background-color: #f1f5f9; border-left: 4px solid #667eea; padding: 20px; margin-bottom: 30px; border-radius: 0 8px 8px 0;">
+                <p style="margin: 0; color: #334155; font-size: 16px;">
+                    Получено новое сообщение от <strong>{{user_name}}</strong>.
+                    Пожалуйста, ответьте в ближайшее время.
+                </p>
+            </div>
+
+            <!-- Contact Info Card -->
+            <div
+                style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+
+                <!-- User Info -->
+                <div
+                    style="display: flex; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9;">
+                    <div
+                        style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; color: #1e293b; font-size: 18px; font-weight: 600;">{{user_name}}</h3>
+                        <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px;">Отправитель</p>
+                    </div>
+                </div>
+
+                <!-- Contact Details -->
+                <div style="margin-bottom: 20px;">
+                    <div style="margin-bottom: 15px;">
+                        <div
+                            style="display: inline-block; background-color: #f8fafc; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px;">
+                            <span
+                                style="color: #475569; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                                Email</span>
+                        </div>
+                        <p style="margin: 0; color: #1e293b; font-size: 16px; font-weight: 500;">
+                            <a href="mailto:{{user_email}}"
+                                style="color: #667eea; text-decoration: none;">{{user_email}}</a>
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <div
+                            style="display: inline-block; background-color: #f8fafc; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px;">
+                            <span
+                                style="color: #475569; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                                Тема</span>
+                        </div>
+                        <p style="margin: 0; color: #1e293b; font-size: 16px; font-weight: 500;">{{subject}}</p>
+                    </div>
+                </div>
+
+                <!-- Message -->
+                <div>
+                    <div
+                        style="display: inline-block; background-color: #f8fafc; padding: 8px 12px; border-radius: 6px; margin-bottom: 10px;">
+                        <span
+                            style="color: #475569; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Сообщение</span>
+                    </div>
+                    <div
+                        style="background-color: #f8fafc; padding: 20px; border-radius: 8px; border-left: 3px solid #667eea;">
+                        <p style="margin: 0; color: #334155; font-size: 16px; line-height: 1.6; white-space: pre-wrap;">
+                            {{message}}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="mailto:{{user_email}}?subject=Re: {{subject}}"
+                    style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);">
+                    Ответить на сообщение
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+            <p style="margin: 0; color: #64748b; font-size: 14px;">
+                Это сообщение отправлено автоматически с контактной формы сайта
+            </p>
+            <p style="margin: 5px 0 0 0; color: #94a3b8; font-size: 12px;">
+                Время получения: {{time}} | Scout Scope
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

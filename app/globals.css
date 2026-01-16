@@ -1,0 +1,316 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Полностью новая светлая бело-синяя тема */
+:root {
+  --background: oklch(0.99 0.005 250);
+  --foreground: oklch(0.15 0.02 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.02 250);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.02 250);
+  --primary: oklch(0.55 0.22 250);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.96 0.01 250);
+  --secondary-foreground: oklch(0.25 0.03 250);
+  --muted: oklch(0.94 0.01 250);
+  --muted-foreground: oklch(0.45 0.02 250);
+  --accent: oklch(0.6 0.18 220);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.9 0.02 250);
+  --input: oklch(0.95 0.01 250);
+  --ring: oklch(0.55 0.22 250);
+  --chart-1: oklch(0.55 0.22 250);
+  --chart-2: oklch(0.6 0.18 220);
+  --chart-3: oklch(0.5 0.15 200);
+  --chart-4: oklch(0.65 0.2 260);
+  --chart-5: oklch(0.45 0.18 240);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.98 0.005 250);
+  --sidebar-foreground: oklch(0.15 0.02 250);
+  --sidebar-primary: oklch(0.55 0.22 250);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.94 0.02 250);
+  --sidebar-accent-foreground: oklch(0.15 0.02 250);
+  --sidebar-border: oklch(0.9 0.02 250);
+  --sidebar-ring: oklch(0.55 0.22 250);
+  /* Glow colors для синих акцентов */
+  --glow-primary: oklch(0.55 0.22 250);
+  --glow-accent: oklch(0.6 0.18 220);
+  --glow-light: oklch(0.7 0.15 250);
+}
+
+@theme inline {
+  /* Prosto One - современный геометрический шрифт */
+  --font-sans: "Prosto One", "Prosto One Fallback", sans-serif, system-ui;
+  --font-mono: "Prosto One", "Prosto One Fallback", monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    font-family: "Prosto One", sans-serif !important;
+  }
+  body {
+    @apply bg-background text-foreground;
+    position: relative;
+    font-family: "Prosto One", sans-serif !important;
+  }
+  
+  /* Применяем Prosto One абсолютно ко всем элементам */
+  *, *::before, *::after,
+  html, body, div, span, applet, object, iframe,
+  h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+  a, abbr, acronym, address, big, cite, code,
+  del, dfn, em, img, ins, kbd, q, s, samp,
+  small, strike, strong, sub, sup, tt, var,
+  b, u, i, center,
+  dl, dt, dd, ol, ul, li,
+  fieldset, form, label, legend,
+  table, caption, tbody, tfoot, thead, tr, th, td,
+  article, aside, canvas, details, embed, 
+  figure, figcaption, footer, header, hgroup, 
+  menu, nav, output, ruby, section, summary,
+  time, mark, audio, video, button, input, textarea, select {
+    font-family: "Prosto One", sans-serif !important;
+  }
+  
+  /* Глобальные квадратики на всем сайте */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    opacity: 0.08;
+    background-image: 
+      linear-gradient(oklch(0.55 0.22 250) 1px, transparent 1px), 
+      linear-gradient(90deg, oklch(0.55 0.22 250) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+  }
+}
+
+/* Animations */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 20px var(--glow-primary), 0 0 40px transparent;
+  }
+  50% {
+    box-shadow: 0 0 30px var(--glow-primary), 0 0 60px oklch(0.55 0.22 250 / 0.3);
+  }
+}
+
+@keyframes blob {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(20px, -30px) scale(1.05);
+  }
+  50% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+  75% {
+    transform: translate(30px, 10px) scale(1.02);
+  }
+}
+
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes grid-move {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(80px, 80px);
+  }
+}
+
+@keyframes nodes-pulse {
+  0%, 100% {
+    opacity: 0.05;
+    transform: scale(1);
+  }
+  25% {
+    opacity: 0.08;
+    transform: scale(1.1);
+  }
+  50% {
+    opacity: 0.06;
+    transform: scale(0.9);
+  }
+  75% {
+    opacity: 0.09;
+    transform: scale(1.05);
+  }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+.animate-pulse-soft {
+  animation: pulse-soft 4s ease-in-out infinite;
+}
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+  background-size: 200% 100%;
+}
+.animate-glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+.animate-blob {
+  animation: blob 10s ease-in-out infinite;
+}
+.animate-gradient {
+  animation: gradient-shift 8s ease infinite;
+  background-size: 200% 200%;
+}
+
+/* Glass effect for light theme */
+.glass {
+  background: oklch(1 0 0 / 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid oklch(0.55 0.22 250 / 0.15);
+}
+
+.glass-strong {
+  background: oklch(1 0 0 / 0.85);
+  backdrop-filter: blur(30px);
+  border: 1px solid oklch(0.55 0.22 250 / 0.1);
+  box-shadow: 0 4px 30px oklch(0 0 0 / 0.05);
+}
+
+/* Gradient text - синий */
+.gradient-text {
+  background: linear-gradient(135deg, oklch(0.55 0.22 250), oklch(0.5 0.2 220), oklch(0.45 0.18 240));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gradient border */
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, oklch(0.55 0.22 250), oklch(0.6 0.18 220));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}
+
+.gradient-border:hover::before {
+  opacity: 0.7;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Scrollbar для светлой темы */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: oklch(0.96 0.01 250);
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(0.55 0.22 250 / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.55 0.22 250 / 0.5);
+}
