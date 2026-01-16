@@ -129,7 +129,7 @@ export function ContactSection() {
 
               <div className="space-y-4">
                 <a
-                  href="https://t.me/twizz_project"
+                  href="https://t.me/tw1zzzzz"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-4 p-4 rounded-2xl bg-secondary/50 hover:bg-primary/10 border border-transparent hover:border-primary/20 transition-all group"
@@ -139,13 +139,13 @@ export function ContactSection() {
                   </div>
                   <div>
                     <p className="font-medium">Telegram</p>
-                    <p className="text-sm text-muted-foreground">@twizz_project</p>
+                    <p className="text-sm text-muted-foreground">@tw1zzzzz</p>
                   </div>
                   <ArrowRight className="w-5 h-5 ml-auto text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                 </a>
 
                 <a
-                  href="mailto:contact@twizz-project.com"
+                  href="mailto:projecttwizz54@gmail.com"
                   className="flex items-center gap-4 p-4 rounded-2xl bg-secondary/50 hover:bg-primary/10 border border-transparent hover:border-primary/20 transition-all group"
                 >
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -153,7 +153,7 @@ export function ContactSection() {
                   </div>
                   <div>
                     <p className="font-medium">Email</p>
-                    <p className="text-sm text-muted-foreground">contact@twizz-project.com</p>
+                    <p className="text-sm text-muted-foreground">projecttwizz54@gmail.com</p>
                   </div>
                   <ArrowRight className="w-5 h-5 ml-auto text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                 </a>

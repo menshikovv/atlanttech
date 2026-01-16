@@ -37,7 +37,7 @@ export function HeroSection() {
   }, [])
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16 md:pt-20">
       <div className="absolute inset-0 overflow-hidden">
         {/* Animated gradient blobs */}
         <div className="absolute top-20 -left-20 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] animate-blob" />
@@ -126,7 +126,7 @@ export function HeroSection() {
                 className="border-primary/30 px-8 bg-transparent cursor-pointer"
               >
                 <a href="#pricing" className="flex items-center">
-                  <Zap className="mr-2 h-5 w-5 text-primary" />
+                  <Zap className="mr-1 h-5 w-5 text-primary" />
                   Цены
                 </a>
               </Button>
@@ -181,8 +181,8 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
+      {/* Scroll indicator - hidden on mobile */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex">
         <a
           href="#cases"
           className="flex flex-col items-center gap-2 text-muted-foreground hover:text-primary transition-colors"

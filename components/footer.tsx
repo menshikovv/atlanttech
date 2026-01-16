@@ -29,7 +29,7 @@ export function Footer() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-12">
           {/* Logo & Description */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 flex flex-col items-center md:items-start">
             <div className="mb-4">
               <div className="relative w-fit">
                 <TwizzLogo className="h-16 w-auto md:h-20 md:w-auto relative z-10" />
@@ -41,7 +41,7 @@ export function Footer() {
                 <div className="absolute inset-0 bg-primary/20 blur-[80px] rounded-3xl -z-20 scale-150" />
               </div>
             </div>
-            <p className="text-muted-foreground max-w-md leading-relaxed mb-6">
+            <p className="text-muted-foreground max-w-md leading-relaxed mb-6 text-center md:text-left">
               Разработка программного обеспечения для киберспортивных команд. Помогаем автоматизировать скаутинг,
               аналитику и управление командой.
             </p>
@@ -96,22 +96,23 @@ export function Footer() {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="https://t.me/scout_scope_bot"
+                  href="https://t.me/tw1zzzzz"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
                 >
                   <Send className="h-4 w-4" />
-                  @scout_scope_bot
+                  @tw1zzzzz
                 </a>
               </li>
               <li>
                 <a
-                  href="mailto:contact@scout-scope.com"
+                  href="mailto:projecttwizz54@gmail.com"
                   className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
                 >
                   <Mail className="h-4 w-4" />
-                  contact@scout-scope.com
+                  projecttwizz54@gmail.com
+
                 </a>
               </li>
             </ul>

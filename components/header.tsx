@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,6 +18,44 @@ export function Header() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
+  // Закрываем меню при клике вне его
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (isMobileMenuOpen && !target.closest('[data-mobile-menu]')) {
+        handleCloseMenu()
+      }
+    }
+
+    if (isMobileMenuOpen) {
+      document.addEventListener('click', handleClickOutside)
+      // Блокируем скролл когда меню открыто
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside)
+      document.body.style.overflow = 'unset'
+    }
+  }, [isMobileMenuOpen])
+
+  const handleOpenMenu = () => {
+    setIsMobileMenuOpen(true)
+    // Небольшая задержка чтобы DOM успел обновиться, затем запускаем анимацию
+    setTimeout(() => {
+      setIsAnimating(true)
+    }, 10)
+  }
+
+  const handleCloseMenu = () => {
+    setIsAnimating(false)
+    setTimeout(() => {
+      setIsMobileMenuOpen(false)
+    }, 300) // Ждем завершения анимации закрытия
+  }
+
   const navLinks = [
     { href: "#cases", label: "Кейсы" },
     { href: "#pricing", label: "Цены" },
@@ -25,72 +64,118 @@ export function Header() {
   ]
 
   return (
-    <header
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-        isScrolled ? "bg-white/80 backdrop-blur-lg shadow-sm border-b border-border/50" : "bg-transparent",
-      )}
-    >
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-center h-16 md:h-20">
-          {/* Desktop Navigation - по центру */}
-          <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-muted-foreground hover:text-primary transition-colors font-medium relative group"
+    <>
+      <header
+        className={cn(
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
+          isScrolled ? "bg-white/80 backdrop-blur-lg shadow-sm border-b border-border/50" : "bg-transparent",
+        )}
+      >
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            {/* Empty space on left for mobile, desktop nav in center */}
+            <div className="md:hidden"></div>
+            
+            {/* Desktop Navigation - по центру */}
+            <nav className="hidden md:flex items-center gap-8 mx-auto">
+              {navLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="text-muted-foreground hover:text-primary transition-colors font-medium relative group"
+                >
+                  {link.label}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
+                </a>
+              ))}
+              <Button
+                asChild
+                variant="outline"
+                className="border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-all"
               >
-                {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
-              </a>
-            ))}
-            <Button
-              asChild
-              variant="outline"
-              className="border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-all"
-            >
-              <a href="#contact">Связаться</a>
-            </Button>
-          </nav>
+                <a href="#contact">Связаться</a>
+              </Button>
+            </nav>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 text-foreground rounded-lg hover:bg-secondary transition-colors"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
+            {/* Mobile Menu Button - справа */}
+            <button
+              className="md:hidden p-2 text-foreground rounded-lg hover:bg-secondary transition-colors ml-auto z-60"
+              onClick={() => isMobileMenuOpen ? handleCloseMenu() : handleOpenMenu()}
+              aria-label="Toggle menu"
+              data-mobile-menu
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          {/* Backdrop */}
+          <div 
+            className={cn(
+              "absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300",
+              isAnimating ? "opacity-100" : "opacity-0"
+            )}
+            onClick={handleCloseMenu}
+          />
+          
+          {/* Menu Panel */}
+          <div 
+            className={cn(
+              "absolute top-16 right-4 left-4 bg-card rounded-2xl border border-border shadow-2xl overflow-hidden",
+              "transform transition-all duration-300 ease-out",
+              isAnimating 
+                ? "translate-y-0 opacity-100 scale-100" 
+                : "-translate-y-4 opacity-0 scale-95"
+            )}
+            data-mobile-menu
           >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-
-        <div
-          className={cn(
-            "md:hidden overflow-hidden transition-all duration-300",
-            isMobileMenuOpen ? "max-h-64 pb-4" : "max-h-0",
-          )}
-        >
-          <nav className="flex flex-col gap-2 bg-card rounded-2xl p-4 mt-2 border border-border shadow-lg">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-muted-foreground hover:text-primary transition-colors font-medium py-2 px-3 rounded-lg hover:bg-secondary"
-                onClick={() => setIsMobileMenuOpen(false)}
+            <nav className="flex flex-col">
+              {navLinks.map((link, index) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "text-foreground hover:text-primary hover:bg-secondary/50 transition-all font-medium py-4 px-6 border-b border-border/50",
+                    "transform transition-all duration-300 ease-out",
+                    isAnimating 
+                      ? "translate-x-0 opacity-100" 
+                      : "translate-x-4 opacity-0"
+                  )}
+                  style={{ 
+                    transitionDelay: isAnimating ? `${(index + 1) * 100}ms` : '0ms'
+                  }}
+                  onClick={handleCloseMenu}
+                >
+                  {link.label}
+                </a>
+              ))}
+              <div 
+                className={cn(
+                  "p-4 transform transition-all duration-300 ease-out",
+                  isAnimating 
+                    ? "translate-y-0 opacity-100" 
+                    : "translate-y-4 opacity-0"
+                )}
+                style={{ 
+                  transitionDelay: isAnimating ? `${(navLinks.length + 1) * 100}ms` : '0ms'
+                }}
               >
-                {link.label}
-              </a>
-            ))}
-            <Button 
-              asChild 
-              variant="outline"
-              className="border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/50 w-full mt-2"
-            >
-              <a href="#contact">Связаться</a>
-            </Button>
-          </nav>
+                <Button 
+                  asChild 
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                  onClick={handleCloseMenu}
+                >
+                  <a href="#contact">Связаться</a>
+                </Button>
+              </div>
+            </nav>
+          </div>
         </div>
-      </div>
-    </header>
+      )}
+    </>
   )
 }

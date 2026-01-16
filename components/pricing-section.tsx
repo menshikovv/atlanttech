@@ -137,13 +137,26 @@ function AnimatedPrice({
   )
 }
 
+// Создаем общий тип для всех планов
+type PlanType = {
+  name: string
+  price: number
+  currency: string
+  description: string
+  features: string[]
+  icon: any
+  period?: string
+  popular?: boolean
+  pricePrefix?: string
+}
+
 function PricingCard({
   plan,
   index,
   isVisible,
   delayOffset = 0,
 }: {
-  plan: (typeof subscriptions)[0] & { pricePrefix?: string }
+  plan: PlanType
   index: number
   isVisible: boolean
   delayOffset?: number
@@ -380,7 +393,7 @@ export function PricingSection() {
             {customDevelopment.map((plan, index) => (
               <PricingCard
                 key={plan.name}
-                plan={{ ...plan, period: undefined } as (typeof subscriptions)[0] & { pricePrefix?: string }}
+                plan={plan}
                 index={index}
                 isVisible={devHeaderVisible}
                 delayOffset={3}
