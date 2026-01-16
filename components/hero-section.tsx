@@ -151,7 +151,6 @@ export function HeroSection() {
             >
               <div className="relative group">
                 <TwizzLogo className="h-48 w-auto md:h-64 md:w-auto lg:h-80 lg:w-auto animate-float drop-shadow-2xl" />
-                <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full -z-10 group-hover:bg-primary/30 transition-all duration-500" />
               </div>
             </div>
 

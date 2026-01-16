@@ -11,7 +11,7 @@ const prostoOne = Prosto_One({
 })
 
 export const metadata: Metadata = {
-  title: "Scout Scope — ПО для киберспорта",
+  title: "Twizz Project — ПО для киберспорта",
   description:
     "Разработка программного обеспечения для киберспортивных команд. Автоматизация скаутинга, аналитика, дашборды и CRM.",
   keywords: ["киберспорт", "esports", "скаутинг", "аналитика", "CRM", "разработка ПО", "ScoutScope", "PerformanceCoach", "AI", "машинное обучение"],

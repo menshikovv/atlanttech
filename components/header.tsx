@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { TwizzLogo } from "./twizz-logo"
 import { Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -73,11 +74,15 @@ export function Header() {
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 md:h-20">
-            {/* Empty space on left for mobile, desktop nav in center */}
-            <div className="md:hidden"></div>
+            {/* Logo - слева */}
+            <div className="flex items-center">
+              <a href="#" className="flex items-center">
+                <TwizzLogo className="h-8 w-auto md:h-10 md:w-auto" />
+              </a>
+            </div>
             
             {/* Desktop Navigation - по центру */}
-            <nav className="hidden md:flex items-center gap-8 mx-auto">
+            <nav className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
               {navLinks.map((link) => (
                 <a
                   key={link.href}
@@ -99,7 +104,7 @@ export function Header() {
 
             {/* Mobile Menu Button - справа */}
             <button
-              className="md:hidden p-2 text-foreground rounded-lg hover:bg-secondary transition-colors ml-auto z-60"
+              className="md:hidden p-2 text-foreground rounded-lg hover:bg-secondary transition-colors z-60"
               onClick={() => isMobileMenuOpen ? handleCloseMenu() : handleOpenMenu()}
               aria-label="Toggle menu"
               data-mobile-menu

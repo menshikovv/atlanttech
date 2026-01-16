@@ -33,12 +33,6 @@ export function Footer() {
             <div className="mb-4">
               <div className="relative w-fit">
                 <TwizzLogo className="h-16 w-auto md:h-20 md:w-auto relative z-10" />
-                {/* Белая рамка */}
-                <div className="absolute inset-0 border-2 border-white/30 rounded-3xl -z-5" />
-                {/* Голубое свечение */}
-                <div className="absolute inset-0 bg-primary/30 blur-[40px] rounded-3xl -z-10" />
-                {/* Дополнительное внешнее свечение */}
-                <div className="absolute inset-0 bg-primary/20 blur-[80px] rounded-3xl -z-20 scale-150" />
               </div>
             </div>
             <p className="text-muted-foreground max-w-md leading-relaxed mb-6 text-center md:text-left">
