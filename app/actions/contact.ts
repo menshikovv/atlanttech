@@ -8,14 +8,12 @@ interface ContactFormData {
 }
 
 export async function sendContactForm(data: ContactFormData) {
-  // В клиентском коде используем переменные из window
   const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID
   const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID
   const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
 
   console.log('EmailJS Config:', { serviceId, templateId, publicKey: publicKey ? 'SET' : 'NOT SET' })
 
-  // Если EmailJS не настроен, просто логируем данные
   if (!serviceId || !templateId || !publicKey) {
     console.log("Contact form submission:", data)
     console.log("Missing EmailJS config - check environment variables")

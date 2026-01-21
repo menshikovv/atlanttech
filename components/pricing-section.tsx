@@ -137,7 +137,6 @@ function AnimatedPrice({
   )
 }
 
-// Создаем общий тип для всех планов
 type PlanType = {
   name: string
   price: number
@@ -172,7 +171,7 @@ function PricingCard({
           setIsPriceVisible(true)
         }
       },
-      { threshold: 0.5 } // Анимация цены начнется когда цена видна на 50%
+      { threshold: 0.5 }
     )
 
     if (priceRef.current) {
@@ -271,7 +270,7 @@ export function PricingSection() {
           setIsVisible(true)
         }
       },
-      { threshold: 0.3 }, // Увеличил с 0.1 до 0.3 - анимация начнется когда секция видна на 30%
+      { threshold: 0.3 },
     )
 
     const headerObserver = new IntersectionObserver(
@@ -378,7 +377,6 @@ export function PricingSection() {
           </div>
         </div>
 
-        {/* Custom Development */}
         <div>
           <h3
             ref={devHeaderRef}

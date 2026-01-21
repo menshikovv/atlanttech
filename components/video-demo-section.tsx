@@ -17,20 +17,17 @@ export function VideoDemoSection() {
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true)
-          // Автоматически запускаем видео при появлении в области видимости
           if (videoRef.current) {
             videoRef.current.play().catch(() => {
-              // Если автовоспроизведение заблокировано браузером, ничего не делаем
             })
           }
         } else {
-          // Приостанавливаем видео когда секция выходит из области видимости
           if (videoRef.current && !videoRef.current.paused) {
             videoRef.current.pause()
           }
         }
       },
-      { threshold: 0.3 } // Более чувствительный порог для лучшего UX
+      { threshold: 0.3 }
     )
 
     if (sectionRef.current) {
@@ -61,10 +58,8 @@ export function VideoDemoSection() {
 
   return (
     <section ref={sectionRef} className="py-24 md:py-32 relative overflow-hidden">
-      {/* Animated background */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
 
-      {/* Floating elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-32 h-32 bg-primary/10 rounded-full blur-xl animate-pulse" />
         <div className="absolute bottom-20 right-10 w-40 h-40 bg-accent/10 rounded-full blur-xl animate-pulse delay-1000" />
@@ -119,7 +114,6 @@ export function VideoDemoSection() {
             onMouseEnter={() => setShowControls(true)}
             onMouseLeave={() => setShowControls(false)}
           >
-            {/* Glowing border effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary opacity-75 blur-sm group-hover:opacity-100 transition-opacity duration-500" />
 
             <div className="relative bg-background rounded-3xl overflow-hidden">
@@ -136,14 +130,12 @@ export function VideoDemoSection() {
                   Ваш браузер не поддерживает видео.
                 </video>
 
-                {/* Video overlay with controls */}
                 <div
                   className={cn(
                     "absolute inset-0 bg-black/20 flex items-center justify-center transition-all duration-300",
                     showControls || !isPlaying ? "opacity-100" : "opacity-0"
                   )}
                 >
-                  {/* Play/Pause button */}
                   <button
                     onClick={togglePlay}
                     className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-6 rounded-full transition-all duration-300 hover:scale-110"
@@ -156,7 +148,6 @@ export function VideoDemoSection() {
                   </button>
                 </div>
 
-                {/* Control buttons */}
                 <div
                   className={cn(
                     "absolute top-4 right-4 flex gap-2 transition-all duration-300",
@@ -174,7 +165,6 @@ export function VideoDemoSection() {
             </div>
           </div>
 
-          {/* Features highlight */}
           <div
             className={cn(
               "mt-8 grid md:grid-cols-3 gap-6 transition-all duration-1000 delay-700",

@@ -146,7 +146,6 @@ export function FaqSection() {
             ))}
           </Accordion>
 
-          {/* CTA Card */}
           <div className="mt-12 text-center bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 rounded-3xl p-8 border border-primary/10">
             <Sparkles className="h-8 w-8 text-primary mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2 text-foreground">Остались вопросы?</h3>

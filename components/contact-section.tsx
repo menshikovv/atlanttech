@@ -26,7 +26,6 @@ export function ContactSection() {
   const sectionRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
-    // Инициализируем EmailJS
     emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || '')
     
     const observer = new IntersectionObserver(
@@ -77,7 +76,6 @@ export function ContactSection() {
 
   return (
     <section id="contact" ref={sectionRef} className="relative py-16 md:py-20 lg:py-32 overflow-hidden">
-      {/* Background decorations */}
       <div className="absolute inset-0 bg-gradient-to-b from-secondary/30 via-background to-background" />
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] animate-blob" />
       <div
@@ -86,7 +84,6 @@ export function ContactSection() {
       />
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
-        {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-12 md:mb-16">
           <Badge
             variant="secondary"
@@ -117,7 +114,6 @@ export function ContactSection() {
         </div>
 
         <div className="grid lg:grid-cols-5 gap-6 md:gap-8 lg:gap-12 max-w-6xl mx-auto">
-          {/* Contact Info */}
           <div
             className={cn(
               "lg:col-span-2 space-y-4 md:space-y-6 transition-all duration-700 delay-300",
@@ -168,7 +164,6 @@ export function ContactSection() {
               </div>
             </div>
 
-            {/* Stats */}
             <div className="grid grid-cols-2 gap-3 md:gap-4">
               {[
                 { value: "50+", label: "Проектов" },
@@ -186,7 +181,6 @@ export function ContactSection() {
             </div>
           </div>
 
-          {/* Contact Form */}
           <div
             className={cn(
               "lg:col-span-3 transition-all duration-700 delay-400",
@@ -194,7 +188,6 @@ export function ContactSection() {
             )}
           >
             <div className="bg-card rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 border border-border shadow-xl shadow-primary/5 relative overflow-hidden">
-              {/* Decorative gradient */}
               <div className="absolute top-0 right-0 w-32 h-32 md:w-40 md:h-40 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full" />
 
               {isSuccess ? (

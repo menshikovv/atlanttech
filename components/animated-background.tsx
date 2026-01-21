@@ -39,14 +39,13 @@ export function AnimatedBackground() {
         vy: (Math.random() - 0.5) * 0.6,
         size: Math.random() * 4 + 2,
         opacity: Math.random() * 0.3 + 0.2,
-        hue: Math.random() * 30 + 220, // Blue range for light theme
+        hue: Math.random() * 30 + 220,
       })
     }
 
     let animationId: number
 
     const animate = () => {
-      // Светлый фон с легким затемнением для trail эффекта
       ctx.fillStyle = "rgba(255, 255, 255, 0.05)"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
@@ -57,17 +56,14 @@ export function AnimatedBackground() {
         if (p.x < 0 || p.x > canvas.width) p.vx *= -1
         if (p.y < 0 || p.y > canvas.height) p.vy *= -1
 
-        // Draw particle as square with blue tones for light theme
         ctx.fillStyle = `hsla(${p.hue}, 50%, 55%, ${p.opacity})`
         ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size)
 
-        // Add subtle glow to square
         ctx.shadowColor = `hsla(${p.hue}, 50%, 55%, ${p.opacity * 0.3})`
         ctx.shadowBlur = 6
         ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size)
         ctx.shadowBlur = 0
 
-        // Draw connections
         particles.forEach((p2, j) => {
           if (i === j) return
 

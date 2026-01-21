@@ -136,7 +136,6 @@ export function CasesSection() {
     setFullscreenImage({ caseIndex, imageIndex: prevIndex })
   }
 
-  // Обработка клавиш для полноэкранного режима
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!fullscreenImage) return
@@ -178,7 +177,7 @@ export function CasesSection() {
         })
         return newIndex
       })
-    }, 3000) // Смена каждые 3 секунды
+    }, 3000)
 
     return () => clearInterval(interval)
   }, [])
@@ -238,10 +237,9 @@ export function CasesSection() {
                 )}
                 style={{ transitionDelay: `${index * 200}ms` }}
               >
-                {/* Image */}
+
                 <div className={cn("relative rounded-3xl bg-secondary/50 p-6", isReverse && "md:order-2 md:direction-ltr")}>
                   <div className="aspect-[4/3] rounded-2xl overflow-hidden relative bg-background/20">
-                    {/* Изображения */}
                     {caseItem.images.map((image, imgIndex) => {
                       const currentIndex = currentImageIndex[index] || 0
                       const isActive = imgIndex === currentIndex
@@ -254,14 +252,12 @@ export function CasesSection() {
                             isActive ? "opacity-100" : "opacity-0"
                           )}
                         >
-                          {/* Заблюренный фон */}
                           <img
                             src={image || "/placeholder.svg"}
                             alt={`${caseItem.title} - background`}
                             className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 transition-all duration-700"
                           />
 
-                          {/* Основное изображение */}
                           <img
                             src={image || "/placeholder.svg"}
                             alt={`${caseItem.title} - ${imgIndex + 1}`}
@@ -272,10 +268,8 @@ export function CasesSection() {
                       )
                     })}
 
-                    {/* Индикаторы (если больше одного изображения) */}
                     {caseItem.images.length > 1 && (
                       <>
-                        {/* Стрелочки навигации */}
                         <button
                           onClick={() => prevImage(index)}
                           className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-300"
@@ -290,7 +284,6 @@ export function CasesSection() {
                           <ChevronRight className="h-4 w-4" />
                         </button>
 
-                        {/* Индикаторы точек */}
                         <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2 z-20">
                           {caseItem.images.map((_, imgIndex) => {
                             const currentIndex = currentImageIndex[index] || 0
@@ -313,7 +306,6 @@ export function CasesSection() {
                   </div>
                 </div>
 
-                {/* Content */}
                 <div className={cn("space-y-5", isReverse && "md:order-1 md:direction-ltr md:text-right")}>
                   <div className={cn("flex flex-wrap gap-2", isReverse && "md:justify-end")}>
                     {caseItem.tags.map((tag) => (
@@ -356,14 +348,12 @@ export function CasesSection() {
         </div>
       </div>
 
-      {/* Полноэкранное модальное окно */}
       {fullscreenImage && (
         <div
           className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center"
           onClick={closeFullscreen}
         >
           <div className="relative w-full h-full flex items-center justify-center p-4">
-            {/* Кнопка закрытия */}
             <button
               onClick={closeFullscreen}
               className="absolute top-4 right-4 z-60 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all duration-300"
@@ -371,7 +361,6 @@ export function CasesSection() {
               <X className="h-6 w-6" />
             </button>
 
-            {/* Стрелочки навигации */}
             {cases[fullscreenImage.caseIndex].images.length > 1 && (
               <>
                 <button
@@ -396,7 +385,6 @@ export function CasesSection() {
               </>
             )}
 
-            {/* Изображение */}
             <img
               src={cases[fullscreenImage.caseIndex].images[fullscreenImage.imageIndex] || "/placeholder.svg"}
               alt={`${cases[fullscreenImage.caseIndex].title} - ${fullscreenImage.imageIndex + 1}`}
@@ -404,7 +392,6 @@ export function CasesSection() {
               onClick={(e) => e.stopPropagation()}
             />
 
-            {/* Индикаторы внизу */}
             {cases[fullscreenImage.caseIndex].images.length > 1 && (
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-3 z-60">
                 {cases[fullscreenImage.caseIndex].images.map((_, imgIndex) => {
@@ -427,7 +414,6 @@ export function CasesSection() {
               </div>
             )}
 
-            {/* Информация о изображении */}
             <div className="absolute bottom-4 left-4 text-white/80 text-sm">
               {fullscreenImage.imageIndex + 1} / {cases[fullscreenImage.caseIndex].images.length}
             </div>

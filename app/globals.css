@@ -3,7 +3,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Полностью новая светлая бело-синяя тема */
 :root {
   --background: oklch(0.99 0.005 250);
   --foreground: oklch(0.15 0.02 250);
@@ -38,14 +37,12 @@
   --sidebar-accent-foreground: oklch(0.15 0.02 250);
   --sidebar-border: oklch(0.9 0.02 250);
   --sidebar-ring: oklch(0.55 0.22 250);
-  /* Glow colors для синих акцентов */
   --glow-primary: oklch(0.55 0.22 250);
   --glow-accent: oklch(0.6 0.18 220);
   --glow-light: oklch(0.7 0.15 250);
 }
 
 @theme inline {
-  /* Prosto One - современный геометрический шрифт */
   --font-sans: "Prosto One", "Prosto One Fallback", sans-serif, system-ui;
   --font-mono: "Prosto One", "Prosto One Fallback", monospace;
   --color-background: var(--background);
@@ -97,7 +94,6 @@
     font-family: "Prosto One", sans-serif !important;
   }
   
-  /* Применяем Prosto One абсолютно ко всем элементам */
   *, *::before, *::after,
   html, body, div, span, applet, object, iframe,
   h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -115,7 +111,6 @@
     font-family: "Prosto One", sans-serif !important;
   }
   
-  /* Глобальные квадратики на всем сайте */
   body::before {
     content: "";
     position: fixed;
@@ -133,7 +128,6 @@
   }
 }
 
-/* Animations */
 @keyframes float {
   0%,
   100% {
@@ -248,7 +242,6 @@
   background-size: 200% 200%;
 }
 
-/* Glass effect for light theme */
 .glass {
   background: oklch(1 0 0 / 0.7);
   backdrop-filter: blur(20px);
@@ -262,7 +255,6 @@
   box-shadow: 0 4px 30px oklch(0 0 0 / 0.05);
 }
 
-/* Gradient text - синий */
 .gradient-text {
   background: linear-gradient(135deg, oklch(0.55 0.22 250), oklch(0.5 0.2 220), oklch(0.45 0.18 240));
   -webkit-background-clip: text;
@@ -270,7 +262,6 @@
   background-clip: text;
 }
 
-/* Gradient border */
 .gradient-border {
   position: relative;
 }
@@ -297,7 +288,6 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Scrollbar для светлой темы */
 ::-webkit-scrollbar {
   width: 8px;
 }

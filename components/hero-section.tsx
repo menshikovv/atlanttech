@@ -39,7 +39,6 @@ export function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16 md:pt-2">
       <div className="absolute inset-0 overflow-hidden">
-        {/* Animated gradient blobs */}
         <div className="absolute top-20 -left-20 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] animate-blob" />
         <div
           className="absolute bottom-20 -right-20 w-[400px] h-[400px] bg-accent/20 rounded-full blur-[100px] animate-blob"
@@ -47,7 +46,6 @@ export function HeroSection() {
         />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-chart-3/10 rounded-full blur-[120px] animate-pulse-soft" />
 
-        {/* Subtle grid pattern */}
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -56,7 +54,6 @@ export function HeroSection() {
           }}
         />
 
-        {/* Grid pattern квадратики */}
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -68,7 +65,6 @@ export function HeroSection() {
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center max-w-7xl mx-auto">
-          {/* Left side - Text content */}
           <div className="order-2 lg:order-1">
             <div
               className={cn(
@@ -82,9 +78,6 @@ export function HeroSection() {
               </span>
             </div>
 
-            {/* Убираем заголовок, оставляем только логотип */}
-
-            {/* Typewriter Text */}
             <div className="min-h-[2.5rem] md:min-h-[3rem] mb-4">
               <h2 className="text-xl md:text-2xl font-semibold text-foreground">
                 {displayedText}
@@ -141,7 +134,6 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right side - Logo & Stats */}
           <div className="order-1 lg:order-2 flex flex-col items-center">
             <div
               className={cn(
@@ -154,7 +146,6 @@ export function HeroSection() {
               </div>
             </div>
 
-            {/* Stats in bento grid */}
             <div
               className={cn(
                 "grid grid-cols-3 gap-4 w-full max-w-md transition-all duration-700 delay-[900ms]",
@@ -180,7 +171,6 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Scroll indicator - hidden on mobile */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex">
         <a
           href="#cases"

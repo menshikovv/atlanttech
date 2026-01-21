@@ -28,7 +28,6 @@ export function Footer() {
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-12">
-          {/* Logo & Description */}
           <div className="lg:col-span-2 flex flex-col items-center md:items-start">
             <div className="mb-4">
               <div className="relative w-fit">
@@ -61,7 +60,6 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
           <div>
             <h4 className="font-semibold text-foreground mb-4">Навигация</h4>
             <ul className="space-y-3">
@@ -84,7 +82,6 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Contact */}
           <div>
             <h4 className="font-semibold text-foreground mb-4">Контакты</h4>
             <ul className="space-y-3">
@@ -113,7 +110,6 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom */}
         <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">© 2026 Scout Scope. Все права защищены.</p>
           <div className="flex items-center gap-6">
@@ -124,7 +120,6 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Scroll to top button */}
       <button
         onClick={scrollToTop}
         className={cn(
