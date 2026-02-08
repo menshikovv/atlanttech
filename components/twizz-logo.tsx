@@ -9,7 +9,7 @@ export function TwizzLogo({ className }: TwizzLogoProps) {
   return (
     <Image
       src="/logo.svg"
-      alt="Scout Scope Logo"
+      alt="Twizz_Project Logo"
       width={211}
       height={55}
       className={cn("text-primary", className)}

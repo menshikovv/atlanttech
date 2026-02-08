@@ -8,6 +8,12 @@ import { cn } from "@/lib/utils"
 
 export function Footer() {
   const [showScrollTop, setShowScrollTop] = useState(false)
+  const footerStats = [
+    { value: "x5", label: "ускорение процессов" },
+    { value: "10+", label: "выполненных проектов" },
+    { value: "24/7", label: "поддержка" },
+    { value: "с 2024", label: "работаем с командами" },
+  ]
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,6 +44,14 @@ export function Footer() {
               Разработка программного обеспечения для киберспортивных команд. Помогаем автоматизировать скаутинг,
               аналитику и управление командой.
             </p>
+            <div className="grid grid-cols-2 gap-3 mb-6 w-full max-w-md">
+              {footerStats.map((stat) => (
+                <div key={stat.label} className="rounded-xl border border-border bg-card/70 p-3">
+                  <p className="text-base font-bold gradient-text">{stat.value}</p>
+                  <p className="text-xs text-muted-foreground">{stat.label}</p>
+                </div>
+              ))}
+            </div>
             <div className="flex gap-3">
               {[
                 { icon: Send, href: "https://t.me/scout_scope_bot", label: "Telegram" },
@@ -111,10 +125,13 @@ export function Footer() {
         </div>
 
         <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">© 2026 Scout Scope. Все права защищены.</p>
+          <p className="text-sm text-muted-foreground">© 2026 Twizz_Project. Все права защищен.</p>
           <div className="flex items-center gap-6">
-            <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <a href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
               Политика конфиденциальности
+            </a>
+            <a href="/user-agreement" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Пользовательское соглашение
             </a>
           </div>
         </div>

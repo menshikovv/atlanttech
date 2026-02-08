@@ -6,41 +6,51 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { Check, Sparkles, Zap, Crown, Rocket, Building2 } from "lucide-react"
 
+const USD_TO_RUB_RATE = 77.054
+
+const toRubRounded = (usdPrice: number) => Math.round((usdPrice * USD_TO_RUB_RATE) / 100) * 100
+
 const subscriptions = [
   {
     name: "Базовый",
-    price: 15,
-    currency: "$",
-    period: "14 дней",
+    price: 3000,
+    currency: "₽",
+    period: "30 дней",
     description: "Подписка на ScoutScope",
-    features: ["Доступ к ScoutScope", "Базовая аналитика игроков", "До 50 поисков в день", "Email поддержка"],
+    features: [
+      "Актуальные базы данных",
+      "Просмотр возраста игроков",
+      "Просмотр Faceit-профилей",
+      "AI-ассистент для сравнения игроков",
+    ],
     icon: Zap,
     popular: false,
   },
   {
     name: "Улучшенный",
-    price: 15,
-    currency: "$",
+    price: 5000,
+    currency: "₽",
     period: "30 дней",
-    description: "Расширенная подписка на ScoutScope",
+    description: "Подписка на PerformanceCoach CRM",
     features: [
-      "Доступ к ScoutScope",
-      "Расширенная аналитика",
-      "Безлимитные поиски",
+      "Доступ к PerformanceCoach CRM",
+      "Управление составом и ролями",
+      "Дашборды по тренировкам",
       "Приоритетная поддержка",
-      "API доступ",
+      "Экспорт отчетов",
     ],
     icon: Sparkles,
     popular: true,
   },
   {
     name: "Продвинутый",
-    price: 20,
-    currency: "$",
+    price: 9000,
+    currency: "₽",
     period: "30 дней",
     description: "ScoutScope + PerformanceCoach CRM",
     features: [
       "Всё из Улучшенного",
+      "Доступ к ScoutScope",
       "PerformanceCoach CRM",
       "Командные дашборды",
       "Интеграции с платформами",

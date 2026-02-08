@@ -153,7 +153,7 @@ export function HeroSection() {
               )}
             >
               {[
-                { value: "5x", label: "Ускорение" },
+                { value: "x5", label: "Ускорение" },
                 { value: "10+", label: "Проектов" },
                 { value: "24/7", label: "Поддержка" },
               ].map((stat, index) => (
