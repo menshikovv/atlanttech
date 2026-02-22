@@ -5,13 +5,15 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { Search, Bot, BarChart3, TrendingUp, ChevronLeft, ChevronRight, X } from "lucide-react"
 
+const CASE_SLIDE_INTERVAL_MS = 3000
+
 const cases = [
   {
     title: "ScoutScope",
     description: "Платформа для автоматизированного скаутинга игроков",
     problem: "Ручной поиск талантов занимал дни работы скаутов",
     solution: "AI-система анализа матчей и рейтингов с автоматическими рекомендациями",
-    result: "5x ускорение процесса скаутинга",
+    result: "x5 ускорение процесса скаутинга",
     icon: Search,
     tags: ["AI", "Аналитика", "Скаутинг"],
     images: [
@@ -21,19 +23,6 @@ const cases = [
       "https://storage.yandexcloud.net/file-talentio/scout4.png"
     ],
     color: "from-blue-500 to-cyan-500",
-  },
-  {
-    title: "CIS FINDER BOT",
-    description: "Telegram-бот для поиска игроков в СНГ регионе",
-    problem: "Сложность коммуникации со скаутами разных команд",
-    solution: "Единая платформа с интеграцией FaceIT API и уведомлениями",
-    result: "300+ активных пользователей за месяц",
-    icon: Bot,
-    tags: ["Telegram", "FaceIT", "Боты"],
-    images: [
-      "https://storage.yandexcloud.net/file-talentio/bot.jpg",
-    ],
-    color: "from-indigo-500 to-blue-500",
   },
   {
     title: "PerformanceCoach CRM",
@@ -52,6 +41,19 @@ const cases = [
       "https://storage.yandexcloud.net/file-talentio/CRm6.png",
     ],
     color: "from-blue-600 to-indigo-600",
+  },
+  {
+    title: "CIS FINDER BOT",
+    description: "Telegram-бот для поиска игроков в СНГ регионе",
+    problem: "Сложность коммуникации со скаутами разных команд",
+    solution: "Единая платформа с интеграцией FaceIT API и уведомлениями",
+    result: "300+ активных пользователей за месяц",
+    icon: Bot,
+    tags: ["Telegram", "FaceIT", "Боты"],
+    images: [
+      "https://storage.yandexcloud.net/file-talentio/bot.jpg",
+    ],
+    color: "from-indigo-500 to-blue-500",
   },
 ]
 
@@ -177,7 +179,7 @@ export function CasesSection() {
         })
         return newIndex
       })
-    }, 3000)
+    }, CASE_SLIDE_INTERVAL_MS)
 
     return () => clearInterval(interval)
   }, [])
@@ -248,20 +250,20 @@ export function CasesSection() {
                         <div
                           key={imgIndex}
                           className={cn(
-                            "absolute inset-0 transition-all duration-700",
+                            "absolute inset-0 transition-all duration-1000",
                             isActive ? "opacity-100" : "opacity-0"
                           )}
                         >
                           <img
                             src={image || "/placeholder.svg"}
                             alt={`${caseItem.title} - background`}
-                            className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 transition-all duration-700"
+                            className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 transition-all duration-1000"
                           />
 
                           <img
                             src={image || "/placeholder.svg"}
                             alt={`${caseItem.title} - ${imgIndex + 1}`}
-                            className="absolute inset-0 w-full h-full object-contain transition-all duration-700 z-10 cursor-pointer"
+                            className="absolute inset-0 w-full h-full object-contain transition-all duration-1000 z-10 cursor-pointer"
                             onClick={() => openFullscreen(index, imgIndex)}
                           />
                         </div>

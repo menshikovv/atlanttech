@@ -166,7 +166,7 @@ export function ContactSection() {
 
             <div className="grid grid-cols-2 gap-3 md:gap-4">
               {[
-                { value: "50+", label: "Проектов" },
+                { value: "10+", label: "Проектов" },
                 { value: "24/7", label: "Поддержка" },
               ].map((stat, i) => (
                 <div
@@ -292,11 +292,16 @@ export function ContactSection() {
                     )}
                   </Button>
 
-                  <p className="text-xs text-center text-muted-foreground px-2">
-                    Нажимая кнопку, вы соглашаетесь с{" "}
-                    <a href="#" className="text-primary hover:underline">
-                      политикой конфиденциальности
+                  <p className="text-xs text-center text-muted-foreground px-2 leading-relaxed">
+                    Нажимая кнопку, вы принимаете{" "}
+                    <a href="/user-agreement" className="text-primary hover:underline">
+                      Пользовательское соглашение
+                    </a>{" "}
+                    и соглашаетесь с{" "}
+                    <a href="/privacy-policy" className="text-primary hover:underline">
+                      Политикой конфиденциальности
                     </a>
+                    .
                   </p>
                 </form>
               )}

@@ -33,13 +33,13 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'ru_RU',
     url: 'https://twizz-project.ru',
-    siteName: 'Scout Scope',
-    title: 'Scout Scope — ПО для киберспорта',
+    siteName: 'Twizz_Project',
+    title: 'Twizz_Project — ПО для киберспорта',
     description: 'Разработка программного обеспечения для киберспортивных команд. Автоматизация скаутинга, аналитика, дашборды и CRM.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Scout Scope — ПО для киберспорта',
+    title: 'Twizz_Project — ПО для киберспорта',
     description: 'Разработка программного обеспечения для киберспортивных команд. Автоматизация скаутинга, аналитика, дашборды и CRM.',
     images: ['/og-image.jpg'],
   },
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   },
   manifest: '/site.webmanifest',
   alternates: {
-    canonical: 'https://twizz.ru',
+    canonical: 'https://twizz-project.ru',
   },
   category: 'technology',
 }
