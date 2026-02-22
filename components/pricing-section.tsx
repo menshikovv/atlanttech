@@ -6,89 +6,88 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { Check, Sparkles, Zap, Crown, Rocket, Building2 } from "lucide-react"
 
+// Курсы валют (можно вынести в отдельный файл или получать с API)
+const EXCHANGE_RATES = {
+  USD_TO_RUB: 95, // примерный курс
+}
+
+type Currency = 'USD' | 'RUB'
+
 const subscriptions = [
   {
-    name: "Базовый",
-    price: 15,
+    name: "Academy Starter",
+    price: 249,
     currency: "$",
-    period: "14 дней",
-    description: "Подписка на ScoutScope",
-    features: ["Доступ к ScoutScope", "Базовая аналитика игроков", "До 50 поисков в день", "Email поддержка"],
+    period: "месяц",
+    description: "Базовый пакет для академий",
+    features: [
+      "До 5 пользователей",
+      "Общий доступ к базе кандидатов",
+      "Scouting pipeline (New → Watching → Shortlist → Trial → Signed)",
+      "База кандидатов с историей просмотров",
+      "Карточка игрока (метрики + заметки)",
+      "Сравнение кандидатов (до 3 одновременно)",
+      "Статистика по матчам / performance snapshot",
+      "История изменений статуса кандидата",
+      "Экспорт PDF/Excel для менеджмента",
+      "Шаблон отчёта \"Почему мы берём этого игрока\"",
+      "Email поддержка",
+      "База знаний"
+    ],
     icon: Zap,
     popular: false,
   },
   {
-    name: "Улучшенный",
-    price: 15,
+    name: "Academy Pro",
+    price: 399,
     currency: "$",
-    period: "30 дней",
-    description: "Расширенная подписка на ScoutScope",
+    period: "месяц",
+    description: "Расширенный пакет с системой принятия решений",
     features: [
-      "Доступ к ScoutScope",
-      "Расширенная аналитика",
-      "Безлимитные поиски",
-      "Приоритетная поддержка",
-      "API доступ",
+      "Включает всё из Starter",
+      "До 10 пользователей",
+      "Роли и доступы: Coach / Scout / Analyst / Manager",
+      "История действий и комментариев",
+      "Decision Card: структурированная оценка по критериям",
+      "Weighted scoring (веса критериев под вашу модель)",
+      "Сравнение кандидатов без лимита",
+      "Trial evaluation: форма оценки после просмотра демо / теста",
+      "Воронка кандидатов по стадиям",
+      "Отчёт по активности скаутинга",
+      "Monthly Scouting Report",
+      "Брендированный экспорт отчётов (PDF/Excel)",
+      "1 onboarding-call (60 мин)",
+      "Настройка критериев оценки и pipeline",
+      "Приоритетная поддержка"
     ],
     icon: Sparkles,
     popular: true,
   },
   {
-    name: "Продвинутый",
-    price: 20,
+    name: "Organization / Multi-team",
+    price: 549,
+    pricePrefix: "от",
     currency: "$",
-    period: "30 дней",
-    description: "ScoutScope + PerformanceCoach CRM",
+    period: "месяц",
+    description: "Корпоративное решение для организаций",
     features: [
-      "Всё из Улучшенного",
-      "PerformanceCoach CRM",
-      "Командные дашборды",
-      "Интеграции с платформами",
-      "Выделенный менеджер",
+      "Включает всё из Pro",
+      "Неограниченные пользователи",
+      "Несколько ростеров (Academy / Main / Youth)",
+      "Разделение по командам + общая база кандидатов",
+      "Доступы по ростерам",
+      "Кастомные критерии и поля под организацию",
+      "Шаблоны ролей (IGL / Entry / Support)",
+      "История решений: \"когда/почему отклонили/подписали\"",
+      "Org dashboard: состояние пайплайна по всем ростерам",
+      "Сводка по эффективности скаутинга",
+      "Отчёт для Head of Esports / GM",
+      "2 onboarding-сессии (штаб + менеджмент)",
+      "Выделенный контакт",
+      "Приоритетная поддержка"
     ],
     icon: Crown,
     popular: false,
-  },
-]
-
-const customDevelopment = [
-  {
-    name: "Старт",
-    price: 50000,
-    currency: "₽",
-    description: "Для небольших проектов",
-    features: ["MVP разработка", "До 3 интеграций", "1 месяц поддержки", "Базовая документация"],
-    icon: Rocket,
-  },
-  {
-    name: "Про",
-    price: 150000,
-    currency: "₽",
-    description: "Для растущих команд",
-    features: [
-      "Полный функционал",
-      "До 10 интеграций",
-      "3 месяца поддержки",
-      "Полная документация",
-      "Обучение команды",
-    ],
-    icon: Sparkles,
-    popular: true,
-  },
-  {
-    name: "Enterprise",
-    price: 300000,
-    pricePrefix: "от",
-    currency: "₽",
-    description: "Индивидуальные решения",
-    features: [
-      "Кастомная архитектура",
-      "Безлимит интеграций",
-      "12 месяцев поддержки",
-      "SLA гарантии",
-      "Выделенная команда",
-    ],
-    icon: Building2,
   },
 ]
 
@@ -97,26 +96,35 @@ function AnimatedPrice({
   currency,
   isVisible,
   prefix,
+  selectedCurrency,
 }: {
   price: number
   currency: string
   isVisible: boolean
   prefix?: string
+  selectedCurrency: Currency
 }) {
   const [displayPrice, setDisplayPrice] = useState(0)
+
+  // Конвертируем цену в зависимости от выбранной валюты
+  const convertedPrice = selectedCurrency === 'RUB' && currency === '$'
+    ? Math.round(price * EXCHANGE_RATES.USD_TO_RUB)
+    : price
+
+  const displayCurrency = selectedCurrency === 'RUB' ? '₽' : '$'
 
   useEffect(() => {
     if (!isVisible) return
 
     const duration = 1500
     const steps = 60
-    const increment = price / steps
+    const increment = convertedPrice / steps
     let current = 0
 
     const timer = setInterval(() => {
       current += increment
-      if (current >= price) {
-        setDisplayPrice(price)
+      if (current >= convertedPrice) {
+        setDisplayPrice(convertedPrice)
         clearInterval(timer)
       } else {
         setDisplayPrice(Math.floor(current))
@@ -124,7 +132,7 @@ function AnimatedPrice({
     }, duration / steps)
 
     return () => clearInterval(timer)
-  }, [isVisible, price])
+  }, [isVisible, convertedPrice])
 
   const formattedPrice = displayPrice.toLocaleString("ru-RU")
 
@@ -132,7 +140,7 @@ function AnimatedPrice({
     <span className="text-4xl md:text-5xl font-bold text-foreground">
       {prefix && <span className="text-lg text-muted-foreground mr-1">{prefix}</span>}
       {formattedPrice}
-      <span className="text-lg text-muted-foreground ml-1">{currency}</span>
+      <span className="text-lg text-muted-foreground ml-1">{displayCurrency}</span>
     </span>
   )
 }
@@ -154,11 +162,13 @@ function PricingCard({
   index,
   isVisible,
   delayOffset = 0,
+  selectedCurrency,
 }: {
   plan: PlanType
   index: number
   isVisible: boolean
   delayOffset?: number
+  selectedCurrency: Currency
 }) {
   const [isPriceVisible, setIsPriceVisible] = useState(false)
   const priceRef = useRef<HTMLDivElement>(null)
@@ -184,7 +194,7 @@ function PricingCard({
   return (
     <div
       className={cn(
-        "relative group rounded-3xl transition-all duration-700 hover:-translate-y-2",
+        "relative group rounded-3xl transition-all duration-700 hover:-translate-y-2 w-full",
         plan.popular && "z-10",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
       )}
@@ -206,31 +216,35 @@ function PricingCard({
           </Badge>
         )}
 
-        <div className="text-center mb-6 min-h-[120px] flex flex-col justify-between">
-          <div>
-            <div className="relative mx-auto mb-4 w-fit">
-              <div className={cn("p-4 rounded-2xl transition-colors", plan.popular ? "bg-primary/10" : "bg-secondary")}>
-                <Icon className={cn("h-8 w-8", plan.popular ? "text-primary" : "text-muted-foreground")} />
-              </div>
+        <div className="text-center mb-8">
+          <div className="relative mx-auto mb-6 w-fit">
+            <div className={cn("p-4 rounded-2xl transition-colors", plan.popular ? "bg-primary/10" : "bg-secondary")}>
+              <Icon className={cn("h-8 w-8", plan.popular ? "text-primary" : "text-muted-foreground")} />
             </div>
-
-            <h3 className="text-xl font-bold mb-1 text-foreground">{plan.name}</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">{plan.description}</p>
           </div>
+
+          <h3 className="text-xl font-bold mb-3 text-foreground">{plan.name}</h3>
+          <p className="text-muted-foreground text-sm leading-relaxed">{plan.description}</p>
         </div>
 
-        <div ref={priceRef} className="text-center mb-6">
-          <AnimatedPrice price={plan.price} currency={plan.currency} isVisible={isPriceVisible} prefix={plan.pricePrefix} />
-          <p className="text-sm text-muted-foreground mt-1">{plan.period || "единоразово"}</p>
+        <div ref={priceRef} className="text-center mb-8">
+          <AnimatedPrice
+            price={plan.price}
+            currency={plan.currency}
+            isVisible={isPriceVisible}
+            prefix={plan.pricePrefix}
+            selectedCurrency={selectedCurrency}
+          />
+          <p className="text-sm text-muted-foreground mt-2">{plan.period || "единоразово"}</p>
         </div>
 
-        <ul className="space-y-3 mb-6 flex-grow">
-          {plan.features.map((feature) => (
-            <li key={feature} className="flex items-center gap-3 text-sm">
-              <div className={cn("p-0.5 rounded-full", plan.popular ? "bg-primary/20" : "bg-secondary")}>
+        <ul className="space-y-4 mb-8 flex-grow">
+          {plan.features.map((feature, featureIndex) => (
+            <li key={feature} className="flex items-start gap-3 text-sm">
+              <div className={cn("p-0.5 rounded-full mt-1 flex-shrink-0", plan.popular ? "bg-primary/20" : "bg-secondary")}>
                 <Check className={cn("h-3 w-3", plan.popular ? "text-primary" : "text-muted-foreground")} />
               </div>
-              <span className="text-muted-foreground">{feature}</span>
+              <span className="text-muted-foreground leading-relaxed">{feature}</span>
             </li>
           ))}
         </ul>
@@ -257,11 +271,10 @@ export function PricingSection() {
   const [isVisible, setIsVisible] = useState(false)
   const [headerVisible, setHeaderVisible] = useState(false)
   const [subsHeaderVisible, setSubsHeaderVisible] = useState(false)
-  const [devHeaderVisible, setDevHeaderVisible] = useState(false)
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency>('USD')
   const sectionRef = useRef<HTMLElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
   const subsHeaderRef = useRef<HTMLHeadingElement>(null)
-  const devHeaderRef = useRef<HTMLHeadingElement>(null)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -291,25 +304,14 @@ export function PricingSection() {
       { threshold: 0.5 },
     )
 
-    const devObserver = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setDevHeaderVisible(true)
-        }
-      },
-      { threshold: 0.5 },
-    )
-
     if (sectionRef.current) observer.observe(sectionRef.current)
     if (headerRef.current) headerObserver.observe(headerRef.current)
     if (subsHeaderRef.current) subsObserver.observe(subsHeaderRef.current)
-    if (devHeaderRef.current) devObserver.observe(devHeaderRef.current)
 
     return () => {
       observer.disconnect()
       headerObserver.disconnect()
       subsObserver.disconnect()
-      devObserver.disconnect()
     }
   }, [])
 
@@ -351,6 +353,39 @@ export function PricingSection() {
           >
             Выберите подходящий тариф или закажите разработку под ваши задачи
           </p>
+
+          {/* Currency Switcher */}
+          <div
+            className={cn(
+              "flex justify-center mt-8 transition-all duration-700 delay-400",
+              headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
+            )}
+          >
+            <div className="flex bg-secondary rounded-lg p-1">
+              <button
+                onClick={() => setSelectedCurrency('USD')}
+                className={cn(
+                  "px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
+                  selectedCurrency === 'USD'
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                USD ($)
+              </button>
+              <button
+                onClick={() => setSelectedCurrency('RUB')}
+                className={cn(
+                  "px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
+                  selectedCurrency === 'RUB'
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                RUB (₽)
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Subscriptions */}
@@ -367,35 +402,14 @@ export function PricingSection() {
           </h3>
           <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
             {subscriptions.map((plan, index) => (
-              <PricingCard
-                key={plan.name}
-                plan={{ ...plan, period: plan.period }}
-                index={index}
-                isVisible={subsHeaderVisible}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <h3
-            ref={devHeaderRef}
-            className={cn(
-              "text-2xl font-semibold mb-10 text-center transition-all duration-700",
-              devHeaderVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
-            )}
-          >
-            <span className="text-muted-foreground">Разработка</span> <span className="text-primary">под вас</span>
-          </h3>
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
-            {customDevelopment.map((plan, index) => (
-              <PricingCard
-                key={plan.name}
-                plan={plan}
-                index={index}
-                isVisible={devHeaderVisible}
-                delayOffset={3}
-              />
+              <div key={plan.name} className="h-[1100px]">
+                <PricingCard
+                  plan={{ ...plan, period: plan.period }}
+                  index={index}
+                  isVisible={subsHeaderVisible}
+                  selectedCurrency={selectedCurrency}
+                />
+              </div>
             ))}
           </div>
         </div>
