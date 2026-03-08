@@ -11,13 +11,13 @@ const prostoOne = Prosto_One({
 })
 
 export const metadata: Metadata = {
-  title: "Twizz Project — ПО для киберспорта",
+  title: "Atlant Technology — ПО для киберспорта",
   description:
     "Разработка программного обеспечения для киберспортивных команд. Автоматизация скаутинга, аналитика, дашборды и CRM.",
   keywords: ["киберспорт", "esports", "скаутинг", "аналитика", "CRM", "разработка ПО", "ScoutScope", "PerformanceCoach", "AI", "машинное обучение"],
-  authors: [{ name: "Twizz" }],
-  creator: "Twizz",
-  publisher: "Twizz",
+  authors: [{ name: "Atlant Technology" }],
+  creator: "Atlant Technology",
+  publisher: "Atlant Technology",
   robots: {
     index: true,
     follow: true,
@@ -33,13 +33,13 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'ru_RU',
     url: 'https://twizz-project.ru',
-    siteName: 'Twizz_Project',
-    title: 'Twizz_Project — ПО для киберспорта',
+    siteName: 'Atlant Technology',
+    title: 'Atlant Technology — ПО для киберспорта',
     description: 'Разработка программного обеспечения для киберспортивных команд. Автоматизация скаутинга, аналитика, дашборды и CRM.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Twizz_Project — ПО для киберспорта',
+    title: 'Atlant Technology — ПО для киберспорта',
     description: 'Разработка программного обеспечения для киберспортивных команд. Автоматизация скаутинга, аналитика, дашборды и CRM.',
     images: ['/og-image.jpg'],
   },

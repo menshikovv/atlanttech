@@ -1,416 +1,415 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { Check, Sparkles, Zap, Crown, Rocket, Building2 } from "lucide-react"
+import { ArrowUpRight, Check, Minus, Sparkles } from "lucide-react"
 
-// Курсы валют (можно вынести в отдельный файл или получать с API)
-const EXCHANGE_RATES = {
-  USD_TO_RUB: 95, // примерный курс
+type PlanKey = "solo-crm" | "crm" | "scout-basic" | "scout-pro" | "bundle"
+
+type Plan = {
+  key: PlanKey
+  product: string
+  name: string
+  titleLines: string[]
+  subtitle: string
+  priceRub: number
+  priceUsd: number
+  popular?: boolean
 }
 
-type Currency = 'USD' | 'RUB'
+type FeatureRow = {
+  title: string
+  description: string
+  cells: Record<PlanKey, boolean | string>
+}
 
-const subscriptions = [
+const plans: Plan[] = [
   {
-    name: "Academy Starter",
-    price: 249,
-    currency: "$",
-    period: "месяц",
-    description: "Базовый пакет для академий",
-    features: [
-      "До 5 пользователей",
-      "Общий доступ к базе кандидатов",
-      "Scouting pipeline (New → Watching → Shortlist → Trial → Signed)",
-      "База кандидатов с историей просмотров",
-      "Карточка игрока (метрики + заметки)",
-      "Сравнение кандидатов (до 3 одновременно)",
-      "Статистика по матчам / performance snapshot",
-      "История изменений статуса кандидата",
-      "Экспорт PDF/Excel для менеджмента",
-      "Шаблон отчёта \"Почему мы берём этого игрока\"",
-      "Email поддержка",
-      "База знаний"
-    ],
-    icon: Zap,
-    popular: false,
+    key: "solo-crm",
+    product: "PerformanceCoach CRM",
+    name: "Solo CRM",
+    titleLines: ["Solo CRM"],
+    subtitle: "Индивидуальная версия",
+    priceRub: 1945,
+    priceUsd: 25,
   },
   {
-    name: "Academy Pro",
-    price: 399,
-    currency: "$",
-    period: "месяц",
-    description: "Расширенный пакет с системой принятия решений",
-    features: [
-      "Включает всё из Starter",
-      "До 10 пользователей",
-      "Роли и доступы: Coach / Scout / Analyst / Manager",
-      "История действий и комментариев",
-      "Decision Card: структурированная оценка по критериям",
-      "Weighted scoring (веса критериев под вашу модель)",
-      "Сравнение кандидатов без лимита",
-      "Trial evaluation: форма оценки после просмотра демо / теста",
-      "Воронка кандидатов по стадиям",
-      "Отчёт по активности скаутинга",
-      "Monthly Scouting Report",
-      "Брендированный экспорт отчётов (PDF/Excel)",
-      "1 onboarding-call (60 мин)",
-      "Настройка критериев оценки и pipeline",
-      "Приоритетная поддержка"
-    ],
-    icon: Sparkles,
+    key: "crm",
+    product: "PerformanceCoach CRM",
+    name: "PerformanceCoach CRM",
+    titleLines: ["PerformanceCoach", "CRM"],
+    subtitle: "Командная подписка",
+    priceRub: 23262,
+    priceUsd: 299,
+  },
+  {
+    key: "scout-basic",
+    product: "ScoutScope",
+    name: "ScoutScope Basic",
+    titleLines: ["ScoutScope", "Basic"],
+    subtitle: "Стандартная версия",
+    priceRub: 23655,
+    priceUsd: 249,
+  },
+  {
+    key: "scout-pro",
+    product: "ScoutScope",
+    name: "ScoutScope Pro",
+    titleLines: ["ScoutScope", "Pro"],
+    subtitle: "Расширенная версия",
+    priceRub: 37905,
+    priceUsd: 399,
     popular: true,
   },
   {
-    name: "Organization / Multi-team",
-    price: 549,
-    pricePrefix: "от",
-    currency: "$",
-    period: "месяц",
-    description: "Корпоративное решение для организаций",
-    features: [
-      "Включает всё из Pro",
-      "Неограниченные пользователи",
-      "Несколько ростеров (Academy / Main / Youth)",
-      "Разделение по командам + общая база кандидатов",
-      "Доступы по ростерам",
-      "Кастомные критерии и поля под организацию",
-      "Шаблоны ролей (IGL / Entry / Support)",
-      "История решений: \"когда/почему отклонили/подписали\"",
-      "Org dashboard: состояние пайплайна по всем ростерам",
-      "Сводка по эффективности скаутинга",
-      "Отчёт для Head of Esports / GM",
-      "2 onboarding-сессии (штаб + менеджмент)",
-      "Выделенный контакт",
-      "Приоритетная поддержка"
-    ],
-    icon: Crown,
-    popular: false,
+    key: "bundle",
+    product: "Bundle",
+    name: "CRM + ScoutScope Pro",
+    titleLines: ["CRM +", "ScoutScope", "Pro"],
+    subtitle: "Комплексное решение",
+    priceRub: 52155,
+    priceUsd: 549,
   },
 ]
 
-function AnimatedPrice({
-  price,
-  currency,
-  isVisible,
-  prefix,
-  selectedCurrency,
-}: {
-  price: number
-  currency: string
-  isVisible: boolean
-  prefix?: string
-  selectedCurrency: Currency
-}) {
-  const [displayPrice, setDisplayPrice] = useState(0)
+const featureRows: FeatureRow[] = [
+  {
+    title: "Scouting pipeline",
+    description: "Воронка кандидатов от первого просмотра до подписания.",
+    cells: {
+      "solo-crm": false,
+      crm: false,
+      "scout-basic": true,
+      "scout-pro": true,
+      bundle: true,
+    },
+  },
+  {
+    title: "База кандидатов с историей просмотров",
+    description: "Единая база игроков и фиксация всех предыдущих оценок.",
+    cells: {
+      "solo-crm": false,
+      crm: false,
+      "scout-basic": true,
+      "scout-pro": true,
+      bundle: true,
+    },
+  },
+  {
+    title: "Карточка игрока",
+    description: "Метрики, заметки, статус, контекст и история по каждому кандидату.",
+    cells: {
+      "solo-crm": false,
+      crm: false,
+      "scout-basic": true,
+      "scout-pro": true,
+      bundle: true,
+    },
+  },
+  {
+    title: "Сравнение кандидатов",
+    description: "Сколько игроков можно сопоставлять одновременно внутри scouting flow.",
+    cells: {
+      "solo-crm": false,
+      crm: false,
+      "scout-basic": "до 3",
+      "scout-pro": "без лимита",
+      bundle: "без лимита",
+    },
+  },
+  {
+    title: "Decision Card и weighted scoring",
+    description: "Структурированная оценка по критериям и весам вашей модели.",
+    cells: {
+      "solo-crm": false,
+      crm: false,
+      "scout-basic": false,
+      "scout-pro": true,
+      bundle: true,
+    },
+  },
+  {
+    title: "Trial evaluation",
+    description: "Форма оценки игрока после демо, теста или просмотра trial.",
+    cells: {
+      "solo-crm": false,
+      crm: false,
+      "scout-basic": false,
+      "scout-pro": true,
+      bundle: true,
+    },
+  },
+  {
+    title: "Monthly scouting report",
+    description: "Ежемесячный отчет по пайплайну и активности scouting-команды.",
+    cells: {
+      "solo-crm": false,
+      crm: false,
+      "scout-basic": false,
+      "scout-pro": true,
+      bundle: true,
+    },
+  },
+  {
+    title: "Управление составом и ролями",
+    description: "Ростер, роли, статусы игроков и рабочий контур coaching staff.",
+    cells: {
+      "solo-crm": "1 пользователь",
+      crm: true,
+      "scout-basic": false,
+      "scout-pro": false,
+      bundle: true,
+    },
+  },
+  {
+    title: "Дневник тренировок и performance-заметки",
+    description: "Записи по сессиям, комментарии, статусы и контекст по тренировочному процессу.",
+    cells: {
+      "solo-crm": true,
+      crm: true,
+      "scout-basic": false,
+      "scout-pro": false,
+      bundle: true,
+    },
+  },
+  {
+    title: "Дашборды по прогрессу и нагрузке",
+    description: "Визуализация динамики, трекинг показателей и сводка для тренерского штаба.",
+    cells: {
+      "solo-crm": "мини",
+      crm: true,
+      "scout-basic": false,
+      "scout-pro": false,
+      bundle: true,
+    },
+  },
+  {
+    title: "Экспорт отчетов",
+    description: "Выгрузка данных для менеджмента, штаба и внутренней отчетности.",
+    cells: {
+      "solo-crm": "заметки",
+      crm: true,
+      "scout-basic": true,
+      "scout-pro": true,
+      bundle: true,
+    },
+  },
+  {
+    title: "Единый контур scouting + CRM",
+    description: "Связка решений для организации, где scouting и coaching работают в одном процессе.",
+    cells: {
+      "solo-crm": false,
+      crm: false,
+      "scout-basic": false,
+      "scout-pro": false,
+      bundle: true,
+    },
+  },
+]
 
-  // Конвертируем цену в зависимости от выбранной валюты
-  const convertedPrice = selectedCurrency === 'RUB' && currency === '$'
-    ? Math.round(price * EXCHANGE_RATES.USD_TO_RUB)
-    : price
-
-  const displayCurrency = selectedCurrency === 'RUB' ? '₽' : '$'
-
-  useEffect(() => {
-    if (!isVisible) return
-
-    const duration = 1500
-    const steps = 60
-    const increment = convertedPrice / steps
-    let current = 0
-
-    const timer = setInterval(() => {
-      current += increment
-      if (current >= convertedPrice) {
-        setDisplayPrice(convertedPrice)
-        clearInterval(timer)
-      } else {
-        setDisplayPrice(Math.floor(current))
-      }
-    }, duration / steps)
-
-    return () => clearInterval(timer)
-  }, [isVisible, convertedPrice])
-
-  const formattedPrice = displayPrice.toLocaleString("ru-RU")
-
-  return (
-    <span className="text-4xl md:text-5xl font-bold text-foreground">
-      {prefix && <span className="text-lg text-muted-foreground mr-1">{prefix}</span>}
-      {formattedPrice}
-      <span className="text-lg text-muted-foreground ml-1">{displayCurrency}</span>
-    </span>
-  )
-}
-
-type PlanType = {
-  name: string
-  price: number
-  currency: string
-  description: string
-  features: string[]
-  icon: any
-  period?: string
-  popular?: boolean
-  pricePrefix?: string
-}
-
-function PricingCard({
-  plan,
-  index,
-  isVisible,
-  delayOffset = 0,
-  selectedCurrency,
-}: {
-  plan: PlanType
-  index: number
-  isVisible: boolean
-  delayOffset?: number
-  selectedCurrency: Currency
-}) {
-  const [isPriceVisible, setIsPriceVisible] = useState(false)
-  const priceRef = useRef<HTMLDivElement>(null)
-  const Icon = plan.icon
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsPriceVisible(true)
-        }
-      },
-      { threshold: 0.5 }
-    )
-
-    if (priceRef.current) {
-      observer.observe(priceRef.current)
-    }
-
-    return () => observer.disconnect()
-  }, [])
-
-  return (
-    <div
-      className={cn(
-        "relative group rounded-3xl transition-all duration-700 hover:-translate-y-2 w-full",
-        plan.popular && "z-10",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
-      )}
-      style={{ transitionDelay: `${(index + delayOffset) * 150}ms` }}
-    >
-      {plan.popular && (
-        <div className="absolute -inset-[2px] rounded-3xl bg-gradient-to-r from-primary via-accent to-primary opacity-50 blur-sm group-hover:opacity-75 transition-opacity" />
-      )}
-
-      <div
-        className={cn(
-          "relative h-full bg-card rounded-3xl p-6 border transition-all duration-300 shadow-sm hover:shadow-xl flex flex-col",
-          plan.popular ? "border-primary/30" : "border-border hover:border-primary/20",
-        )}
-      >
-        {plan.popular && (
-          <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground shadow-lg shadow-primary/30 animate-pulse">
-            Рекомендуем
-          </Badge>
-        )}
-
-        <div className="text-center mb-8">
-          <div className="relative mx-auto mb-6 w-fit">
-            <div className={cn("p-4 rounded-2xl transition-colors", plan.popular ? "bg-primary/10" : "bg-secondary")}>
-              <Icon className={cn("h-8 w-8", plan.popular ? "text-primary" : "text-muted-foreground")} />
-            </div>
-          </div>
-
-          <h3 className="text-xl font-bold mb-3 text-foreground">{plan.name}</h3>
-          <p className="text-muted-foreground text-sm leading-relaxed">{plan.description}</p>
-        </div>
-
-        <div ref={priceRef} className="text-center mb-8">
-          <AnimatedPrice
-            price={plan.price}
-            currency={plan.currency}
-            isVisible={isPriceVisible}
-            prefix={plan.pricePrefix}
-            selectedCurrency={selectedCurrency}
-          />
-          <p className="text-sm text-muted-foreground mt-2">{plan.period || "единоразово"}</p>
-        </div>
-
-        <ul className="space-y-4 mb-8 flex-grow">
-          {plan.features.map((feature, featureIndex) => (
-            <li key={feature} className="flex items-start gap-3 text-sm">
-              <div className={cn("p-0.5 rounded-full mt-1 flex-shrink-0", plan.popular ? "bg-primary/20" : "bg-secondary")}>
-                <Check className={cn("h-3 w-3", plan.popular ? "text-primary" : "text-muted-foreground")} />
-              </div>
-              <span className="text-muted-foreground leading-relaxed">{feature}</span>
-            </li>
-          ))}
-        </ul>
-
-        <div className="mt-auto">
-          <Button
-            className={cn(
-              "w-full rounded-xl",
-              plan.popular
-                ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
-                : "bg-secondary hover:bg-secondary/80 text-foreground",
-            )}
-            asChild
-          >
-            <a href="#contact">{plan.pricePrefix ? "Обсудить" : "Оформить"}</a>
-          </Button>
-        </div>
+function PricingCell({ value }: { value: boolean | string }) {
+  if (value === true) {
+    return (
+      <div className="flex items-center justify-center">
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary shadow-sm shadow-primary/10">
+          <Check className="h-4 w-4" />
+        </span>
       </div>
+    )
+  }
+
+  if (value === false) {
+    return (
+      <div className="flex items-center justify-center">
+        <span className="text-muted-foreground/60">
+          <Minus className="h-4 w-4" />
+        </span>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex items-center justify-center">
+      <span className="rounded-full border border-primary/20 bg-primary/8 px-3 py-1 text-xs font-medium text-primary">
+        {value}
+      </span>
     </div>
   )
 }
 
 export function PricingSection() {
-  const [isVisible, setIsVisible] = useState(false)
   const [headerVisible, setHeaderVisible] = useState(false)
-  const [subsHeaderVisible, setSubsHeaderVisible] = useState(false)
-  const [selectedCurrency, setSelectedCurrency] = useState<Currency>('USD')
-  const sectionRef = useRef<HTMLElement>(null)
+  const [tableVisible, setTableVisible] = useState(false)
   const headerRef = useRef<HTMLDivElement>(null)
-  const subsHeaderRef = useRef<HTMLHeadingElement>(null)
+  const tableRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.3 },
-    )
-
     const headerObserver = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setHeaderVisible(true)
-        }
+        if (entry.isIntersecting) setHeaderVisible(true)
       },
       { threshold: 0.3 },
     )
 
-    const subsObserver = new IntersectionObserver(
+    const tableObserver = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setSubsHeaderVisible(true)
-        }
+        if (entry.isIntersecting) setTableVisible(true)
       },
-      { threshold: 0.5 },
+      { threshold: 0.15 },
     )
 
-    if (sectionRef.current) observer.observe(sectionRef.current)
     if (headerRef.current) headerObserver.observe(headerRef.current)
-    if (subsHeaderRef.current) subsObserver.observe(subsHeaderRef.current)
+    if (tableRef.current) tableObserver.observe(tableRef.current)
 
     return () => {
-      observer.disconnect()
       headerObserver.disconnect()
-      subsObserver.disconnect()
+      tableObserver.disconnect()
     }
   }, [])
 
   return (
-    <section id="pricing" ref={sectionRef} className="py-24 md:py-32 relative overflow-hidden">
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[150px]" />
-      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[150px]" />
+    <section id="pricing" className="relative overflow-hidden py-24 md:py-32">
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/20 to-background" />
+      <div className="absolute top-10 left-1/4 h-[420px] w-[420px] rounded-full bg-primary/10 blur-[150px]" />
+      <div className="absolute right-0 bottom-10 h-[360px] w-[360px] rounded-full bg-accent/10 blur-[170px]" />
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container relative z-10 mx-auto px-4">
         <div
           ref={headerRef}
           className={cn(
-            "text-center mb-16 transition-all duration-700",
-            headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
+            "mx-auto mb-14 max-w-4xl text-center transition-all duration-700",
+            headerVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0",
           )}
         >
           <Badge
             variant="outline"
             className={cn(
-              "mb-4 border-primary/30 text-primary bg-primary/5 transition-all duration-500 delay-100",
-              headerVisible ? "opacity-100 scale-100" : "opacity-0 scale-90",
+              "mb-4 border-primary/30 bg-primary/5 text-primary transition-all duration-500 delay-100",
+              headerVisible ? "scale-100 opacity-100" : "scale-90 opacity-0",
             )}
           >
             Тарифы
           </Badge>
           <h2
             className={cn(
-              "text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-balance transition-all duration-700 delay-200",
-              headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
+              "mb-4 text-3xl font-bold text-balance text-foreground transition-all duration-700 delay-200 md:text-4xl lg:text-5xl",
+              headerVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
             )}
           >
-            <span className="gradient-text">Наш прайс-лист</span>
+            Тарифы в формате <span className="gradient-text">сравнительной таблицы</span>
           </h2>
           <p
             className={cn(
-              "text-muted-foreground text-lg max-w-2xl mx-auto text-pretty transition-all duration-700 delay-300",
-              headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
+              "mx-auto max-w-3xl text-lg text-muted-foreground transition-all duration-700 delay-300",
+              headerVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
             )}
           >
-            Выберите подходящий тариф или закажите разработку под ваши задачи
+            Теперь блок читается как у продуктовых SaaS-сервисов: слева функции, справа конкретные тарифы и сразу
+            видно, что входит в каждый продукт.
           </p>
-
-          {/* Currency Switcher */}
-          <div
-            className={cn(
-              "flex justify-center mt-8 transition-all duration-700 delay-400",
-              headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
-            )}
-          >
-            <div className="flex bg-secondary rounded-lg p-1">
-              <button
-                onClick={() => setSelectedCurrency('USD')}
-                className={cn(
-                  "px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
-                  selectedCurrency === 'USD'
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                USD ($)
-              </button>
-              <button
-                onClick={() => setSelectedCurrency('RUB')}
-                className={cn(
-                  "px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
-                  selectedCurrency === 'RUB'
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                RUB (₽)
-              </button>
-            </div>
-          </div>
         </div>
 
-        {/* Subscriptions */}
-        <div className="mb-24">
-          <h3
-            ref={subsHeaderRef}
-            className={cn(
-              "text-2xl font-semibold mb-10 text-center transition-all duration-700",
-              subsHeaderVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
-            )}
-          >
-            <span className="text-muted-foreground">Подписки на</span>{" "}
-            <span className="text-primary">наши программы</span>
-          </h3>
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
-            {subscriptions.map((plan, index) => (
-              <div key={plan.name} className="h-[1100px]">
-                <PricingCard
-                  plan={{ ...plan, period: plan.period }}
-                  index={index}
-                  isVisible={subsHeaderVisible}
-                  selectedCurrency={selectedCurrency}
-                />
-              </div>
-            ))}
+        <div
+          ref={tableRef}
+          className={cn(
+            "overflow-hidden rounded-[2rem] border border-border/80 bg-card/90 shadow-xl shadow-primary/5 backdrop-blur-sm transition-all duration-700",
+            tableVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0",
+          )}
+        >
+          <div className="overflow-x-auto xl:overflow-visible">
+            <table className="w-full table-fixed border-separate border-spacing-0">
+              <colgroup>
+                <col className="w-[24%]" />
+                {plans.map((plan) => (
+                  <col key={plan.key} className="w-[15.2%]" />
+                ))}
+              </colgroup>
+
+              <thead>
+                <tr>
+                  <th className="sticky left-0 z-20 border-r border-b border-border/70 bg-card/95 p-5 text-left align-top backdrop-blur-sm xl:p-6">
+                    <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Функции</p>
+                    <h3 className="mt-3 text-2xl font-bold text-foreground xl:text-3xl">Что входит</h3>
+                    <p className="mt-3 text-xs leading-relaxed text-muted-foreground xl:text-sm">
+                      Сравните ScoutScope и PerformanceCoach CRM по функциям, а не только по цене.
+                    </p>
+                  </th>
+
+                  {plans.map((plan) => (
+                    <th
+                      key={plan.key}
+                      className={cn(
+                        "border-r border-b border-border/70 p-4 text-center align-top last:border-r-0 xl:p-5",
+                        plan.popular && "bg-primary/[0.06]",
+                      )}
+                    >
+                      {plan.popular && (
+                        <Badge className="mb-3 border-0 bg-primary px-2 py-1 text-[11px] text-primary-foreground shadow-lg shadow-primary/25 xl:mb-4">
+                          <Sparkles className="mr-1 h-3.5 w-3.5" />
+                          Рекомендуем
+                        </Badge>
+                      )}
+                      {!plan.popular && <div className="mb-6 h-6" />}
+                      <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground xl:text-[11px]">{plan.product}</p>
+                      <h4 className="mt-3 text-base font-bold leading-[1.02] text-foreground xl:text-[1.15rem]">
+                        {plan.titleLines.map((line) => (
+                          <span key={line} className="block">
+                            {line}
+                          </span>
+                        ))}
+                      </h4>
+                      <p className="mt-3 text-[11px] leading-snug text-muted-foreground xl:text-xs">{plan.subtitle}</p>
+                      <div className="mt-5 xl:mt-6">
+                        <p className="text-xl font-bold text-foreground xl:text-[1.9rem]">{plan.priceRub.toLocaleString("ru-RU")} ₽</p>
+                        <p className="mt-2 text-xs font-medium text-primary xl:text-sm">${plan.priceUsd} / мес.</p>
+                      </div>
+                      <Button
+                        asChild
+                        size="sm"
+                        className={cn(
+                          "mt-5 rounded-lg px-3 text-sm xl:mt-6",
+                          plan.popular
+                            ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                            : "bg-secondary text-foreground hover:bg-secondary/80",
+                        )}
+                      >
+                        <a href="#contact">
+                          Демо
+                          <ArrowUpRight className="ml-1 h-4 w-4" />
+                        </a>
+                      </Button>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+
+              <tbody>
+                {featureRows.map((row, index) => (
+                  <tr key={row.title} className={cn(index % 2 === 0 ? "bg-secondary/25" : "bg-transparent")}>
+                    <td className="sticky left-0 z-10 border-r border-b border-border/70 bg-inherit p-4 align-top backdrop-blur-sm xl:p-5">
+                      <h5 className="text-sm font-semibold text-foreground xl:text-base">{row.title}</h5>
+                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground xl:text-sm">{row.description}</p>
+                    </td>
+
+                    {plans.map((plan) => (
+                      <td
+                        key={`${row.title}-${plan.key}`}
+                        className={cn(
+                          "border-r border-b border-border/70 p-3 align-middle last:border-r-0 xl:p-4",
+                          plan.popular && "bg-primary/[0.03]",
+                        )}
+                      >
+                        <div className="flex min-h-[92px] items-center justify-center xl:min-h-[104px]">
+                          <PricingCell value={row.cells[plan.key]} />
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

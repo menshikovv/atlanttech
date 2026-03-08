@@ -1,19 +1,23 @@
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 
-interface TwizzLogoProps {
+interface AtlantLogoProps {
   className?: string
+  variant?: "full" | "icon"
 }
 
-export function TwizzLogo({ className }: TwizzLogoProps) {
+export function AtlantLogo({ className, variant = "full" }: AtlantLogoProps) {
   return (
     <Image
-      src="/logo.svg"
-      alt="Twizz_Project Logo"
-      width={211}
-      height={55}
-      className={cn("text-primary", className)}
+      src={variant === "full" ? "/atlant-logo.png" : "/atlant-icon.png"}
+      alt="Atlant Technology Logo"
+      width={variant === "full" ? 211 : 100}
+      height={variant === "full" ? 211 : 100}
+      className={cn(className)}
       priority
     />
   )
 }
+
+// Backward compatibility
+export const TwizzLogo = AtlantLogo

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { TwizzLogo } from "./twizz-logo"
+import { AtlantLogo } from "./twizz-logo"
 import { ArrowUp, Mail, Send, Github, Twitter } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -37,7 +37,7 @@ export function Footer() {
           <div className="lg:col-span-2 flex flex-col items-center md:items-start">
             <div className="mb-4">
               <div className="relative w-fit">
-                <TwizzLogo className="h-16 w-auto md:h-20 md:w-auto relative z-10" />
+                <AtlantLogo className="h-16 w-auto md:h-20 md:w-auto relative z-10" />
               </div>
             </div>
             <p className="text-muted-foreground max-w-md leading-relaxed mb-6 text-center md:text-left">
@@ -125,7 +125,7 @@ export function Footer() {
         </div>
 
         <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">© 2026 Twizz_Project. Все права защищен.</p>
+          <p className="text-sm text-muted-foreground">© 2026 Atlant Technology. Все права защищены.</p>
           <div className="flex items-center gap-6">
             <a href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
               Политика конфиденциальности
