@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
-import { ArrowUpRight, Check, Minus, Sparkles } from "lucide-react"
+import { ArrowUpRight, Check, Minus, Sparkles, ShoppingCart } from "lucide-react"
 
 type PlanKey = "solo-crm" | "crm" | "scout-basic" | "scout-pro" | "bundle"
 
@@ -15,6 +16,7 @@ type Plan = {
   titleLines: string[]
   subtitle: string
   priceRub: number
+  oldPriceRub: number
   priceUsd: number
   popular?: boolean
 }
@@ -32,7 +34,8 @@ const plans: Plan[] = [
     name: "Solo CRM",
     titleLines: ["Solo CRM"],
     subtitle: "Индивидуальная версия",
-    priceRub: 1945,
+    priceRub: 1990,
+    oldPriceRub: 2590,
     priceUsd: 25,
   },
   {
@@ -41,7 +44,8 @@ const plans: Plan[] = [
     name: "PerformanceCoach CRM",
     titleLines: ["PerformanceCoach", "CRM"],
     subtitle: "Командная подписка",
-    priceRub: 23262,
+    priceRub: 23300,
+    oldPriceRub: 30900,
     priceUsd: 299,
   },
   {
@@ -50,8 +54,9 @@ const plans: Plan[] = [
     name: "ScoutScope Basic",
     titleLines: ["ScoutScope", "Basic"],
     subtitle: "Стандартная версия",
-    priceRub: 23655,
-    priceUsd: 249,
+    priceRub: 23700,
+    oldPriceRub: 31500,
+    priceUsd: 250,
   },
   {
     key: "scout-pro",
@@ -59,7 +64,8 @@ const plans: Plan[] = [
     name: "ScoutScope Pro",
     titleLines: ["ScoutScope", "Pro"],
     subtitle: "Расширенная версия",
-    priceRub: 37905,
+    priceRub: 37900,
+    oldPriceRub: 49900,
     priceUsd: 399,
     popular: true,
   },
@@ -69,8 +75,9 @@ const plans: Plan[] = [
     name: "CRM + ScoutScope Pro",
     titleLines: ["CRM +", "ScoutScope", "Pro"],
     subtitle: "Комплексное решение",
-    priceRub: 52155,
-    priceUsd: 549,
+    priceRub: 52200,
+    oldPriceRub: 69900,
+    priceUsd: 550,
   },
 ]
 
@@ -239,9 +246,17 @@ function PricingCell({ value }: { value: boolean | string }) {
   )
 }
 
+const periods = [
+  { label: "1 месяц", months: 1, discount: 0 },
+  { label: "3 месяца", months: 3, discount: 0.1 },
+  { label: "6 месяцев", months: 6, discount: 0.2 },
+]
+
 export function PricingSection() {
   const [headerVisible, setHeaderVisible] = useState(false)
   const [tableVisible, setTableVisible] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null)
+  const [selectedPeriod, setSelectedPeriod] = useState(0)
   const headerRef = useRef<HTMLDivElement>(null)
   const tableRef = useRef<HTMLDivElement>(null)
 
@@ -306,8 +321,8 @@ export function PricingSection() {
               headerVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
             )}
           >
-            Теперь блок читается как у продуктовых SaaS-сервисов: слева функции, справа конкретные тарифы и сразу
-            видно, что входит в каждый продукт.
+            Выберите подходящий инструмент — ScoutScope для скаутинга или PerformanceCoach CRM для работы с командой.
+            Или возьмите оба в связке и закройте весь операционный цикл организации.
           </p>
         </div>
 
@@ -362,12 +377,13 @@ export function PricingSection() {
                       </h4>
                       <p className="mt-3 text-[11px] leading-snug text-muted-foreground xl:text-xs">{plan.subtitle}</p>
                       <div className="mt-5 xl:mt-6">
+                        <p className="text-xs text-muted-foreground/60 line-through">{plan.oldPriceRub.toLocaleString("ru-RU")} ₽</p>
                         <p className="text-xl font-bold text-foreground xl:text-[1.9rem]">{plan.priceRub.toLocaleString("ru-RU")} ₽</p>
                         <p className="mt-2 text-xs font-medium text-primary xl:text-sm">${plan.priceUsd} / мес.</p>
                       </div>
                       <Button
-                        asChild
                         size="sm"
+                        onClick={() => { setSelectedPlan(plan); setSelectedPeriod(0) }}
                         className={cn(
                           "mt-5 rounded-lg px-3 text-sm xl:mt-6",
                           plan.popular
@@ -375,10 +391,8 @@ export function PricingSection() {
                             : "bg-secondary text-foreground hover:bg-secondary/80",
                         )}
                       >
-                        <a href="#contact">
-                          Демо
-                          <ArrowUpRight className="ml-1 h-4 w-4" />
-                        </a>
+                        <ShoppingCart className="mr-1 h-4 w-4" />
+                        Купить
                       </Button>
                     </th>
                   ))}
@@ -413,6 +427,69 @@ export function PricingSection() {
           </div>
         </div>
       </div>
+
+      <Dialog open={!!selectedPlan} onOpenChange={(open) => !open && setSelectedPlan(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl">
+              {selectedPlan?.name}
+            </DialogTitle>
+            <p className="text-sm text-muted-foreground">{selectedPlan?.subtitle}</p>
+          </DialogHeader>
+
+          <div className="mt-2 space-y-3">
+            {periods.map((period, i) => {
+              if (!selectedPlan) return null
+              const total = Math.round(selectedPlan.priceRub * period.months * (1 - period.discount))
+              const oldTotal = selectedPlan.oldPriceRub * period.months
+              const perMonth = Math.round(total / period.months)
+              return (
+                <button
+                  key={i}
+                  onClick={() => setSelectedPeriod(i)}
+                  className={cn(
+                    "w-full rounded-xl border p-4 text-left transition-all",
+                    selectedPeriod === i
+                      ? "border-primary bg-primary/8 ring-1 ring-primary/30"
+                      : "border-border bg-card hover:border-primary/40",
+                  )}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-foreground">{period.label}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {perMonth.toLocaleString("ru-RU")} ₽ / мес.
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-muted-foreground/60 line-through">{oldTotal.toLocaleString("ru-RU")} ₽</p>
+                      <p className="text-lg font-bold text-foreground">{total.toLocaleString("ru-RU")} ₽</p>
+                      {period.discount > 0 && (
+                        <Badge variant="outline" className="mt-1 border-primary/30 bg-primary/5 text-primary text-[10px]">
+                          −{period.discount * 100}%
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+
+          <Button
+            asChild
+            className="mt-4 w-full bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <a href="https://t.me/atlant_tech_bot" target="_blank" rel="noopener noreferrer">
+              Оформить через Telegram
+              <ArrowUpRight className="ml-1 h-4 w-4" />
+            </a>
+          </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            Наш менеджер свяжется и поможет с подключением
+          </p>
+        </DialogContent>
+      </Dialog>
     </section>
   )
 }

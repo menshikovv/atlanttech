@@ -127,8 +127,8 @@ export default function PrivacyPolicyPage() {
                 projecttwizz54@gmail.com
               </a>
               {" "}или{" "}
-              <a className="text-primary hover:underline" href="https://t.me/tw1zzzzz" target="_blank" rel="noopener noreferrer">
-                @tw1zzzzz
+              <a className="text-primary hover:underline" href="https://t.me/atlant_tech_bot" target="_blank" rel="noopener noreferrer">
+                @atlant_tech_bot
               </a>
               .
             </p>

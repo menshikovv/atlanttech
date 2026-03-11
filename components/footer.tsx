@@ -54,10 +54,8 @@ export function Footer() {
             </div>
             <div className="flex gap-3">
               {[
-                { icon: Send, href: "https://t.me/scout_scope_bot", label: "Telegram" },
-                { icon: Mail, href: "mailto:contact@scout-scope.com", label: "Email" },
-                { icon: Twitter, href: "#", label: "Twitter" },
-                { icon: Github, href: "#", label: "GitHub" },
+                { icon: Send, href: "https://t.me/atlant_tech_bot", label: "Telegram" },
+                { icon: Mail, href: "mailto:projecttwizz54@gmail.com", label: "Email" },
               ].map((social) => (
                 <Button
                   key={social.label}
@@ -101,13 +99,13 @@ export function Footer() {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="https://t.me/tw1zzzzz"
+                  href="https://t.me/atlant_tech_bot"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
                 >
                   <Send className="h-4 w-4" />
-                  @tw1zzzzz
+                  @atlant_tech_bot
                 </a>
               </li>
               <li>
@@ -117,7 +115,6 @@ export function Footer() {
                 >
                   <Mail className="h-4 w-4" />
                   projecttwizz54@gmail.com
-
                 </a>
               </li>
             </ul>
@@ -126,15 +123,30 @@ export function Footer() {
 
         <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">© 2026 Atlant Technology. Все права защищены.</p>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 justify-center md:justify-end">
             <a href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
               Политика конфиденциальности
             </a>
             <a href="/user-agreement" className="text-sm text-muted-foreground hover:text-primary transition-colors">
               Пользовательское соглашение
             </a>
+            <a href="/oferta" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Публичная оферта
+            </a>
+            <a href="/refund-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Правила возврата
+            </a>
+            <a href="/personal-data-consent" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Согласие на ОПД
+            </a>
           </div>
         </div>
+      </div>
+
+      <div className="w-full bg-secondary/30 border-t border-border py-2 mt-8">
+        <p className="text-center text-xs text-muted-foreground/60">
+          ИП Горбунцов Даниил Олегович &nbsp;·&nbsp; ОГРНИП 325619600167854 &nbsp;·&nbsp; ИНН 410116292857
+        </p>
       </div>
 
       <button

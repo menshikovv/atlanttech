@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ru_RU',
-    url: 'https://twizz-project.ru',
+    url: 'https://atlanttech.pro',
     siteName: 'Atlant Technology',
     title: 'Atlant Technology — ПО для киберспорта',
     description: 'Разработка программного обеспечения для киберспортивных команд. Автоматизация скаутинга, аналитика, дашборды и CRM.',
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   },
   manifest: '/site.webmanifest',
   alternates: {
-    canonical: 'https://twizz-project.ru',
+    canonical: 'https://atlanttech.pro',
   },
   category: 'technology',
 }

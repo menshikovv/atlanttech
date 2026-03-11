@@ -133,8 +133,8 @@ export default function UserAgreementPage() {
               <li>
                 Telegram:
                 {" "}
-                <a className="text-primary hover:underline" href="https://t.me/tw1zzzzz" target="_blank" rel="noopener noreferrer">
-                  @tw1zzzzz
+                <a className="text-primary hover:underline" href="https://t.me/atlant_tech_bot" target="_blank" rel="noopener noreferrer">
+                  @atlant_tech_bot
                 </a>
               </li>
             </ul>
