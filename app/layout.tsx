@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Prosto_One } from "next/font/google"
 import { GoogleAnalytics } from "@/components/google-analytics"
 import { AnimatedBackground } from "@/components/animated-background"
+import { CookieConsent } from "@/components/cookie-consent"
 import "./globals.css"
 
 const prostoOne = Prosto_One({
@@ -65,6 +66,7 @@ export default function RootLayout({
       <body className={`${prostoOne.className} antialiased`}>
         <AnimatedBackground />
         {children}
+        <CookieConsent />
         <GoogleAnalytics />
       </body>
     </html>
