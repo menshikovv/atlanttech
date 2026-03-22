@@ -1,8 +1,8 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Prosto_One } from "next/font/google"
-import { GoogleAnalytics } from "@/components/google-analytics"
 import { AnimatedBackground } from "@/components/animated-background"
+import { YandexMetrica } from "@/components/yandex-metrica"
 import "./globals.css"
 
 const prostoOne = Prosto_One({
@@ -65,7 +65,7 @@ export default function RootLayout({
       <body className={`${prostoOne.className} antialiased`}>
         <AnimatedBackground />
         {children}
-        <GoogleAnalytics />
+        <YandexMetrica />
       </body>
     </html>
   )
