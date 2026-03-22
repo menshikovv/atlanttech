@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Пользовательское соглашение | Twizz_Project",
-  description: "Пользовательское соглашение сайта Twizz_Project.",
+  title: "Пользовательское соглашение | Atlant Technology",
+  description: "Пользовательское соглашение сайта Atlant Technology.",
 }
 
 export default function UserAgreementPage() {
@@ -17,7 +17,7 @@ export default function UserAgreementPage() {
             <h2 className="text-xl font-semibold">1. Общие положения</h2>
             <p>
               Настоящее Пользовательское соглашение (далее — Соглашение) регулирует отношения между
-              Twizz_Project (далее — Администрация) и пользователем сайта Twizz_Project (далее — Пользователь)
+              Atlant Technology (далее — Администрация) и пользователем сайта Atlant Technology (далее — Пользователь)
               при использовании сайта и его функционала.
             </p>
             <p>
@@ -133,8 +133,8 @@ export default function UserAgreementPage() {
               <li>
                 Telegram:
                 {" "}
-                <a className="text-primary hover:underline" href="https://t.me/tw1zzzzz" target="_blank" rel="noopener noreferrer">
-                  @tw1zzzzz
+                <a className="text-primary hover:underline" href="https://t.me/atlant_tech_bot" target="_blank" rel="noopener noreferrer">
+                  @atlant_tech_bot
                 </a>
               </li>
             </ul>

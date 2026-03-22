@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Prosto_One } from "next/font/google"
 import { AnimatedBackground } from "@/components/animated-background"
 import { YandexMetrica } from "@/components/yandex-metrica"
+import { CookieConsent } from "@/components/cookie-consent"
 import "./globals.css"
 
 const prostoOne = Prosto_One({
@@ -11,13 +12,13 @@ const prostoOne = Prosto_One({
 })
 
 export const metadata: Metadata = {
-  title: "Twizz Project — ПО для киберспорта",
+  title: "Atlant Technology — ПО для киберспорта",
   description:
     "Разработка программного обеспечения для киберспортивных команд. Автоматизация скаутинга, аналитика, дашборды и CRM.",
   keywords: ["киберспорт", "esports", "скаутинг", "аналитика", "CRM", "разработка ПО", "ScoutScope", "PerformanceCoach", "AI", "машинное обучение"],
-  authors: [{ name: "Twizz" }],
-  creator: "Twizz",
-  publisher: "Twizz",
+  authors: [{ name: "Atlant Technology" }],
+  creator: "Atlant Technology",
+  publisher: "Atlant Technology",
   robots: {
     index: true,
     follow: true,
@@ -32,14 +33,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ru_RU',
-    url: 'https://twizz-project.ru',
-    siteName: 'Twizz_Project',
-    title: 'Twizz_Project — ПО для киберспорта',
+    url: 'https://atlanttech.pro',
+    siteName: 'Atlant Technology',
+    title: 'Atlant Technology — ПО для киберспорта',
     description: 'Разработка программного обеспечения для киберспортивных команд. Автоматизация скаутинга, аналитика, дашборды и CRM.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Twizz_Project — ПО для киберспорта',
+    title: 'Atlant Technology — ПО для киберспорта',
     description: 'Разработка программного обеспечения для киберспортивных команд. Автоматизация скаутинга, аналитика, дашборды и CRM.',
     images: ['/og-image.jpg'],
   },
@@ -50,7 +51,7 @@ export const metadata: Metadata = {
   },
   manifest: '/site.webmanifest',
   alternates: {
-    canonical: 'https://twizz-project.ru',
+    canonical: 'https://atlanttech.pro',
   },
   category: 'technology',
 }
@@ -66,6 +67,7 @@ export default function RootLayout({
         <AnimatedBackground />
         {children}
         <YandexMetrica />
+        <CookieConsent />
       </body>
     </html>
   )

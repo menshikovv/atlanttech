@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { TwizzLogo } from "./twizz-logo"
+import { AtlantLogo } from "./twizz-logo"
 import { Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -73,7 +73,7 @@ export function Header() {
           <div className="flex items-center justify-between h-16 md:h-20">
             <div className="flex items-center">
               <a href="#" className="flex items-center">
-                <TwizzLogo className="h-8 w-auto md:h-10 md:w-auto" />
+                <AtlantLogo variant="icon" className="h-8 w-auto md:h-10 md:w-auto" />
               </a>
             </div>
             

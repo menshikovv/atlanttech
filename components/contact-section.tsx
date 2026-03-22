@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Send, Mail, User, MessageSquare, CheckCircle2, Loader2, Sparkles, ArrowRight } from "lucide-react"
+import { Send, Mail, User, MessageSquare, CheckCircle2, Loader2, Sparkles, ArrowRight, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { sendContactForm } from "@/app/actions/contact"
 import emailjs from '@emailjs/browser'
@@ -17,6 +17,7 @@ export function ContactSection() {
   const [isVisible, setIsVisible] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [consent, setConsent] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -125,7 +126,7 @@ export function ContactSection() {
 
               <div className="space-y-3 md:space-y-4">
                 <a
-                  href="https://t.me/tw1zzzzz"
+                  href="https://t.me/atlant_tech_bot"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl md:rounded-2xl bg-secondary/50 hover:bg-primary/10 border border-transparent hover:border-primary/20 transition-all group"
@@ -135,7 +136,7 @@ export function ContactSection() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-sm md:text-base">Telegram</p>
-                    <p className="text-xs md:text-sm text-muted-foreground truncate">@tw1zzzzz</p>
+                    <p className="text-xs md:text-sm text-muted-foreground truncate">@atlant_tech_bot</p>
                   </div>
                   <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
                 </a>
@@ -273,11 +274,42 @@ export function ContactSection() {
                     />
                   </div>
 
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <button
+                      type="button"
+                      role="checkbox"
+                      aria-checked={consent}
+                      onClick={() => setConsent(!consent)}
+                      className={cn(
+                        "mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all",
+                        consent
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-secondary/50 group-hover:border-primary/50",
+                      )}
+                    >
+                      {consent && <Check className="h-3 w-3" />}
+                    </button>
+                    <span className="text-xs text-muted-foreground leading-relaxed">
+                      Я соглашаюсь на обработку{" "}
+                      <a href="/personal-data-consent" className="text-primary hover:underline">
+                        персональных данных
+                      </a>
+                      , принимаю{" "}
+                      <a href="/user-agreement" className="text-primary hover:underline">
+                        Пользовательское соглашение
+                      </a>{" "}
+                      и{" "}
+                      <a href="/privacy-policy" className="text-primary hover:underline">
+                        Политику конфиденциальности
+                      </a>
+                    </span>
+                  </label>
+
                   <Button
                     type="submit"
                     size="lg"
-                    disabled={isSubmitting}
-                    className="w-full h-12 md:h-14 rounded-xl text-base md:text-lg font-medium bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all shadow-lg shadow-primary/30 hover:shadow-primary/50"
+                    disabled={isSubmitting || !consent}
+                    className="w-full h-12 md:h-14 rounded-xl text-base md:text-lg font-medium bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all shadow-lg shadow-primary/30 hover:shadow-primary/50 disabled:opacity-50"
                   >
                     {isSubmitting ? (
                       <>
@@ -291,18 +323,6 @@ export function ContactSection() {
                       </>
                     )}
                   </Button>
-
-                  <p className="text-xs text-center text-muted-foreground px-2 leading-relaxed">
-                    Нажимая кнопку, вы принимаете{" "}
-                    <a href="/user-agreement" className="text-primary hover:underline">
-                      Пользовательское соглашение
-                    </a>{" "}
-                    и соглашаетесь с{" "}
-                    <a href="/privacy-policy" className="text-primary hover:underline">
-                      Политикой конфиденциальности
-                    </a>
-                    .
-                  </p>
                 </form>
               )}
             </div>

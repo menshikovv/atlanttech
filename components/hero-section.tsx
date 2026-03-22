@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { TwizzLogo } from "./twizz-logo"
+import { AtlantLogo } from "./twizz-logo"
 import { ChevronRight, Sparkles, Zap, ArrowDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -142,7 +142,7 @@ export function HeroSection() {
               )}
             >
               <div className="relative group">
-                <TwizzLogo className="h-48 w-auto md:h-64 md:w-auto lg:h-80 lg:w-auto animate-float drop-shadow-2xl" />
+                <AtlantLogo className="h-48 w-auto md:h-64 md:w-auto lg:h-80 lg:w-auto animate-float drop-shadow-2xl" />
               </div>
             </div>
 

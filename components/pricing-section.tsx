@@ -1,415 +1,416 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { Check, Sparkles, Zap, Crown, Rocket, Building2 } from "lucide-react"
+import { ArrowRight, Check, Sparkles, BarChart3, Target, Trophy, Settings2, Shield, Layers } from "lucide-react"
 
-// Курсы валют (можно вынести в отдельный файл или получать с API)
-const EXCHANGE_RATES = {
-  USD_TO_RUB: 95, // примерный курс
+/* ─────────────────── Data ─────────────────── */
+
+type Period = { label: string; months: 1 | 3 | 6; discount: number }
+const periods: Period[] = [
+  { label: "1 мес.", months: 1, discount: 0 },
+  { label: "3 мес.", months: 3, discount: 0.1 },
+  { label: "6 мес.", months: 6, discount: 0.15 },
+]
+
+type TeamPlan = {
+  tag: string
+  name: string
+  description: string
+  priceRub: number
+  priceUsd: number
+  features: string[]
+  popular?: boolean
+  icon: React.ReactNode
 }
 
-type Currency = 'USD' | 'RUB'
-
-const subscriptions = [
+const teamPlans: TeamPlan[] = [
   {
-    name: "Academy Starter",
-    price: 249,
-    currency: "$",
-    period: "месяц",
-    description: "Базовый пакет для академий",
-    features: [
-      "До 5 пользователей",
-      "Общий доступ к базе кандидатов",
-      "Scouting pipeline (New → Watching → Shortlist → Trial → Signed)",
-      "База кандидатов с историей просмотров",
-      "Карточка игрока (метрики + заметки)",
-      "Сравнение кандидатов (до 3 одновременно)",
-      "Статистика по матчам / performance snapshot",
-      "История изменений статуса кандидата",
-      "Экспорт PDF/Excel для менеджмента",
-      "Шаблон отчёта \"Почему мы берём этого игрока\"",
-      "Email поддержка",
-      "База знаний"
-    ],
-    icon: Zap,
-    popular: false,
+    tag: "КОМАНДНАЯ ПОДПИСКА",
+    name: "PerformanceCoach CRM",
+    description: "Полная версия CRM для команды: управление игроками, процессами и ежедневной коммуникацией штаба.",
+    priceRub: 23900,
+    priceUsd: 299,
+    icon: <Settings2 className="h-6 w-6 text-primary" />,
+    features: ["Командный доступ", "Рабочие процессы штаба", "Расширенная CRM-логика"],
   },
   {
-    name: "Academy Pro",
-    price: 399,
-    currency: "$",
-    period: "месяц",
-    description: "Расширенный пакет с системой принятия решений",
+    tag: "СТАНДАРТНАЯ ВЕРСИЯ",
+    name: "ScoutScope Basic",
+    description: "Базовая scouting-система для структурного поиска кандидатов и ведения общей базы просмотров.",
+    priceRub: 19990,
+    priceUsd: 250,
+    icon: <Target className="h-6 w-6 text-primary" />,
     features: [
-      "Включает всё из Starter",
-      "До 10 пользователей",
-      "Роли и доступы: Coach / Scout / Analyst / Manager",
-      "История действий и комментариев",
-      "Decision Card: структурированная оценка по критериям",
-      "Weighted scoring (веса критериев под вашу модель)",
-      "Сравнение кандидатов без лимита",
-      "Trial evaluation: форма оценки после просмотра демо / теста",
-      "Воронка кандидатов по стадиям",
-      "Отчёт по активности скаутинга",
-      "Monthly Scouting Report",
-      "Брендированный экспорт отчётов (PDF/Excel)",
-      "1 onboarding-call (60 мин)",
-      "Настройка критериев оценки и pipeline",
-      "Приоритетная поддержка"
+      "Воронка скаутинга",
+      "Карточки кандидатов",
+      "Сравнение до 3 игроков",
+      "Обновление базы раз в 24 часа",
     ],
-    icon: Sparkles,
+  },
+  {
+    tag: "РАСШИРЕННАЯ ВЕРСИЯ",
+    name: "ScoutScope Pro",
+    description: "Продвинутый пакет, в который входит всё из ScoutScope Basic, но с обновлением базы раз в 12 часов.",
+    priceRub: 31990,
+    priceUsd: 399,
     popular: true,
+    icon: <Shield className="h-6 w-6 text-primary" />,
+    features: [
+      "Воронка скаутинга",
+      "Карточки кандидатов",
+      "Сравнение до 3 игроков",
+      "Обновление базы раз в 12 часов",
+    ],
   },
   {
-    name: "Organization / Multi-team",
-    price: 549,
-    pricePrefix: "от",
-    currency: "$",
-    period: "месяц",
-    description: "Корпоративное решение для организаций",
+    tag: "КОМПЛЕКСНОЕ РЕШЕНИЕ",
+    name: "PerformanceCoach CRM + ScoutScope",
+    description: "Pro-версия ScoutScope и полная версия PerformanceCoach CRM в одном решении для команды.",
+    priceRub: 43990,
+    priceUsd: 550,
+    icon: <Layers className="h-6 w-6 text-primary" />,
     features: [
-      "Включает всё из Pro",
-      "Неограниченные пользователи",
-      "Несколько ростеров (Academy / Main / Youth)",
-      "Разделение по командам + общая база кандидатов",
-      "Доступы по ростерам",
-      "Кастомные критерии и поля под организацию",
-      "Шаблоны ролей (IGL / Entry / Support)",
-      "История решений: \"когда/почему отклонили/подписали\"",
-      "Org dashboard: состояние пайплайна по всем ростерам",
-      "Сводка по эффективности скаутинга",
-      "Отчёт для Head of Esports / GM",
-      "2 onboarding-сессии (штаб + менеджмент)",
-      "Выделенный контакт",
-      "Приоритетная поддержка"
+      "Полная версия PerformanceCoach CRM",
+      "Pro-версия ScoutScope",
+      "Сквозной процесс для команды",
     ],
-    icon: Crown,
-    popular: false,
   },
 ]
 
-function AnimatedPrice({
-  price,
-  currency,
-  isVisible,
-  prefix,
-  selectedCurrency,
-}: {
-  price: number
-  currency: string
-  isVisible: boolean
-  prefix?: string
-  selectedCurrency: Currency
-}) {
-  const [displayPrice, setDisplayPrice] = useState(0)
-
-  // Конвертируем цену в зависимости от выбранной валюты
-  const convertedPrice = selectedCurrency === 'RUB' && currency === '$'
-    ? Math.round(price * EXCHANGE_RATES.USD_TO_RUB)
-    : price
-
-  const displayCurrency = selectedCurrency === 'RUB' ? '₽' : '$'
-
-  useEffect(() => {
-    if (!isVisible) return
-
-    const duration = 1500
-    const steps = 60
-    const increment = convertedPrice / steps
-    let current = 0
-
-    const timer = setInterval(() => {
-      current += increment
-      if (current >= convertedPrice) {
-        setDisplayPrice(convertedPrice)
-        clearInterval(timer)
-      } else {
-        setDisplayPrice(Math.floor(current))
-      }
-    }, duration / steps)
-
-    return () => clearInterval(timer)
-  }, [isVisible, convertedPrice])
-
-  const formattedPrice = displayPrice.toLocaleString("ru-RU")
-
-  return (
-    <span className="text-4xl md:text-5xl font-bold text-foreground">
-      {prefix && <span className="text-lg text-muted-foreground mr-1">{prefix}</span>}
-      {formattedPrice}
-      <span className="text-lg text-muted-foreground ml-1">{displayCurrency}</span>
-    </span>
-  )
-}
-
-type PlanType = {
+type Module = {
   name: string
-  price: number
-  currency: string
   description: string
-  features: string[]
-  icon: any
-  period?: string
-  popular?: boolean
-  pricePrefix?: string
+  priceRub: number
+  icon: React.ReactNode
 }
 
-function PricingCard({
-  plan,
-  index,
-  isVisible,
-  delayOffset = 0,
-  selectedCurrency,
-}: {
-  plan: PlanType
-  index: number
-  isVisible: boolean
-  delayOffset?: number
-  selectedCurrency: Currency
-}) {
-  const [isPriceVisible, setIsPriceVisible] = useState(false)
-  const priceRef = useRef<HTMLDivElement>(null)
-  const Icon = plan.icon
+const modules: Module[] = [
+  {
+    name: "Корреляционный анализ",
+    description: "Связывает показатели между собой и помогает находить закономерности в развитии игрока.",
+    priceRub: 499,
+    icon: <BarChart3 className="h-6 w-6 text-primary" />,
+  },
+  {
+    name: "Метрики из спорта",
+    description: "Подтягивает спортивные показатели и делает оценку формы более прикладной для тренерского штаба.",
+    priceRub: 789,
+    icon: <Target className="h-6 w-6 text-primary" />,
+  },
+  {
+    name: "Игровая статистика",
+    description: "Собирает ключевую игровую статистику в понятный модуль для быстрого анализа результатов.",
+    priceRub: 399,
+    icon: <Trophy className="h-6 w-6 text-primary" />,
+  },
+]
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsPriceVisible(true)
-        }
-      },
-      { threshold: 0.5 }
-    )
+/* ─────────────────── Components ─────────────────── */
 
-    if (priceRef.current) {
-      observer.observe(priceRef.current)
-    }
-
-    return () => observer.disconnect()
-  }, [])
+function TeamPlanCard({ plan }: { plan: TeamPlan }) {
+  const [period, setPeriod] = useState(0)
+  const p = periods[period]
+  const total = Math.round(plan.priceRub * p.months * (1 - p.discount))
+  const perMonth = Math.round(total / p.months)
 
   return (
     <div
       className={cn(
-        "relative group rounded-3xl transition-all duration-700 hover:-translate-y-2 w-full",
-        plan.popular && "z-10",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
+        "relative flex flex-col rounded-2xl border bg-card p-6 transition-shadow hover:shadow-xl",
+        plan.popular
+          ? "border-primary/40 shadow-lg shadow-primary/10"
+          : "border-border shadow-sm",
       )}
-      style={{ transitionDelay: `${(index + delayOffset) * 150}ms` }}
     >
       {plan.popular && (
-        <div className="absolute -inset-[2px] rounded-3xl bg-gradient-to-r from-primary via-accent to-primary opacity-50 blur-sm group-hover:opacity-75 transition-opacity" />
+        <Badge className="absolute -top-3 right-4 border-0 bg-primary text-primary-foreground shadow-lg shadow-primary/25">
+          <Sparkles className="mr-1 h-3 w-3" />
+          Фокус
+        </Badge>
       )}
 
-      <div
-        className={cn(
-          "relative h-full bg-card rounded-3xl p-6 border transition-all duration-300 shadow-sm hover:shadow-xl flex flex-col",
-          plan.popular ? "border-primary/30" : "border-border hover:border-primary/20",
-        )}
-      >
-        {plan.popular && (
-          <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground shadow-lg shadow-primary/30 animate-pulse">
-            Рекомендуем
-          </Badge>
-        )}
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+        {plan.icon}
+      </div>
 
-        <div className="text-center mb-8">
-          <div className="relative mx-auto mb-6 w-fit">
-            <div className={cn("p-4 rounded-2xl transition-colors", plan.popular ? "bg-primary/10" : "bg-secondary")}>
-              <Icon className={cn("h-8 w-8", plan.popular ? "text-primary" : "text-muted-foreground")} />
-            </div>
-          </div>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        {plan.tag}
+      </p>
+      <h3 className="mt-2 text-lg font-bold text-foreground leading-tight">{plan.name}</h3>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground flex-1">{plan.description}</p>
 
-          <h3 className="text-xl font-bold mb-3 text-foreground">{plan.name}</h3>
-          <p className="text-muted-foreground text-sm leading-relaxed">{plan.description}</p>
-        </div>
-
-        <div ref={priceRef} className="text-center mb-8">
-          <AnimatedPrice
-            price={plan.price}
-            currency={plan.currency}
-            isVisible={isPriceVisible}
-            prefix={plan.pricePrefix}
-            selectedCurrency={selectedCurrency}
-          />
-          <p className="text-sm text-muted-foreground mt-2">{plan.period || "единоразово"}</p>
-        </div>
-
-        <ul className="space-y-4 mb-8 flex-grow">
-          {plan.features.map((feature, featureIndex) => (
-            <li key={feature} className="flex items-start gap-3 text-sm">
-              <div className={cn("p-0.5 rounded-full mt-1 flex-shrink-0", plan.popular ? "bg-primary/20" : "bg-secondary")}>
-                <Check className={cn("h-3 w-3", plan.popular ? "text-primary" : "text-muted-foreground")} />
-              </div>
-              <span className="text-muted-foreground leading-relaxed">{feature}</span>
-            </li>
+      {/* Period selector */}
+      <div className="mt-5">
+        <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Срок подписки
+        </p>
+        <div className="flex gap-2">
+          {periods.map((pr, i) => (
+            <button
+              key={i}
+              onClick={() => setPeriod(i)}
+              className={cn(
+                "rounded-full px-3 py-1.5 text-xs font-medium transition-all",
+                period === i
+                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
+                  : "bg-secondary text-foreground hover:bg-secondary/80",
+              )}
+            >
+              {pr.label}
+            </button>
           ))}
-        </ul>
-
-        <div className="mt-auto">
-          <Button
-            className={cn(
-              "w-full rounded-xl",
-              plan.popular
-                ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
-                : "bg-secondary hover:bg-secondary/80 text-foreground",
-            )}
-            asChild
-          >
-            <a href="#contact">{plan.pricePrefix ? "Обсудить" : "Оформить"}</a>
-          </Button>
         </div>
       </div>
+
+      {/* Price */}
+      <div className="mt-5 rounded-xl bg-secondary/50 p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Стоимость
+        </p>
+        <p className="mt-1 text-2xl font-bold text-foreground">
+          {total.toLocaleString("ru-RU")} ₽
+        </p>
+        <p className="mt-0.5 text-sm font-medium text-primary">
+          ${plan.priceUsd} / 1 месяц
+        </p>
+        {p.discount > 0 && (
+          <Badge variant="outline" className="mt-1.5 border-primary/30 bg-primary/5 text-primary text-[10px]">
+            Скидка {p.discount * 100}%
+          </Badge>
+        )}
+      </div>
+
+      {/* Features */}
+      <ul className="mt-5 space-y-3">
+        {plan.features.map((f) => (
+          <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
+            <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Check className="h-3 w-3" />
+            </span>
+            {f}
+          </li>
+        ))}
+      </ul>
+
+      {/* CTA */}
+      <Button
+        asChild
+        variant={plan.popular ? "default" : "outline"}
+        className={cn(
+          "mt-6 w-full rounded-xl",
+          plan.popular && "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25",
+        )}
+      >
+        <a href="https://t.me/atlant_tech_bot" target="_blank" rel="noopener noreferrer">
+          Обсудить тариф
+          <ArrowRight className="ml-1 h-4 w-4" />
+        </a>
+      </Button>
     </div>
   )
 }
 
+/* ─────────────────── Main Section ─────────────────── */
+
 export function PricingSection() {
-  const [isVisible, setIsVisible] = useState(false)
   const [headerVisible, setHeaderVisible] = useState(false)
-  const [subsHeaderVisible, setSubsHeaderVisible] = useState(false)
-  const [selectedCurrency, setSelectedCurrency] = useState<Currency>('USD')
-  const sectionRef = useRef<HTMLElement>(null)
+  const [soloVisible, setSoloVisible] = useState(false)
+  const [teamVisible, setTeamVisible] = useState(false)
   const headerRef = useRef<HTMLDivElement>(null)
-  const subsHeaderRef = useRef<HTMLHeadingElement>(null)
+  const soloRef = useRef<HTMLDivElement>(null)
+  const teamRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.3 },
-    )
-
-    const headerObserver = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setHeaderVisible(true)
-        }
-      },
-      { threshold: 0.3 },
-    )
-
-    const subsObserver = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setSubsHeaderVisible(true)
-        }
-      },
-      { threshold: 0.5 },
-    )
-
-    if (sectionRef.current) observer.observe(sectionRef.current)
-    if (headerRef.current) headerObserver.observe(headerRef.current)
-    if (subsHeaderRef.current) subsObserver.observe(subsHeaderRef.current)
-
-    return () => {
-      observer.disconnect()
-      headerObserver.disconnect()
-      subsObserver.disconnect()
+    const observe = (ref: React.RefObject<HTMLDivElement | null>, set: (v: boolean) => void, threshold = 0.15) => {
+      const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) set(true) }, { threshold })
+      if (ref.current) obs.observe(ref.current)
+      return obs
     }
+    const o1 = observe(headerRef, setHeaderVisible, 0.3)
+    const o2 = observe(soloRef, setSoloVisible)
+    const o3 = observe(teamRef, setTeamVisible)
+    return () => { o1.disconnect(); o2.disconnect(); o3.disconnect() }
   }, [])
 
   return (
-    <section id="pricing" ref={sectionRef} className="py-24 md:py-32 relative overflow-hidden">
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[150px]" />
-      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[150px]" />
+    <section id="pricing" className="relative overflow-hidden py-24 md:py-32">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/20 to-background" />
+      <div className="absolute top-10 left-1/4 h-[420px] w-[420px] rounded-full bg-primary/10 blur-[150px]" />
+      <div className="absolute right-0 bottom-10 h-[360px] w-[360px] rounded-full bg-accent/10 blur-[170px]" />
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container relative z-10 mx-auto px-4">
+        {/* ─── Header ─── */}
         <div
           ref={headerRef}
           className={cn(
-            "text-center mb-16 transition-all duration-700",
-            headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
+            "mx-auto mb-14 max-w-3xl text-center transition-all duration-700",
+            headerVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0",
           )}
         >
           <Badge
             variant="outline"
-            className={cn(
-              "mb-4 border-primary/30 text-primary bg-primary/5 transition-all duration-500 delay-100",
-              headerVisible ? "opacity-100 scale-100" : "opacity-0 scale-90",
-            )}
+            className="mb-4 border-primary/30 bg-primary/5 text-primary"
           >
             Тарифы
           </Badge>
-          <h2
-            className={cn(
-              "text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-balance transition-all duration-700 delay-200",
-              headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
-            )}
-          >
-            <span className="gradient-text">Наш прайс-лист</span>
+          <h2 className="mb-4 text-3xl font-bold md:text-4xl lg:text-5xl">
+            Гибкие тарифы для{" "}
+            <span className="gradient-text">PerformanceCoach CRM</span>
           </h2>
-          <p
-            className={cn(
-              "text-muted-foreground text-lg max-w-2xl mx-auto text-pretty transition-all duration-700 delay-300",
-              headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
-            )}
-          >
-            Выберите подходящий тариф или закажите разработку под ваши задачи
+          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+            Базовый доступ остаётся бесплатным, а нужные аналитические модули можно подключать отдельно под вашу задачу.
           </p>
+        </div>
 
-          {/* Currency Switcher */}
-          <div
-            className={cn(
-              "flex justify-center mt-8 transition-all duration-700 delay-400",
-              headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
-            )}
-          >
-            <div className="flex bg-secondary rounded-lg p-1">
-              <button
-                onClick={() => setSelectedCurrency('USD')}
-                className={cn(
-                  "px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
-                  selectedCurrency === 'USD'
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                USD ($)
-              </button>
-              <button
-                onClick={() => setSelectedCurrency('RUB')}
-                className={cn(
-                  "px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
-                  selectedCurrency === 'RUB'
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                RUB (₽)
-              </button>
+        {/* ─── Solo / Free + Modules ─── */}
+        <div
+          ref={soloRef}
+          className={cn(
+            "mx-auto mb-20 max-w-6xl grid gap-6 lg:grid-cols-5 transition-all duration-700",
+            soloVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0",
+          )}
+        >
+          {/* Solo card */}
+          <div className="lg:col-span-2 rounded-2xl border border-border bg-card p-6 md:p-8 shadow-sm">
+            <Badge className="mb-4 border-0 bg-primary/10 text-primary">
+              <Sparkles className="mr-1 h-3 w-3" />
+              Базовый тариф
+            </Badge>
+
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              SOLO
+            </p>
+            <h3 className="mt-2 text-2xl font-bold md:text-3xl">PerformanceCoach CRM</h3>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              Бесплатная база для персональной работы тренера: фиксируйте прогресс, ведите заметки и собирайте данные в одном месте, а аналитику подключайте по мере роста.
+            </p>
+
+            <div className="mt-6 flex items-end gap-3">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Стоимость
+                </p>
+                <p className="text-3xl font-bold md:text-4xl">Бесплатно</p>
+              </div>
+              <div className="mb-1 rounded-lg bg-primary/10 px-3 py-1.5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">Старт</p>
+                <p className="text-xs text-muted-foreground">Без оплаты и без скрытых пакетов</p>
+              </div>
+            </div>
+
+            <ul className="mt-6 space-y-4">
+              {[
+                "Единая CRM для тренера и игрока",
+                "База сессий, заметок и прогресса",
+                "Быстрый старт без обязательной подписки",
+              ].map((f) => (
+                <li key={f} className="flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 text-sm">
+                  <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <Check className="h-3 w-3" />
+                  </span>
+                  {f}
+                </li>
+              ))}
+            </ul>
+
+            <Button
+              asChild
+              className="mt-6 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25"
+            >
+              <a href="https://t.me/atlant_tech_bot" target="_blank" rel="noopener noreferrer">
+                Оставить заявку
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </a>
+            </Button>
+          </div>
+
+          {/* Modules */}
+          <div className="lg:col-span-3">
+            <div className="mb-6">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Доп. модули
+              </p>
+              <h3 className="mt-2 text-2xl font-bold md:text-3xl">
+                Добавляйте только те инструменты, которые нужны вашей команде сейчас
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Подключайте только те инструменты, которые нужны вашей команде сейчас, без переплаты за лишний функционал.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              {modules.map((mod) => (
+                <div
+                  key={mod.name}
+                  className="flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-lg"
+                >
+                  <Badge variant="outline" className="mb-3 w-fit border-primary/30 bg-primary/5 text-primary text-[10px]">
+                    Модуль
+                  </Badge>
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                    {mod.icon}
+                  </div>
+                  <h4 className="text-sm font-bold leading-tight">{mod.name}</h4>
+                  <p className="mt-2 flex-1 text-xs leading-relaxed text-muted-foreground">{mod.description}</p>
+                  <div className="mt-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Цена</p>
+                    <p className="text-2xl font-bold">{mod.priceRub.toLocaleString("ru-RU")} ₽</p>
+                  </div>
+                  <a
+                    href="https://t.me/atlant_tech_bot"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex items-center text-sm font-medium text-primary hover:underline"
+                  >
+                    Подключить
+                    <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                  </a>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Subscriptions */}
-        <div className="mb-24">
-          <h3
-            ref={subsHeaderRef}
-            className={cn(
-              "text-2xl font-semibold mb-10 text-center transition-all duration-700",
-              subsHeaderVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
-            )}
+        {/* ─── Divider header ─── */}
+        <div className="mx-auto max-w-3xl mt-20 mb-14 text-center">
+          <Badge
+            variant="outline"
+            className="mb-4 border-primary/30 bg-primary/5 text-primary"
           >
-            <span className="text-muted-foreground">Подписки на</span>{" "}
-            <span className="text-primary">наши программы</span>
-          </h3>
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
-            {subscriptions.map((plan, index) => (
-              <div key={plan.name} className="h-[1100px]">
-                <PricingCard
-                  plan={{ ...plan, period: plan.period }}
-                  index={index}
-                  isVisible={subsHeaderVisible}
-                  selectedCurrency={selectedCurrency}
-                />
-              </div>
+            Для команд
+          </Badge>
+          <h2 className="mb-4 text-3xl font-bold md:text-4xl lg:text-5xl">
+            Тарифы для <span className="gradient-text">команд и организаций</span>
+          </h2>
+          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+            Выберите подходящий инструмент — ScoutScope для скаутинга или PerformanceCoach CRM для работы с командой.
+          </p>
+        </div>
+
+        {/* ─── Team tariffs ─── */}
+        <div
+          ref={teamRef}
+          className={cn(
+            "mx-auto max-w-6xl transition-all duration-700",
+            teamVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0",
+          )}
+        >
+          <div className="mb-10">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Командные тарифы
+            </p>
+            <h2 className="mt-2 text-2xl font-bold md:text-3xl lg:text-4xl">
+              Выберите формат подписки под цикл вашей команды
+            </h2>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {teamPlans.map((plan) => (
+              <TeamPlanCard key={plan.name} plan={plan} />
             ))}
           </div>
         </div>
