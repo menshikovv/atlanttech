@@ -17,7 +17,12 @@ export function ContactSection() {
   const [isVisible, setIsVisible] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
-  const [consent, setConsent] = useState(false)
+  const [consents, setConsents] = useState({
+    personalData: false,
+    privacyPolicy: false,
+    oferta: false,
+    marketing: false,
+  })
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -66,6 +71,13 @@ export function ContactSection() {
       setIsSubmitting(false)
     }
   }
+
+
+  const toggleConsent = (key: keyof typeof consents) => {
+    setConsents((prev) => ({ ...prev, [key]: !prev[key] }))
+  }
+
+  const canSubmit = consents.personalData && consents.privacyPolicy
 
   const subjects = [
     { value: "subscription", label: "Подписка", icon: "💳" },
@@ -273,42 +285,94 @@ export function ContactSection() {
                       className="rounded-xl bg-secondary/50 border-border focus:border-primary focus:ring-primary/20 resize-none"
                     />
                   </div>
+                  <div className="space-y-3">
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={consents.personalData}
+                        onClick={() => toggleConsent("personalData")}
+                        className={cn(
+                          "mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all",
+                          consents.personalData
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-secondary/50 group-hover:border-primary/50",
+                        )}
+                      >
+                        {consents.personalData && <Check className="h-3 w-3" />}
+                      </button>
+                      <span className="text-xs text-muted-foreground leading-relaxed">
+                        I agree to <a href="/personal-data-consent" className="text-primary hover:underline">personal data processing</a>.
+                        <span className="text-foreground"> *</span>
+                      </span>
+                    </label>
 
-                  <label className="flex items-start gap-3 cursor-pointer group">
-                    <button
-                      type="button"
-                      role="checkbox"
-                      aria-checked={consent}
-                      onClick={() => setConsent(!consent)}
-                      className={cn(
-                        "mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all",
-                        consent
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border bg-secondary/50 group-hover:border-primary/50",
-                      )}
-                    >
-                      {consent && <Check className="h-3 w-3" />}
-                    </button>
-                    <span className="text-xs text-muted-foreground leading-relaxed">
-                      Я соглашаюсь на обработку{" "}
-                      <a href="/personal-data-consent" className="text-primary hover:underline">
-                        персональных данных
-                      </a>
-                      , принимаю{" "}
-                      <a href="/user-agreement" className="text-primary hover:underline">
-                        Пользовательское соглашение
-                      </a>{" "}
-                      и{" "}
-                      <a href="/privacy-policy" className="text-primary hover:underline">
-                        Политику конфиденциальности
-                      </a>
-                    </span>
-                  </label>
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={consents.privacyPolicy}
+                        onClick={() => toggleConsent("privacyPolicy")}
+                        className={cn(
+                          "mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all",
+                          consents.privacyPolicy
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-secondary/50 group-hover:border-primary/50",
+                        )}
+                      >
+                        {consents.privacyPolicy && <Check className="h-3 w-3" />}
+                      </button>
+                      <span className="text-xs text-muted-foreground leading-relaxed">
+                        I confirm I have read the <a href="/privacy-policy" className="text-primary hover:underline">Privacy Policy</a>.
+                        <span className="text-foreground"> *</span>
+                      </span>
+                    </label>
+
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={consents.oferta}
+                        onClick={() => toggleConsent("oferta")}
+                        className={cn(
+                          "mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all",
+                          consents.oferta
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-secondary/50 group-hover:border-primary/50",
+                        )}
+                      >
+                        {consents.oferta && <Check className="h-3 w-3" />}
+                      </button>
+                      <span className="text-xs text-muted-foreground leading-relaxed">
+                        I confirm I have read the <a href="/oferta" className="text-primary hover:underline">Public Offer</a>.
+                      </span>
+                    </label>
+
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={consents.marketing}
+                        onClick={() => toggleConsent("marketing")}
+                        className={cn(
+                          "mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all",
+                          consents.marketing
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-secondary/50 group-hover:border-primary/50",
+                        )}
+                      >
+                        {consents.marketing && <Check className="h-3 w-3" />}
+                      </button>
+                      <span className="text-xs text-muted-foreground leading-relaxed">
+                        I agree to receive <a href="/marketing-consent" className="text-primary hover:underline">marketing and informational messages</a>.
+                      </span>
+                    </label>
+                  </div>
 
                   <Button
                     type="submit"
                     size="lg"
-                    disabled={isSubmitting || !consent}
+                    disabled={isSubmitting || !canSubmit}
                     className="w-full h-12 md:h-14 rounded-xl text-base md:text-lg font-medium bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all shadow-lg shadow-primary/30 hover:shadow-primary/50 disabled:opacity-50"
                   >
                     {isSubmitting ? (

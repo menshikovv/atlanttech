@@ -1,11 +1,10 @@
-import { Header } from "@/components/header"
+﻿import { Header } from "@/components/header"
 import { HeroSection } from "@/components/hero-section"
 import { CasesSection } from "@/components/cases-section"
 import { VideoDemoSection } from "@/components/video-demo-section"
 import { PricingSection } from "@/components/pricing-section"
 import { FaqSection } from "@/components/faq-section"
 import { ContactSection } from "@/components/contact-section"
-import { Footer } from "@/components/footer"
 
 export default function Home() {
   return (
@@ -17,7 +16,6 @@ export default function Home() {
       <PricingSection />
       <ContactSection />
       <FaqSection />
-      <Footer />
     </main>
   )
 }
