@@ -48,11 +48,6 @@ export function Footer() {
                   </a>
                 </li>
               ))}
-              <li>
-                <a href="/legal" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  Раздел «Правовые документы»
-                </a>
-              </li>
             </ul>
           </div>
 
