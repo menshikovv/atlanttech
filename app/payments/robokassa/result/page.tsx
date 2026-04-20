@@ -19,10 +19,6 @@ export default function RobokassaResultPage() {
           <div className="absolute -left-10 bottom-2 h-28 w-28 rounded-full bg-indigo-400/15 blur-3xl transition-transform duration-700 group-hover:scale-125" />
 
           <div className="relative">
-            <span className="inline-flex items-center rounded-full border border-cyan-500/30 bg-cyan-500/10 px-4 py-1 text-xs uppercase tracking-[0.24em] text-cyan-700 dark:text-cyan-300">
-              Robokassa / Result
-            </span>
-
             <div className="mt-6 flex items-start gap-4">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-cyan-500/15 text-2xl shadow-[0_0_30px_rgba(6,182,212,0.2)]">
                 •
