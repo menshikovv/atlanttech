@@ -126,8 +126,8 @@ export default function UserAgreementPage() {
               <li>
                 email:
                 {" "}
-                <a className="text-primary hover:underline" href="mailto:projecttwizz54@gmail.com">
-                  projecttwizz54@gmail.com
+                <a className="text-primary hover:underline" href="mailto:atlant.technology@yandex.com">
+                  atlant.technology@yandex.com
                 </a>
               </li>
               <li>

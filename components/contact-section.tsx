@@ -154,7 +154,7 @@ export function ContactSection() {
                 </a>
 
                 <a
-                  href="mailto:projecttwizz54@gmail.com"
+                  href="mailto:atlant.technology@yandex.com"
                   className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl md:rounded-2xl bg-secondary/50 hover:bg-primary/10 border border-transparent hover:border-primary/20 transition-all group"
                 >
                   <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors flex-shrink-0">
@@ -162,7 +162,7 @@ export function ContactSection() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-sm md:text-base">Email</p>
-                    <p className="text-xs md:text-sm text-muted-foreground truncate">projecttwizz54@gmail.com</p>
+                    <p className="text-xs md:text-sm text-muted-foreground truncate">atlant.technology@yandex.com</p>
                   </div>
                   <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
                 </a>

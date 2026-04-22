@@ -321,7 +321,7 @@ export function PricingSection() {
               asChild
               className="mt-6 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25"
             >
-              <a href="https://t.me/atlant_tech_bot" target="_blank" rel="noopener noreferrer">
+              <a href="https://perfomancecrm.pro/" target="_blank" rel="noopener noreferrer">
                 Оставить заявку
                 <ArrowRight className="ml-1 h-4 w-4" />
               </a>

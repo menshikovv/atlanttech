@@ -17,10 +17,8 @@ const cases = [
     icon: Search,
     tags: ["AI", "Аналитика", "Скаутинг"],
     images: [
-      "https://storage.yandexcloud.net/file-talentio/scout1.png",
-      "https://storage.yandexcloud.net/file-talentio/scout2.png",
-      "https://storage.yandexcloud.net/file-talentio/scout3.png",
-      "https://storage.yandexcloud.net/file-talentio/scout4.png"
+      "https://s10.iimage.su/s/22/glArvSpxg1mFEvbFldMMZOzV7TdkYaGVESKjMNzgQ.png",
+      "https://s10.iimage.su/s/22/gTWu6BlxBFI5YXpDqF3kGZlGPmEOLzFRs5CqnLqRh.png"
     ],
     color: "from-blue-500 to-cyan-500",
   },
@@ -33,12 +31,10 @@ const cases = [
     icon: BarChart3,
     tags: ["CRM", "Дашборды", "Менеджмент"],
     images: [
-      "https://storage.yandexcloud.net/file-talentio/CRM.png",
-      "https://storage.yandexcloud.net/file-talentio/CRM2.png",
-      "https://storage.yandexcloud.net/file-talentio/CRM3.png",
-      "https://storage.yandexcloud.net/file-talentio/CRM4.png",
-      "https://storage.yandexcloud.net/file-talentio/CRM5.png",
-      "https://storage.yandexcloud.net/file-talentio/CRm6.png",
+      "https://s10.iimage.su/s/22/g3bgZhRxlIYzisbfgzBdidoGjjNqoiIKNi79CUX5T.png",
+      "https://s10.iimage.su/s/22/gr2OiURxDTcVDwvcnemfIAGJFXMA7WhYMblyvzIur.png",
+      "https://s10.iimage.su/s/22/gbo1DmuxhOTCVDczkeA0Z0fwkvcZthCFQTp7zLuc4.png",
+      "https://s10.iimage.su/s/22/gNq4axuxyhNgOfgwmfQtAFWPlszXJHT5K3f0pOsFF.png",
     ],
     color: "from-blue-600 to-indigo-600",
   },

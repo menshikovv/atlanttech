@@ -25,7 +25,7 @@ export default function PrivacyPolicyPage() {
               Оператор персональных данных: команда Atlant Technology (далее — Оператор).
             </p>
             <p>
-              Контактный email Оператора: projecttwizz54@gmail.com.
+              Контактный email Оператора: atlant.technology@yandex.com.
             </p>
           </section>
 
@@ -98,8 +98,8 @@ export default function PrivacyPolicyPage() {
             <p>
               Для реализации указанных прав пользователь может направить запрос на email:
               {" "}
-              <a className="text-primary hover:underline" href="mailto:projecttwizz54@gmail.com">
-                projecttwizz54@gmail.com
+              <a className="text-primary hover:underline" href="mailto:atlant.technology@yandex.com">
+                atlant.technology@yandex.com
               </a>
               .
             </p>
@@ -123,8 +123,8 @@ export default function PrivacyPolicyPage() {
             <p>
               По вопросам обработки персональных данных можно связаться с Оператором:
               {" "}
-              <a className="text-primary hover:underline" href="mailto:projecttwizz54@gmail.com">
-                projecttwizz54@gmail.com
+              <a className="text-primary hover:underline" href="mailto:atlant.technology@yandex.com">
+                atlant.technology@yandex.com
               </a>
               {" "}или{" "}
               <a className="text-primary hover:underline" href="https://t.me/atlant_tech_bot" target="_blank" rel="noopener noreferrer">

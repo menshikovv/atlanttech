@@ -7,6 +7,9 @@ import { cn } from "@/lib/utils"
 
 const legalLinks = [
   { href: "/oferta", label: "Публичная оферта" },
+  { href: "/agent-agreement", label: "Агентский договор" },
+  { href: "/personal-data-order", label: "Приказ о персональных данных" },
+  { href: "/data-storage-act", label: "Акт о месте хранения баз данных" },
   { href: "/personal-data-consent", label: "Согласие на обработку персональных данных" },
   { href: "/privacy-policy", label: "Политика конфиденциальности" },
   { href: "/cookies-policy", label: "Политика использования файлов cookies" },
