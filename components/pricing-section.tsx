@@ -361,7 +361,7 @@ export function PricingSection() {
                     <p className="text-2xl font-bold">{mod.priceRub.toLocaleString("ru-RU")} ₽</p>
                   </div>
                   <a
-                    href="https://t.me/atlant_tech_bot"
+                    href="https://perfomancecrm.pro/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-3 inline-flex items-center text-sm font-medium text-primary hover:underline"
