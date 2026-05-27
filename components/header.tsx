@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { AtlantLogo } from "./twizz-logo"
-import { Menu, X } from "lucide-react"
+import { Menu, X, LogIn } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function Header() {
@@ -97,6 +97,19 @@ export function Header() {
               </Button>
             </nav>
 
+            <div className="hidden md:flex items-center">
+              <Button
+                asChild
+                variant="outline"
+                className="border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-all gap-2"
+              >
+                <a href="/auth/login">
+                  <LogIn className="h-4 w-4" />
+                  Войти
+                </a>
+              </Button>
+            </div>
+
             <button
               className="md:hidden p-2 text-foreground rounded-lg hover:bg-secondary transition-colors z-60"
               onClick={() => isMobileMenuOpen ? handleCloseMenu() : handleOpenMenu()}
@@ -160,13 +173,26 @@ export function Header() {
                   transitionDelay: isAnimating ? `${(navLinks.length + 1) * 100}ms` : '0ms'
                 }}
               >
-                <Button 
-                  asChild 
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                  onClick={handleCloseMenu}
-                >
-                  <a href="#contact">Связаться</a>
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="flex-1 border-primary/30 text-primary"
+                    onClick={handleCloseMenu}
+                  >
+                    <a href="/auth/login">
+                      <LogIn className="mr-1 h-4 w-4" />
+                      Войти
+                    </a>
+                  </Button>
+                  <Button
+                    asChild
+                    className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                    onClick={handleCloseMenu}
+                  >
+                    <a href="#contact">Связаться</a>
+                  </Button>
+                </div>
               </div>
             </nav>
           </div>
