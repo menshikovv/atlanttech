@@ -88,22 +88,22 @@ export default function AccountPage() {
           <User className="h-5 w-5 text-primary" />
           Основная информация
         </h2>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2">
           <div className="flex items-center gap-3 rounded-xl border border-border bg-secondary/30 p-4">
             <User className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-            <div>
+            <div className="min-w-0">
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Имя</p>
-              <p className="text-sm font-medium">{user.name}</p>
+              <p className="text-sm font-medium truncate">{user.name}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 rounded-xl border border-border bg-secondary/30 p-4">
             <Mail className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-            <div>
+            <div className="min-w-0">
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Email</p>
-              <p className="text-sm font-medium">{user.email}</p>
+              <p className="text-sm font-medium truncate">{user.email}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 rounded-xl border border-border bg-secondary/30 p-4">
+          <div className="flex items-center gap-3 rounded-xl border border-border bg-secondary/30 p-4 md:col-span-2">
             <Calendar className="h-5 w-5 text-muted-foreground flex-shrink-0" />
             <div>
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Дата регистрации</p>

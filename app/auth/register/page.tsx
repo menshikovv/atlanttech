@@ -18,7 +18,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [agreed, setAgreed] = useState(false)
+  const [agreedTerms, setAgreedTerms] = useState(false)
+  const [agreedPrivacy, setAgreedPrivacy] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
@@ -38,8 +39,8 @@ export default function RegisterPage() {
       setError("Пароль должен быть не менее 6 символов")
       return
     }
-    if (!agreed) {
-      setError("Необходимо принять условия использования")
+    if (!agreedTerms || !agreedPrivacy) {
+      setError("Необходимо принять оба соглашения")
       return
     }
     setLoading(true)
@@ -124,23 +125,35 @@ export default function RegisterPage() {
               />
             </div>
 
-            <div className="flex items-start gap-3">
-              <Checkbox
-                id="agree"
-                checked={agreed}
-                onCheckedChange={(v) => setAgreed(v === true)}
-                className="mt-0.5 flex-shrink-0"
-              />
-              <label htmlFor="agree" className="cursor-pointer leading-relaxed" style={{ fontFamily: "system-ui, -apple-system, sans-serif", fontSize: "12px", color: "var(--muted-foreground)" }}>
-                Принимаю{" "}
-                <Link href="/user-agreement" className="text-primary hover:underline">
-                  соглашение
-                </Link>{" "}
-                и{" "}
-                <Link href="/privacy-policy" className="text-primary hover:underline">
-                  политику конфиденциальности
-                </Link>
-              </label>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="agreeTerms"
+                  checked={agreedTerms}
+                  onCheckedChange={(v) => setAgreedTerms(v === true)}
+                  className="mt-0.5 flex-shrink-0"
+                />
+                <label htmlFor="agreeTerms" className="cursor-pointer leading-relaxed" style={{ fontFamily: "system-ui, -apple-system, sans-serif", fontSize: "12px", color: "var(--muted-foreground)" }}>
+                  Принимаю{" "}
+                  <Link href="/user-agreement" className="text-primary hover:underline">
+                    пользовательское соглашение
+                  </Link>
+                </label>
+              </div>
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="agreePrivacy"
+                  checked={agreedPrivacy}
+                  onCheckedChange={(v) => setAgreedPrivacy(v === true)}
+                  className="mt-0.5 flex-shrink-0"
+                />
+                <label htmlFor="agreePrivacy" className="cursor-pointer leading-relaxed" style={{ fontFamily: "system-ui, -apple-system, sans-serif", fontSize: "12px", color: "var(--muted-foreground)" }}>
+                  Принимаю{" "}
+                  <Link href="/privacy-policy" className="text-primary hover:underline">
+                    политику конфиденциальности
+                  </Link>
+                </label>
+              </div>
             </div>
 
             {error && (
