@@ -31,12 +31,38 @@ export function Footer() {
   return (
     <footer className="relative mt-16 border-t border-border bg-secondary/20">
       <div className="container mx-auto px-4 py-10 md:py-12">
-        <div className="grid gap-8 lg:grid-cols-3">
+        <div className="grid gap-8 lg:grid-cols-4">
           <div>
             <AtlantLogo className="h-12 w-auto" />
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground max-w-md">
               Разработка программного обеспечения и цифровых сервисов для бизнеса и киберспорта.
             </p>
+          </div>
+
+          <div>
+            <h3 className="text-base font-semibold">Продукты</h3>
+            <ul className="mt-3 space-y-2">
+              <li>
+                <a href="/dashboard/products" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  PerformanceCoach CRM
+                </a>
+              </li>
+              <li>
+                <a href="/dashboard/products" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  ScoutScope Basic
+                </a>
+              </li>
+              <li>
+                <a href="/dashboard/products" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  ScoutScope Pro
+                </a>
+              </li>
+              <li>
+                <a href="/dashboard/products" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  CRM + ScoutScope
+                </a>
+              </li>
+            </ul>
           </div>
 
           <div>

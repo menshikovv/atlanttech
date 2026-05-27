@@ -31,6 +31,7 @@ export default function SubscriptionsPage() {
   const { purchasedProducts, purchaseProduct } = useAuth()
   const router = useRouter()
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
+  const [selectedProduct, setSelectedProduct] = useState(productsData[0].id)
   const [selectedTariffs, setSelectedTariffs] = useState<Record<string, number>>({})
 
   const copyKey = (key: string) => {
@@ -134,92 +135,118 @@ export default function SubscriptionsPage() {
           Доступные продукты
         </h2>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {productsData.map((product) => {
-            const tariffIdx = selectedTariffs[product.id] ?? 0
-            const tariff = tariffs[tariffIdx]
-            const totalPrice = Math.round(product.priceRub * tariff.months * (1 - tariff.discount))
-            const perMonth = Math.round(totalPrice / tariff.months)
+        {/* Step 1: Product selector */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          {productsData.map((product) => (
+            <button
+              key={product.id}
+              onClick={() => setSelectedProduct(product.id)}
+              className={cn(
+                "relative rounded-2xl border p-4 text-left transition-all",
+                selectedProduct === product.id
+                  ? "border-primary bg-primary/5 shadow-md shadow-primary/10"
+                  : "border-border bg-card hover:border-primary/30 hover:shadow-sm"
+              )}
+            >
+              {product.popular && (
+                <Badge className="absolute -top-2 right-3 border-0 bg-primary text-primary-foreground text-[9px] px-1.5 py-0">
+                  Хит
+                </Badge>
+              )}
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 mb-3">
+                {iconMap[product.icon]}
+              </div>
+              <p className="text-xs font-bold leading-tight">{product.name}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">от {product.priceRub.toLocaleString("ru-RU")} ₽/мес</p>
+            </button>
+          ))}
+        </div>
 
-            return (
-              <div
-                key={product.id}
-                className={cn(
-                  "relative glass-strong rounded-2xl p-6 border transition-shadow hover:shadow-xl",
-                  product.popular ? "border-primary/30 shadow-lg shadow-primary/5" : "border-border"
-                )}
-              >
-                {product.popular && (
-                  <Badge className="absolute -top-3 right-4 border-0 bg-primary text-primary-foreground shadow-lg shadow-primary/25">
-                    <Sparkles className="mr-1 h-3 w-3" />
-                    Популярный
-                  </Badge>
-                )}
+        {/* Step 2: Selected product details + tariff cards */}
+        {(() => {
+          const product = productsData.find((p) => p.id === selectedProduct)
+          if (!product) return null
 
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 flex-shrink-0">
-                    {iconMap[product.icon]}
-                  </div>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{product.tag}</p>
-                    <h3 className="font-bold mt-1">{product.name}</h3>
-                  </div>
+          return (
+            <div className="glass-strong rounded-2xl border border-border p-6 md:p-8">
+              {/* Product info header */}
+              <div className="flex items-start gap-4 mb-2">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 flex-shrink-0">
+                  {iconMap[product.icon]}
                 </div>
-
-                <p className="text-sm text-muted-foreground leading-relaxed">{product.description}</p>
-                <p className="text-xs text-primary mt-2 font-medium">{product.forWhom}</p>
-
-                {/* Tariff selector */}
-                <div className="mt-5">
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Срок подписки</p>
-                  <div className="flex gap-2">
-                    {tariffs.map((t, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setSelectedTariffs((prev) => ({ ...prev, [product.id]: i }))}
-                        className={cn(
-                          "rounded-full px-3 py-1.5 text-xs font-medium transition-all",
-                          tariffIdx === i
-                            ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
-                            : "bg-secondary text-foreground hover:bg-secondary/80"
-                        )}
-                      >
-                        {t.label}
-                      </button>
-                    ))}
-                  </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{product.tag}</p>
+                  <h3 className="text-xl font-bold mt-1">{product.name}</h3>
                 </div>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-1">{product.description}</p>
+              <p className="text-xs text-primary font-medium mb-6">{product.forWhom}</p>
 
-                {/* Price */}
-                <div className="mt-4 rounded-xl bg-secondary/50 p-4">
-                  <p className="text-2xl font-bold">{totalPrice.toLocaleString("ru-RU")} ₽</p>
-                  <p className="text-sm text-primary font-medium">{perMonth.toLocaleString("ru-RU")} ₽ / мес</p>
-                  {tariff.discount > 0 && (
-                    <Badge variant="outline" className="mt-1 border-primary/30 bg-primary/5 text-primary text-[10px]">
-                      Скидка {tariff.discount * 100}%
-                    </Badge>
-                  )}
-                </div>
+              {/* Tariff cards */}
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-3">Выберите срок подписки</p>
+              <div className="grid gap-4 md:grid-cols-3 mb-8">
+                {tariffs.map((tariff, i) => {
+                  const total = Math.round(product.priceRub * tariff.months * (1 - tariff.discount))
+                  const perMonth = Math.round(total / tariff.months)
+                  const isSelected = (selectedTariffs[product.id] ?? 0) === i
 
-                {/* Benefits */}
-                <div className="mt-4">
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Что вы получите</p>
-                  <ul className="space-y-2">
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => setSelectedTariffs((prev) => ({ ...prev, [product.id]: i }))}
+                      className={cn(
+                        "relative rounded-2xl border p-5 text-left transition-all",
+                        isSelected
+                          ? "border-primary bg-primary/5 shadow-lg shadow-primary/10 ring-1 ring-primary/20"
+                          : "border-border bg-card hover:border-primary/30"
+                      )}
+                    >
+                      {tariff.discount > 0 && (
+                        <Badge className="absolute -top-2.5 right-3 border-0 bg-primary text-primary-foreground text-[10px]">
+                          −{tariff.discount * 100}%
+                        </Badge>
+                      )}
+
+                      <p className="text-sm font-bold mb-3">{tariff.label}</p>
+
+                      <p className="text-2xl font-bold">{total.toLocaleString("ru-RU")} ₽</p>
+                      <p className="text-xs text-primary font-medium mt-0.5">
+                        {perMonth.toLocaleString("ru-RU")} ₽ / мес
+                      </p>
+
+                      {tariff.discount > 0 && (
+                        <p className="text-[10px] text-muted-foreground mt-1 line-through">
+                          {(product.priceRub * tariff.months).toLocaleString("ru-RU")} ₽
+                        </p>
+                      )}
+
+                      <div className={cn(
+                        "mt-3 h-1 rounded-full transition-colors",
+                        isSelected ? "bg-primary" : "bg-border"
+                      )} />
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Benefits + Features side by side */}
+              <div className="grid gap-6 md:grid-cols-2 mb-6">
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-3">Что вы получите</p>
+                  <ul className="space-y-2.5">
                     {product.benefits.map((b) => (
-                      <li key={b} className="flex items-start gap-2 text-xs">
-                        <Check className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />
+                      <li key={b} className="flex items-start gap-2 text-sm">
+                        <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                         {b}
                       </li>
                     ))}
                   </ul>
                 </div>
-
-                {/* Features */}
-                <div className="mt-4">
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Возможности</p>
-                  <ul className="space-y-2">
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-3">Возможности</p>
+                  <ul className="space-y-2.5">
                     {product.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-xs text-muted-foreground">
+                      <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
                         <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/10 text-primary flex-shrink-0 mt-0.5">
                           <Check className="h-2.5 w-2.5" />
                         </span>
@@ -228,24 +255,24 @@ export default function SubscriptionsPage() {
                     ))}
                   </ul>
                 </div>
-
-                <Button
-                  onClick={() => handlePurchase(product.id)}
-                  className={cn(
-                    "w-full mt-6 rounded-xl",
-                    product.popular
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25"
-                      : ""
-                  )}
-                  variant={product.popular ? "default" : "outline"}
-                >
-                  Приобрести
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </Button>
               </div>
-            )
-          })}
-        </div>
+
+              {/* Buy button */}
+              <Button
+                onClick={() => handlePurchase(product.id)}
+                className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25"
+                size="lg"
+              >
+                Приобрести {product.name} — {(() => {
+                  const idx = selectedTariffs[product.id] ?? 0
+                  const t = tariffs[idx]
+                  return Math.round(product.priceRub * t.months * (1 - t.discount)).toLocaleString("ru-RU")
+                })()} ₽
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          )
+        })()}
       </section>
     </div>
   )

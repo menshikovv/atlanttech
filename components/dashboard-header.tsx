@@ -18,6 +18,7 @@ import {
   FileCheck,
   RotateCcw,
   BookOpen,
+  Package,
 } from "lucide-react"
 
 const documentLinks = [
@@ -72,6 +73,12 @@ export function DashboardHeader() {
             >
               Подписки
             </Link>
+            <Link
+              href="/dashboard/products"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors font-medium"
+            >
+              Продукты
+            </Link>
           </nav>
 
           <div className="relative" ref={menuRef}>
@@ -116,6 +123,14 @@ export function DashboardHeader() {
                   >
                     <CreditCard className="h-4 w-4 text-muted-foreground" />
                     Подписки
+                  </Link>
+                  <Link
+                    href="/dashboard/products"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary/50 transition-colors"
+                  >
+                    <Package className="h-4 w-4 text-muted-foreground" />
+                    Продукты
                   </Link>
 
                   <div>
