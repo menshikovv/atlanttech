@@ -30,10 +30,10 @@ export function Footer() {
 
   return (
     <footer className="relative mt-16 border-t border-border bg-secondary/20">
-      <div className="container mx-auto px-4 py-10 md:py-12">
+      <div className="container mx-auto px-4 py-12 md:py-16">
         <div className="grid gap-8 lg:grid-cols-4">
-          <div>
-            <AtlantLogo className="h-12 w-auto" />
+          <div className="flex flex-col items-center">
+            <AtlantLogo className="-mt-7 h-48 w-auto md:-mt-10 md:h-64" />
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground max-w-md">
               Разработка программного обеспечения и цифровых сервисов для бизнеса и киберспорта.
             </p>
