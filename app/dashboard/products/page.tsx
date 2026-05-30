@@ -185,7 +185,7 @@ export default function ProductsPage() {
                 </p>
                 <a
                   href="/dashboard/subscriptions"
-                  className="text-sm text-primary hover:underline font-medium"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-primary bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
                 >
                   Перейти к покупке →
                 </a>

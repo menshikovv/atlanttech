@@ -37,6 +37,8 @@ type AuthContextType = {
   register: (name: string, email: string, password: string) => boolean
   logout: () => void
   changePassword: (oldPassword: string, newPassword: string) => boolean
+  updateNickname: (nickname: string) => boolean
+  updateEmail: (email: string) => { ok: boolean; error?: string }
   terminateSessions: () => void
   purchaseProduct: (productId: string, tariff: string) => PurchasedProduct | null
 }
@@ -146,6 +148,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return true
   }
 
+  const updateNickname = (nickname: string): boolean => {
+    if (!user) return false
+    const trimmed = nickname.trim()
+    if (!trimmed) return false
+    setUser({ ...user, name: trimmed })
+    return true
+  }
+
+  const updateEmail = (email: string): { ok: boolean; error?: string } => {
+    if (!user) return { ok: false, error: "Не авторизован" }
+    const trimmed = email.trim().toLowerCase()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      return { ok: false, error: "Некорректный email" }
+    }
+    if (trimmed === user.email) return { ok: true }
+    if (credentials.some((c) => c.email === trimmed)) {
+      return { ok: false, error: "Этот email уже используется" }
+    }
+    setCredentials((prev) => prev.map((c) => (c.email === user.email ? { ...c, email: trimmed } : c)))
+    setUser({ ...user, email: trimmed })
+    return { ok: true }
+  }
+
   const terminateSessions = () => {
     // frontend-only stub
   }
@@ -200,7 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, licenses, purchasedProducts, login, register, logout, changePassword, terminateSessions, purchaseProduct }}
+      value={{ user, licenses, purchasedProducts, login, register, logout, changePassword, updateNickname, updateEmail, terminateSessions, purchaseProduct }}
     >
       {children}
     </AuthContext.Provider>

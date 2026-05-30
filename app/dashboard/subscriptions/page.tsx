@@ -27,6 +27,12 @@ const iconMap: Record<string, React.ReactNode> = {
   Layers: <Layers className="h-6 w-6 text-primary" />,
 }
 
+const productGroups = [
+  { title: "PerformanceCoach CRM", ids: ["performancecoach-crm"] },
+  { title: "ScoutScope", ids: ["scoutscope-basic", "scoutscope-pro"] },
+  { title: "Комплексное решение", ids: ["performancecoach-scoutscope"] },
+]
+
 export default function SubscriptionsPage() {
   const { purchasedProducts, purchaseProduct } = useAuth()
   const router = useRouter()
@@ -135,30 +141,44 @@ export default function SubscriptionsPage() {
           Доступные продукты
         </h2>
 
-        {/* Step 1: Product selector */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-          {productsData.map((product) => (
-            <button
-              key={product.id}
-              onClick={() => setSelectedProduct(product.id)}
-              className={cn(
-                "relative rounded-2xl border p-4 text-left transition-all",
-                selectedProduct === product.id
-                  ? "border-primary bg-primary/5 shadow-md shadow-primary/10"
-                  : "border-border bg-card hover:border-primary/30 hover:shadow-sm"
-              )}
-            >
-              {product.popular && (
-                <Badge className="absolute -top-2 right-3 border-0 bg-primary text-primary-foreground text-[9px] px-1.5 py-0">
-                  Хит
-                </Badge>
-              )}
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 mb-3">
-                {iconMap[product.icon]}
+        {/* Step 1: Product selector — grouped by family */}
+        <div className="mb-8 space-y-6">
+          {productGroups.map((group, gi) => (
+            <div key={group.title}>
+              {gi > 0 && <div className="mb-6 border-t border-border" />}
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-3">
+                {group.title}
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {group.ids.map((id) => {
+                  const product = productsData.find((p) => p.id === id)
+                  if (!product) return null
+                  return (
+                    <button
+                      key={product.id}
+                      onClick={() => setSelectedProduct(product.id)}
+                      className={cn(
+                        "relative rounded-2xl border p-4 text-left transition-all",
+                        selectedProduct === product.id
+                          ? "border-primary bg-primary/5 shadow-md shadow-primary/10"
+                          : "border-border bg-card hover:border-primary/30 hover:shadow-sm"
+                      )}
+                    >
+                      {product.popular && (
+                        <Badge className="absolute -top-2 right-3 border-0 bg-primary text-primary-foreground text-[9px] px-1.5 py-0">
+                          Хит
+                        </Badge>
+                      )}
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 mb-3">
+                        {iconMap[product.icon]}
+                      </div>
+                      <p className="text-xs font-bold leading-tight">{product.name}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">от {product.priceRub.toLocaleString("ru-RU")} ₽/мес</p>
+                    </button>
+                  )
+                })}
               </div>
-              <p className="text-xs font-bold leading-tight">{product.name}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">от {product.priceRub.toLocaleString("ru-RU")} ₽/мес</p>
-            </button>
+            </div>
           ))}
         </div>
 
@@ -195,10 +215,10 @@ export default function SubscriptionsPage() {
                       key={i}
                       onClick={() => setSelectedTariffs((prev) => ({ ...prev, [product.id]: i }))}
                       className={cn(
-                        "relative rounded-2xl border p-5 text-left transition-all",
+                        "relative rounded-2xl border p-5 text-left transition-all duration-300 ease-out will-change-transform",
                         isSelected
-                          ? "border-primary bg-primary/5 shadow-lg shadow-primary/10 ring-1 ring-primary/20"
-                          : "border-border bg-card hover:border-primary/30"
+                          ? "border-primary bg-primary/5 shadow-lg shadow-primary/10 ring-1 ring-primary/20 -translate-y-1 scale-[1.03]"
+                          : "border-border bg-card hover:border-primary/30 hover:-translate-y-0.5"
                       )}
                     >
                       {tariff.discount > 0 && (
@@ -209,7 +229,12 @@ export default function SubscriptionsPage() {
 
                       <p className="text-sm font-bold mb-3">{tariff.label}</p>
 
-                      <p className="text-2xl font-bold">{total.toLocaleString("ru-RU")} ₽</p>
+                      <p
+                        key={total}
+                        className="text-2xl font-bold animate-in fade-in slide-in-from-bottom-1 duration-300"
+                      >
+                        {total.toLocaleString("ru-RU")} ₽
+                      </p>
                       <p className="text-xs text-primary font-medium mt-0.5">
                         {perMonth.toLocaleString("ru-RU")} ₽ / мес
                       </p>
@@ -220,10 +245,14 @@ export default function SubscriptionsPage() {
                         </p>
                       )}
 
-                      <div className={cn(
-                        "mt-3 h-1 rounded-full transition-colors",
-                        isSelected ? "bg-primary" : "bg-border"
-                      )} />
+                      <div className="mt-3 h-1 overflow-hidden rounded-full bg-border">
+                        <div
+                          className={cn(
+                            "h-full rounded-full bg-primary transition-all duration-500 ease-out",
+                            isSelected ? "w-full" : "w-0"
+                          )}
+                        />
+                      </div>
                     </button>
                   )
                 })}
@@ -266,8 +295,13 @@ export default function SubscriptionsPage() {
                 Приобрести {product.name} — {(() => {
                   const idx = selectedTariffs[product.id] ?? 0
                   const t = tariffs[idx]
-                  return Math.round(product.priceRub * t.months * (1 - t.discount)).toLocaleString("ru-RU")
-                })()} ₽
+                  const price = Math.round(product.priceRub * t.months * (1 - t.discount))
+                  return (
+                    <span key={price} className="ml-1 inline-block animate-in fade-in zoom-in-95 duration-300">
+                      {price.toLocaleString("ru-RU")} ₽
+                    </span>
+                  )
+                })()}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>

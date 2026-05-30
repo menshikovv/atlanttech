@@ -18,11 +18,18 @@ import {
   Copy,
   Eye,
   EyeOff,
+  Pencil,
+  X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export default function AccountPage() {
-  const { user, licenses, changePassword, terminateSessions } = useAuth()
+  const { user, licenses, changePassword, updateNickname, updateEmail, terminateSessions } = useAuth()
+  const [editingNickname, setEditingNickname] = useState(false)
+  const [nicknameInput, setNicknameInput] = useState("")
+  const [editingEmail, setEditingEmail] = useState(false)
+  const [emailInput, setEmailInput] = useState("")
+  const [emailError, setEmailError] = useState<string | null>(null)
   const [showChangePassword, setShowChangePassword] = useState(false)
   const [oldPassword, setOldPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
@@ -53,6 +60,33 @@ export default function AccountPage() {
       }, 2000)
     } else {
       setPwMsg({ ok: false, text: "Неверный текущий пароль" })
+    }
+  }
+
+  const startEditNickname = () => {
+    setNicknameInput(user?.name ?? "")
+    setEditingNickname(true)
+  }
+
+  const saveNickname = () => {
+    if (updateNickname(nicknameInput)) {
+      setEditingNickname(false)
+    }
+  }
+
+  const startEditEmail = () => {
+    setEmailInput(user?.email ?? "")
+    setEmailError(null)
+    setEditingEmail(true)
+  }
+
+  const saveEmail = () => {
+    const res = updateEmail(emailInput)
+    if (res.ok) {
+      setEditingEmail(false)
+      setEmailError(null)
+    } else {
+      setEmailError(res.error ?? "Ошибка")
     }
   }
 
@@ -91,16 +125,102 @@ export default function AccountPage() {
         <div className="grid gap-4 md:grid-cols-2">
           <div className="flex items-center gap-3 rounded-xl border border-border bg-secondary/30 p-4">
             <User className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-            <div className="min-w-0">
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Имя</p>
-              <p className="text-sm font-medium truncate">{user.name}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Никнейм</p>
+              {editingNickname ? (
+                <div className="flex items-center gap-2 mt-1">
+                  <Input
+                    value={nicknameInput}
+                    onChange={(e) => setNicknameInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") saveNickname()
+                      if (e.key === "Escape") setEditingNickname(false)
+                    }}
+                    autoFocus
+                    className="h-8 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={saveNickname}
+                    className="text-primary hover:text-primary/80 transition-colors flex-shrink-0"
+                    aria-label="Сохранить"
+                  >
+                    <Check className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingNickname(false)}
+                    className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+                    aria-label="Отменить"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium truncate">{user.name}</p>
+                  <button
+                    type="button"
+                    onClick={startEditNickname}
+                    className="text-muted-foreground hover:text-primary transition-colors flex-shrink-0"
+                    aria-label="Редактировать никнейм"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-3 rounded-xl border border-border bg-secondary/30 p-4">
             <Mail className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Email</p>
-              <p className="text-sm font-medium truncate">{user.email}</p>
+              {editingEmail ? (
+                <div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Input
+                      type="email"
+                      value={emailInput}
+                      onChange={(e) => setEmailInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") saveEmail()
+                        if (e.key === "Escape") setEditingEmail(false)
+                      }}
+                      autoFocus
+                      className="h-8 text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={saveEmail}
+                      className="text-primary hover:text-primary/80 transition-colors flex-shrink-0"
+                      aria-label="Сохранить"
+                    >
+                      <Check className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingEmail(false)}
+                      className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+                      aria-label="Отменить"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  {emailError && <p className="text-xs text-destructive mt-1.5">{emailError}</p>}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium truncate">{user.email}</p>
+                  <button
+                    type="button"
+                    onClick={startEditEmail}
+                    className="text-muted-foreground hover:text-primary transition-colors flex-shrink-0"
+                    aria-label="Редактировать email"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-3 rounded-xl border border-border bg-secondary/30 p-4 md:col-span-2">
