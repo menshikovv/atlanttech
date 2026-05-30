@@ -20,6 +20,7 @@ import {
   EyeOff,
   Pencil,
   X,
+  Sparkles,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -108,6 +109,28 @@ export default function AccountPage() {
       month: "long",
       year: "numeric",
     })
+  }
+
+  const plural = (n: number, forms: [string, string, string]) => {
+    const mod10 = n % 10
+    const mod100 = n % 100
+    if (mod10 === 1 && mod100 !== 11) return forms[0]
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return forms[1]
+    return forms[2]
+  }
+
+  const membershipDuration = (iso: string) => {
+    const start = new Date(iso)
+    const now = new Date()
+    const days = Math.max(0, Math.floor((now.getTime() - start.getTime()) / 86400000))
+    if (days === 0) return "сегодня"
+    const years = Math.floor(days / 365)
+    const months = Math.floor((days % 365) / 30)
+    const parts: string[] = []
+    if (years > 0) parts.push(`${years} ${plural(years, ["год", "года", "лет"])}`)
+    if (months > 0) parts.push(`${months} ${plural(months, ["месяц", "месяца", "месяцев"])}`)
+    if (parts.length === 0) parts.push(`${days} ${plural(days, ["день", "дня", "дней"])}`)
+    return parts.join(" ")
   }
 
   if (!user) return null
@@ -223,11 +246,21 @@ export default function AccountPage() {
               )}
             </div>
           </div>
-          <div className="flex items-center gap-3 rounded-xl border border-border bg-secondary/30 p-4 md:col-span-2">
-            <Calendar className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Дата регистрации</p>
-              <p className="text-sm font-medium">{formatDate(user.registeredAt)}</p>
+          <div className="flex items-center gap-4 rounded-xl border border-primary/15 bg-gradient-to-br from-primary/5 to-transparent p-4 md:col-span-2">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 flex-shrink-0">
+              <Calendar className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Дата регистрации</p>
+                <p className="text-sm font-medium">{formatDate(user.registeredAt)}</p>
+              </div>
+              <div className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 self-start sm:self-auto">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-medium text-primary">
+                  С нами уже {membershipDuration(user.registeredAt)}
+                </span>
+              </div>
             </div>
           </div>
         </div>
