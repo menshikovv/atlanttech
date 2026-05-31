@@ -1,5 +1,6 @@
 ﻿import type React from "react"
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import { Prosto_One } from "next/font/google"
 import { AnimatedBackground } from "@/components/animated-background"
 import { YandexMetrica } from "@/components/yandex-metrica"
@@ -29,7 +30,9 @@ export default function RootLayout({
         <AnimatedBackground />
         {children}
         <Footer />
-        <YandexMetrica />
+        <Suspense fallback={null}>
+          <YandexMetrica />
+        </Suspense>
         <CookieConsent />
       </body>
     </html>

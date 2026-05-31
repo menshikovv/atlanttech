@@ -55,12 +55,12 @@ export function DashboardHeader() {
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-border/50">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 md:h-20">
+        <div className="flex items-center h-16 md:h-20">
           <Link href="/" className="flex items-center">
             <AtlantLogo variant="icon" className="h-8 w-auto md:h-10 md:w-auto" />
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center justify-center gap-6 flex-1">
             <Link
               href="/dashboard/account"
               className="text-sm text-muted-foreground hover:text-primary transition-colors font-medium"

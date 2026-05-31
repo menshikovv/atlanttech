@@ -18,6 +18,7 @@ import {
   ShoppingBag,
   Package,
   Sparkles,
+  AlertCircle,
 } from "lucide-react"
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -46,7 +47,18 @@ export default function SubscriptionsPage() {
     setTimeout(() => setCopiedKey(null), 2000)
   }
 
+  // Check if a product already has an active (non-expired) subscription
+  const hasActiveSubscription = (productId: string) => {
+    const product = productsData.find((p) => p.id === productId)
+    if (!product) return false
+    return purchasedProducts.some(
+      (pp) => pp.productName === product.name && new Date(pp.expiresAt) > new Date()
+    )
+  }
+
   const handlePurchase = (productId: string) => {
+    if (hasActiveSubscription(productId)) return
+
     const tariffIdx = selectedTariffs[productId] ?? 0
     const tariff = tariffs[tariffIdx]
     const product = productsData.find((p) => p.id === productId)
@@ -287,23 +299,32 @@ export default function SubscriptionsPage() {
               </div>
 
               {/* Buy button */}
-              <Button
-                onClick={() => handlePurchase(product.id)}
-                className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25"
-                size="lg"
-              >
-                Приобрести {product.name} — {(() => {
-                  const idx = selectedTariffs[product.id] ?? 0
-                  const t = tariffs[idx]
-                  const price = Math.round(product.priceRub * t.months * (1 - t.discount))
-                  return (
-                    <span key={price} className="ml-1 inline-block animate-in fade-in zoom-in-95 duration-300">
-                      {price.toLocaleString("ru-RU")} ₽
-                    </span>
-                  )
-                })()}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+              {hasActiveSubscription(product.id) ? (
+                <div className="flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
+                  <AlertCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                  <p className="text-sm text-primary font-medium">
+                    У вас уже есть активная подписка на {product.name}. Вы сможете приобрести новую после окончания текущей или продлить её в разделе «Мои продукты».
+                  </p>
+                </div>
+              ) : (
+                <Button
+                  onClick={() => handlePurchase(product.id)}
+                  className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25"
+                  size="lg"
+                >
+                  Приобрести {product.name} — {(() => {
+                    const idx = selectedTariffs[product.id] ?? 0
+                    const t = tariffs[idx]
+                    const price = Math.round(product.priceRub * t.months * (1 - t.discount))
+                    return (
+                      <span key={price} className="ml-1 inline-block animate-in fade-in zoom-in-95 duration-300">
+                        {price.toLocaleString("ru-RU")} ₽
+                      </span>
+                    )
+                  })()}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              )}
             </div>
           )
         })()}

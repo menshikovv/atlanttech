@@ -293,7 +293,7 @@ export default function AccountPage() {
                       value={oldPassword}
                       onChange={(e) => setOldPassword(e.target.value)}
                     />
-                    <button type="button" onClick={() => setShowOld(!showOld)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <button type="button" onClick={() => setShowOld(!showOld)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary hover:scale-110 active:scale-95 transition-all duration-200">
                       {showOld ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
@@ -306,7 +306,7 @@ export default function AccountPage() {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                     />
-                    <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary hover:scale-110 active:scale-95 transition-all duration-200">
                       {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
