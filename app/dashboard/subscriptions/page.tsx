@@ -13,12 +13,13 @@ import {
   Shield,
   Layers,
   Check,
-  Copy,
   ArrowRight,
   ShoppingBag,
   Package,
   Sparkles,
   AlertCircle,
+  Calendar,
+  Clock,
 } from "lucide-react"
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -35,24 +36,15 @@ const productGroups = [
 ]
 
 export default function SubscriptionsPage() {
-  const { purchasedProducts, purchaseProduct } = useAuth()
+  const { subscriptions, purchaseProduct } = useAuth()
   const router = useRouter()
-  const [copiedKey, setCopiedKey] = useState<string | null>(null)
   const [selectedProduct, setSelectedProduct] = useState(productsData[0].id)
   const [selectedTariffs, setSelectedTariffs] = useState<Record<string, number>>({})
 
-  const copyKey = (key: string) => {
-    navigator.clipboard.writeText(key)
-    setCopiedKey(key)
-    setTimeout(() => setCopiedKey(null), 2000)
-  }
-
-  // Check if a product already has an active (non-expired) subscription
+  // Check if a product already has an active (non-expired, not deactivated) subscription
   const hasActiveSubscription = (productId: string) => {
-    const product = productsData.find((p) => p.id === productId)
-    if (!product) return false
-    return purchasedProducts.some(
-      (pp) => pp.productName === product.name && new Date(pp.expiresAt) > new Date()
+    return subscriptions.some(
+      (s) => s.productId === productId && s.active && new Date(s.expiresAt) > new Date()
     )
   }
 
@@ -70,7 +62,6 @@ export default function SubscriptionsPage() {
       const params = new URLSearchParams({
         productName: purchased.productName,
         tariff: purchased.tariff,
-        key: purchased.key,
         expiresAt: purchased.expiresAt,
         price: totalPrice.toString(),
       })
@@ -92,7 +83,7 @@ export default function SubscriptionsPage() {
           Мои продукты
         </h2>
 
-        {purchasedProducts.length === 0 ? (
+        {subscriptions.length === 0 ? (
           <div className="glass-strong rounded-2xl p-8 text-center">
             <ShoppingBag className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
             <p className="text-muted-foreground text-sm">У вас пока нет приобретённых продуктов</p>
@@ -100,48 +91,59 @@ export default function SubscriptionsPage() {
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {purchasedProducts.map((prod) => (
-              <div
-                key={prod.id}
-                className="glass-strong rounded-2xl p-6 border border-primary/10 hover:shadow-lg transition-shadow"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                    {iconMap[prod.icon] || <Package className="h-6 w-6 text-primary" />}
-                  </div>
-                  <Badge className="bg-primary/10 text-primary border-0 text-[10px]">{prod.tariff}</Badge>
-                </div>
-                <h3 className="font-bold text-sm">{prod.productName}</h3>
-                <p className="text-xs text-muted-foreground mt-1">Действует до: {formatDate(prod.expiresAt)}</p>
-
-                <div className="mt-4 flex items-center gap-2">
-                  <code className="text-xs bg-secondary px-2 py-1.5 rounded font-mono flex-1 truncate">
-                    {prod.key}
-                  </code>
-                  <button
-                    onClick={() => copyKey(prod.key)}
-                    className="flex-shrink-0 p-1.5 rounded-lg hover:bg-secondary transition-colors text-muted-foreground hover:text-primary"
-                  >
-                    {copiedKey === prod.key ? (
-                      <Check className="h-4 w-4 text-primary" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full mt-4 text-xs"
-                  onClick={() => handlePurchase(
-                    productsData.find((p) => p.name === prod.productName)?.id || ""
-                  )}
+            {subscriptions.map((sub) => {
+              const expired = new Date(sub.expiresAt) <= new Date()
+              const isActive = sub.active && !expired
+              return (
+                <div
+                  key={sub.id}
+                  className="glass-strong rounded-2xl p-6 border border-primary/10 hover:shadow-lg transition-shadow"
                 >
-                  Продлить
-                </Button>
-              </div>
-            ))}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                      {iconMap[sub.icon] || <Package className="h-6 w-6 text-primary" />}
+                    </div>
+                    <Badge className="bg-primary/10 text-primary border-0 text-[10px]">
+                      {sub.tariff}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-bold text-sm">{sub.productName}</h3>
+                    <Badge
+                      className={cn(
+                        "text-[10px] border-0",
+                        isActive
+                          ? "bg-emerald-500/10 text-emerald-700"
+                          : "bg-muted text-muted-foreground"
+                      )}
+                    >
+                      {isActive ? "Активна" : expired ? "Истекла" : "Отключена"}
+                    </Badge>
+                  </div>
+                  <div className="mt-3 space-y-1 text-xs text-muted-foreground">
+                    <p className="flex items-center gap-1.5">
+                      <Calendar className="h-3 w-3" />
+                      Оплачена: {formatDate(sub.paidAt)}
+                    </p>
+                    <p className="flex items-center gap-1.5">
+                      <Clock className="h-3 w-3" />
+                      Действует до: {formatDate(sub.expiresAt)}
+                    </p>
+                  </div>
+
+                  {(expired || !sub.active) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full mt-4 text-xs"
+                      onClick={() => handlePurchase(sub.productId)}
+                    >
+                      Продлить
+                    </Button>
+                  )}
+                </div>
+              )
+            })}
           </div>
         )}
       </section>

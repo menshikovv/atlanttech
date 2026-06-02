@@ -19,6 +19,7 @@ import {
   RotateCcw,
   BookOpen,
   Package,
+  ShieldCheck,
 } from "lucide-react"
 
 const documentLinks = [
@@ -79,6 +80,15 @@ export function DashboardHeader() {
             >
               Продукты
             </Link>
+            {user?.role === "admin" && (
+              <Link
+                href="/dashboard/admin"
+                className="text-sm text-primary hover:text-primary/80 transition-colors font-medium flex items-center gap-1.5"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Админ
+              </Link>
+            )}
           </nav>
 
           <div className="relative" ref={menuRef}>
@@ -132,6 +142,16 @@ export function DashboardHeader() {
                     <Package className="h-4 w-4 text-muted-foreground" />
                     Продукты
                   </Link>
+                  {user?.role === "admin" && (
+                    <Link
+                      href="/dashboard/admin"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-primary/5 transition-colors text-primary font-medium"
+                    >
+                      <ShieldCheck className="h-4 w-4" />
+                      Админ-панель
+                    </Link>
+                  )}
 
                   <div>
                     <button

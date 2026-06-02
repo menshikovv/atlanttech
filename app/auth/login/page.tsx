@@ -28,11 +28,11 @@ export default function LoginPage() {
     }
     setLoading(true)
     setTimeout(() => {
-      const ok = login(email, password)
-      if (ok) {
+      const res = login(email, password)
+      if (res.ok) {
         router.push("/dashboard")
       } else {
-        setError("Неверный email или пароль")
+        setError(res.error ?? "Неверный email или пароль")
       }
       setLoading(false)
     }, 500)

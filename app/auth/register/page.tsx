@@ -45,11 +45,11 @@ export default function RegisterPage() {
     }
     setLoading(true)
     setTimeout(() => {
-      const ok = register(name, email, password)
-      if (ok) {
+      const res = register(name, email, password)
+      if (res.ok) {
         router.push("/dashboard")
       } else {
-        setError("Пользователь с таким email уже существует")
+        setError(res.error ?? "Пользователь с таким email уже существует")
       }
       setLoading(false)
     }, 500)

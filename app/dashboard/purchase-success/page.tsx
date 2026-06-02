@@ -3,24 +3,15 @@
 import { useSearchParams } from "next/navigation"
 import { Suspense } from "react"
 import Link from "next/link"
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Check, Copy, ArrowRight, PartyPopper, Download } from "lucide-react"
+import { ArrowRight, PartyPopper, Download, ShieldCheck } from "lucide-react"
 
 function PurchaseSuccessContent() {
   const params = useSearchParams()
   const productName = params.get("productName") || "Продукт"
   const tariff = params.get("tariff") || ""
-  const key = params.get("key") || ""
   const expiresAt = params.get("expiresAt") || ""
   const price = params.get("price") || "0"
-  const [copied, setCopied] = useState(false)
-
-  const copyKey = () => {
-    navigator.clipboard.writeText(key)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
 
   const formatDate = (iso: string) => {
     if (!iso) return "—"
@@ -40,7 +31,9 @@ function PurchaseSuccessContent() {
           </div>
 
           <h1 className="text-2xl font-bold mb-2">Оплата прошла успешно</h1>
-          <p className="text-muted-foreground text-sm mb-8">Ваша подписка активирована</p>
+          <p className="text-muted-foreground text-sm mb-8">
+            Подписка активирована — доступ к продукту открыт
+          </p>
 
           <div className="space-y-4 text-left">
             <div className="rounded-xl bg-secondary/50 p-4">
@@ -55,35 +48,29 @@ function PurchaseSuccessContent() {
               </div>
               <div className="rounded-xl bg-secondary/50 p-4">
                 <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Стоимость</p>
-                <p className="font-medium text-sm mt-1">{Number(price).toLocaleString("ru-RU")} ₽</p>
+                <p className="font-medium text-sm mt-1">
+                  {Number(price).toLocaleString("ru-RU")} ₽
+                </p>
               </div>
             </div>
 
-            <div className="rounded-xl bg-secondary/50 p-4">
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Ключ продукта</p>
-              <div className="flex items-center gap-2 mt-2">
-                <code className="text-sm bg-white/60 px-3 py-2 rounded-lg font-mono flex-1 break-all">{key}</code>
-                <button
-                  onClick={copyKey}
-                  className="flex-shrink-0 p-2 rounded-lg hover:bg-white/60 transition-colors text-muted-foreground hover:text-primary"
-                >
-                  {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
-                </button>
+            <div className="rounded-xl bg-primary/5 border border-primary/15 p-4">
+              <div className="flex items-start gap-3">
+                <ShieldCheck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-primary font-semibold">
+                    Доступ активирован
+                  </p>
+                  <p className="text-sm mt-1">
+                    Действует до <strong>{formatDate(expiresAt)}</strong>. Никаких ключей вводить
+                    не нужно — доступ привязан к аккаунту.
+                  </p>
+                </div>
               </div>
-            </div>
-
-            <div className="rounded-xl bg-secondary/50 p-4">
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Срок действия</p>
-              <p className="font-medium text-sm mt-1">до {formatDate(expiresAt)}</p>
             </div>
           </div>
 
           <div className="mt-8 space-y-3">
-            <Button onClick={copyKey} variant="outline" className="w-full gap-2">
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-              {copied ? "Скопировано" : "Скопировать ключ"}
-            </Button>
-
             <Button asChild variant="outline" className="w-full gap-2">
               <a href="#">
                 <Download className="h-4 w-4" />

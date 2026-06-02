@@ -11,21 +11,21 @@ import {
   Mail,
   Calendar,
   Shield,
-  Key,
+  Package,
   Lock,
   LogOut,
   Check,
-  Copy,
   Eye,
   EyeOff,
   Pencil,
   X,
   Sparkles,
+  Clock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export default function AccountPage() {
-  const { user, licenses, changePassword, updateNickname, updateEmail, terminateSessions } = useAuth()
+  const { user, subscriptions, changePassword, updateNickname, updateEmail, terminateSessions } = useAuth()
   const [editingNickname, setEditingNickname] = useState(false)
   const [nicknameInput, setNicknameInput] = useState("")
   const [editingEmail, setEditingEmail] = useState(false)
@@ -37,7 +37,6 @@ export default function AccountPage() {
   const [showOld, setShowOld] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [pwMsg, setPwMsg] = useState<{ ok: boolean; text: string } | null>(null)
-  const [copiedKey, setCopiedKey] = useState<string | null>(null)
   const [sessionsMsg, setSessionsMsg] = useState(false)
 
   const handleChangePassword = (e: React.FormEvent) => {
@@ -95,12 +94,6 @@ export default function AccountPage() {
     terminateSessions()
     setSessionsMsg(true)
     setTimeout(() => setSessionsMsg(false), 3000)
-  }
-
-  const copyKey = (key: string) => {
-    navigator.clipboard.writeText(key)
-    setCopiedKey(key)
-    setTimeout(() => setCopiedKey(null), 2000)
   }
 
   const formatDate = (iso: string) => {
@@ -335,49 +328,63 @@ export default function AccountPage() {
         </div>
       </section>
 
-      {/* Licenses */}
+      {/* Subscriptions */}
       <section className="glass-strong rounded-2xl p-6 md:p-8">
         <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
-          <Key className="h-5 w-5 text-primary" />
-          Лицензии
+          <Package className="h-5 w-5 text-primary" />
+          Мои подписки
         </h2>
 
-        {licenses.length === 0 ? (
+        {subscriptions.length === 0 ? (
           <div className="text-center py-8">
-            <Key className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
-            <p className="text-muted-foreground text-sm">У вас пока нет активных лицензий</p>
+            <Package className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
+            <p className="text-muted-foreground text-sm">У вас пока нет активных подписок</p>
             <Button asChild variant="outline" className="mt-4" size="sm">
               <a href="/dashboard/subscriptions">Перейти к продуктам</a>
             </Button>
           </div>
         ) : (
           <div className="space-y-3">
-            {licenses.map((lic) => (
-              <div key={lic.id} className="flex flex-col md:flex-row md:items-center justify-between gap-3 rounded-xl border border-border p-4 bg-secondary/20">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="font-medium text-sm">{lic.productName}</p>
-                    <Badge variant={lic.active ? "default" : "secondary"} className="text-[10px]">
-                      {lic.active ? "Активна" : "Истекла"}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">Тариф: {lic.tariff}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <code className="text-xs bg-secondary px-2 py-1 rounded font-mono">{lic.key}</code>
-                    <button
-                      onClick={() => copyKey(lic.key)}
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      {copiedKey === lic.key ? <Check className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
-                    </button>
+            {subscriptions.map((sub) => {
+              const expired = new Date(sub.expiresAt) <= new Date()
+              const isActive = sub.active && !expired
+              return (
+                <div
+                  key={sub.id}
+                  className="flex flex-col md:flex-row md:items-center justify-between gap-3 rounded-xl border border-border p-4 bg-secondary/20"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium text-sm">{sub.productName}</p>
+                      <Badge
+                        variant={isActive ? "default" : "secondary"}
+                        className={cn(
+                          "text-[10px]",
+                          isActive
+                            ? "bg-primary/10 text-primary border-0"
+                            : "bg-muted text-muted-foreground border-0"
+                        )}
+                      >
+                        {isActive ? "Активна" : expired ? "Истекла" : "Отключена"}
+                      </Badge>
+                      <Badge variant="outline" className="text-[10px]">
+                        {sub.tariff}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        Оплачена: {formatDate(sub.paidAt)}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        До: {formatDate(sub.expiresAt)}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="text-right text-xs text-muted-foreground">
-                  <p>Выдан: {formatDate(lic.issuedAt)}</p>
-                  <p>Действует до: {formatDate(lic.expiresAt)}</p>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </section>
