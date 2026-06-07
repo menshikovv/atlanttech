@@ -128,7 +128,8 @@ function AvailableTariffCard({
   product: SiteCatalogProduct | null
 }) {
   const href = product ? `/dashboard/products?product=${encodeURIComponent(product.id)}` : "/dashboard/products"
-  const priceText = product ? `от ${product.priceRub.toLocaleString("ru-RU")} ₽ / мес` : "Подробнее в каталоге"
+  const priceRubText = product ? `от ${product.priceRub.toLocaleString("ru-RU")} ₽ / мес` : "Подробнее в каталоге"
+  const priceUsdText = product ? `≈ $${product.priceUsd.toLocaleString("en-US")} / мес` : null
 
   return (
     <article className="glass-strong rounded-2xl border border-border p-6 transition-all hover:-translate-y-1 hover:shadow-lg">
@@ -152,7 +153,12 @@ function AvailableTariffCard({
       </div>
 
       <div className="mt-6 flex items-center justify-between gap-3">
-        <span className="text-sm font-semibold">{priceText}</span>
+        <div>
+          <span className="block text-sm font-semibold">{priceRubText}</span>
+          {priceUsdText && (
+            <span className="block text-xs text-muted-foreground mt-0.5">{priceUsdText}</span>
+          )}
+        </div>
         <Button asChild>
           <Link href={href}>Открыть продукт</Link>
         </Button>

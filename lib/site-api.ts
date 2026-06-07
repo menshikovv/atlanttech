@@ -154,7 +154,7 @@ type RequestOptions = {
   token?: string | null
 }
 
-const API_PREFIX = "/api/site"
+const API_PREFIX = "https://atlanttech.pro/api/site"
 const TOKEN_STORAGE_KEY = "twizz_site_token_v1"
 
 export function readStoredSiteToken() {

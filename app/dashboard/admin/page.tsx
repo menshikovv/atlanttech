@@ -124,6 +124,7 @@ export default function AdminPage() {
   const [historyLoading, setHistoryLoading] = useState(false)
   const [statusMessage, setStatusMessage] = useState("Список пользователей загружается.")
   const [tariffSubmitting, setTariffSubmitting] = useState(false)
+  const [quickSubmitting, setQuickSubmitting] = useState(false)
   const [accessSubmitting, setAccessSubmitting] = useState(false)
   const [catalogLoading, setCatalogLoading] = useState(false)
   const [catalogSubmitting, setCatalogSubmitting] = useState(false)
@@ -355,6 +356,41 @@ export default function AdminPage() {
     return null
   }
 
+  const quickAssignTariff = async (tariffCode: "base" | "pro", title: string) => {
+    if (!selectedUser) {
+      setStatusMessage("Сначала выберите пользователя в таблице.")
+      return
+    }
+    if (!canManageTariffs) {
+      setStatusMessage("Только main admin может выдавать тарифы.")
+      return
+    }
+
+    const now = new Date()
+    const expires = new Date(now)
+    expires.setMonth(expires.getMonth() + 1)
+
+    setQuickSubmitting(true)
+    const result = await updateUserTariff(selectedUser.id, {
+      tariffCode,
+      tariffStatus: "active",
+      startsAt: now.toISOString(),
+      expiresAt: expires.toISOString(),
+      note: `Quick assign: ${title}`,
+    })
+    setQuickSubmitting(false)
+
+    if (!result.ok) {
+      setStatusMessage(result.error || `Не удалось выдать ${title}.`)
+      return
+    }
+
+    setStatusMessage(`Тариф «${title}» выдан пользователю ${selectedUser.email}.`)
+    await refreshAdminData()
+    const items = await loadTariffHistory(selectedUser.id, 20)
+    setHistory(items)
+  }
+
   const handleTariffSubmit = async (event: FormEvent) => {
     event.preventDefault()
     if (!selectedUser) {
@@ -533,8 +569,8 @@ export default function AdminPage() {
         {statusMessage}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <section className="glass-strong rounded-2xl border border-border overflow-hidden">
+      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr] xl:items-start">
+        <section className="glass-strong rounded-2xl border border-border overflow-hidden xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:flex xl:flex-col">
           <header className="flex flex-col gap-3 border-b border-border bg-secondary/30 px-5 py-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-sm font-bold uppercase tracking-wider">Пользователи</h2>
@@ -551,10 +587,10 @@ export default function AdminPage() {
             </div>
           </header>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-auto xl:flex-1">
             <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-secondary/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+              <thead className="sticky top-0 bg-secondary/95 backdrop-blur z-10">
+                <tr className="text-[10px] uppercase tracking-wider text-muted-foreground">
                   <th className="px-5 py-3 text-left font-semibold">Login</th>
                   <th className="px-5 py-3 text-left font-semibold">Email</th>
                   <th className="px-5 py-3 text-left font-semibold">Role</th>
@@ -607,6 +643,41 @@ export default function AdminPage() {
                     <Badge variant="outline">{roleLabel(selectedUser.siteRole)}</Badge>
                     <Badge variant="outline">{selectedUser.blocked ? "disabled" : "active"}</Badge>
                   </div>
+                </div>
+
+                {/* Быстрая выдача тарифа */}
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.preventDefault()
+                      event.stopPropagation()
+                      void quickAssignTariff("base", "ScoutScope Basic")
+                    }}
+                    disabled={!canManageTariffs || quickSubmitting}
+                    className="group flex items-center gap-3 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent px-4 py-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20 hover:border-primary/40 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15 text-primary transition-transform group-hover:scale-110 flex-shrink-0">
+                      <Sparkles className="h-5 w-5" />
+                    </div>
+                    <p className="text-sm font-bold">Добавить базу</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.preventDefault()
+                      event.stopPropagation()
+                      void quickAssignTariff("pro", "ScoutScope Pro")
+                    }}
+                    disabled={!canManageTariffs || quickSubmitting}
+                    className="group flex items-center gap-3 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent px-4 py-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 hover:border-primary/50 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-transform group-hover:scale-110 shadow-md shadow-primary/30 flex-shrink-0">
+                      <Package className="h-5 w-5" />
+                    </div>
+                    <p className="text-sm font-bold">Добавить ScoutScope</p>
+                  </button>
                 </div>
 
                 <form onSubmit={handleTariffSubmit} className="space-y-4">

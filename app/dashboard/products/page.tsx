@@ -125,8 +125,8 @@ function buildFallbackCatalog(): SiteCatalogResponse {
   }
 }
 
-function calculateTotal(priceRub: number, period: SiteSubscriptionPeriod) {
-  return Math.round(priceRub * period.months * (1 - period.discount) * 100) / 100
+function calculateTotal(price: number, period: SiteSubscriptionPeriod) {
+  return Math.round(price * period.months * (1 - period.discount) * 100) / 100
 }
 
 function submitRobokassaForm(action: string, fields: Record<string, string>) {
@@ -237,6 +237,7 @@ export default function ProductsPage() {
           const selectedMonths = periodByProductId[product.id] || periods[0]?.months || 1
           const selectedPeriod = periods.find((item) => item.months === selectedMonths) || periods[0]
           const total = calculateTotal(product.priceRub, selectedPeriod)
+          const totalUsd = calculateTotal(product.priceUsd, selectedPeriod)
           const highlighted = selectedProductId === product.id
 
           return (
@@ -300,7 +301,9 @@ export default function ProductsPage() {
                 <aside className="xl:w-[340px] rounded-2xl border border-primary/20 bg-primary/5 p-5">
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Оплата через Robokassa</p>
                   <p className="text-2xl font-bold mt-3">{total.toLocaleString("ru-RU")} ₽</p>
-                  <p className="text-sm text-muted-foreground mt-1">${product.priceUsd} / 1 месяц</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    ≈ ${totalUsd.toLocaleString("en-US")} за {selectedPeriod.months} мес.
+                  </p>
 
                   <div className="mt-5">
                     <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3">Период</p>

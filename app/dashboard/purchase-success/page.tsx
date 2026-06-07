@@ -12,6 +12,7 @@ function PurchaseSuccessContent() {
   const tariff = params.get("tariff") || ""
   const expiresAt = params.get("expiresAt") || ""
   const price = params.get("price") || "0"
+  const priceUsd = params.get("priceUsd")
 
   const formatDate = (iso: string) => {
     if (!iso) return "—"
@@ -51,6 +52,11 @@ function PurchaseSuccessContent() {
                 <p className="font-medium text-sm mt-1">
                   {Number(price).toLocaleString("ru-RU")} ₽
                 </p>
+                {priceUsd && (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    ≈ ${Number(priceUsd).toLocaleString("en-US")}
+                  </p>
+                )}
               </div>
             </div>
 
