@@ -1,11 +1,9 @@
 "use client"
 
-import type { FormEvent } from "react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
-import { fetchPublicTariffs, type SiteTariff } from "@/lib/site-api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,87 +12,47 @@ import { AtlantLogo } from "@/components/twizz-logo"
 import { Eye, EyeOff, UserPlus } from "lucide-react"
 
 export default function RegisterPage() {
-  const { register, ready, user } = useAuth()
+  const { register } = useAuth()
   const router = useRouter()
-  const [login, setLogin] = useState("")
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [tariffs, setTariffs] = useState<SiteTariff[]>([])
-  const [tariffCode, setTariffCode] = useState("base")
   const [agreedTerms, setAgreedTerms] = useState(false)
   const [agreedPrivacy, setAgreedPrivacy] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    if (ready && user) {
-      router.replace("/dashboard/account")
-    }
-  }, [ready, router, user])
-
-  useEffect(() => {
-    let active = true
-    fetchPublicTariffs()
-      .then((payload) => {
-        if (!active) return
-        setTariffs(payload.items || [])
-        if (payload.items?.[0]?.code) {
-          setTariffCode(payload.items[0].code)
-        }
-      })
-      .catch(() => {
-        if (!active) return
-        setTariffs([
-          { code: "base", title: "ScoutScope Basic", defaultDays: 7, requestWindowHours: 12, maxEloSpan: 500, maxAgeSpan: 3, maxResults: 11000, comparePlayersLimit: 3, unrestricted: false },
-          { code: "pro", title: "ScoutScope Pro", defaultDays: 31, requestWindowHours: 0, maxEloSpan: null, maxAgeSpan: null, maxResults: null, comparePlayersLimit: null, unrestricted: true },
-        ])
-      })
-
-    return () => {
-      active = false
-    }
-  }, [])
-
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault()
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
     setError("")
-
-    if (!login || !name || !email || !password || !confirmPassword) {
-      setError("Заполните все поля.")
+    if (!name || !email || !password || !confirmPassword) {
+      setError("Заполните все поля")
       return
     }
     if (password !== confirmPassword) {
-      setError("Пароли не совпадают.")
+      setError("Пароли не совпадают")
       return
     }
-    if (password.length < 8) {
-      setError("Пароль должен быть не короче 8 символов.")
+    if (password.length < 6) {
+      setError("Пароль должен быть не менее 6 символов")
       return
     }
     if (!agreedTerms || !agreedPrivacy) {
-      setError("Необходимо принять оба соглашения.")
+      setError("Необходимо принять оба соглашения")
       return
     }
-
     setLoading(true)
-    const result = await register({
-      login,
-      name,
-      email,
-      password,
-      tariffCode,
-    })
-    setLoading(false)
-
-    if (result.ok) {
-      router.push("/dashboard/account")
-      return
-    }
-
-    setError(result.error || "Не удалось зарегистрировать пользователя.")
+    setTimeout(() => {
+      const res = register(name, email, password)
+      if (res.ok) {
+        router.push("/dashboard")
+      } else {
+        setError(res.error ?? "Пользователь с таким email уже существует")
+      }
+      setLoading(false)
+    }, 500)
   }
 
   return (
@@ -105,25 +63,11 @@ export default function RegisterPage() {
             <AtlantLogo variant="icon" className="h-10 w-auto mx-auto" />
           </Link>
           <h1 className="mt-6 text-2xl font-bold">Создать аккаунт</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Регистрация сохраняется в серверной базе пользователей.
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground">Зарегистрируйтесь для доступа к продуктам</p>
         </div>
 
         <div className="glass-strong rounded-2xl p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="login">Логин</Label>
-              <Input
-                id="login"
-                type="text"
-                placeholder="diletant"
-                value={login}
-                onChange={(event) => setLogin(event.target.value)}
-                autoComplete="username"
-              />
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="name">Имя</Label>
               <Input
@@ -131,7 +75,7 @@ export default function RegisterPage() {
                 type="text"
                 placeholder="Ваше имя"
                 value={name}
-                onChange={(event) => setName(event.target.value)}
+                onChange={(e) => setName(e.target.value)}
                 autoComplete="name"
               />
             </div>
@@ -143,25 +87,9 @@ export default function RegisterPage() {
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="tariff">Тариф</Label>
-              <select
-                id="tariff"
-                value={tariffCode}
-                onChange={(event) => setTariffCode(event.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                {tariffs.map((item) => (
-                  <option key={item.code} value={item.code}>
-                    {item.title}
-                  </option>
-                ))}
-              </select>
             </div>
 
             <div className="space-y-2">
@@ -170,15 +98,15 @@ export default function RegisterPage() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Минимум 8 символов"
+                  placeholder="Минимум 6 символов"
                   value={password}
-                  onChange={(event) => setPassword(event.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   autoComplete="new-password"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword((value) => !value)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary hover:scale-110 active:scale-95 transition-all duration-200"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -192,7 +120,7 @@ export default function RegisterPage() {
                 type={showPassword ? "text" : "password"}
                 placeholder="Повторите пароль"
                 value={confirmPassword}
-                onChange={(event) => setConfirmPassword(event.target.value)}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 autoComplete="new-password"
               />
             </div>
@@ -202,10 +130,10 @@ export default function RegisterPage() {
                 <Checkbox
                   id="agreeTerms"
                   checked={agreedTerms}
-                  onCheckedChange={(value) => setAgreedTerms(value === true)}
+                  onCheckedChange={(v) => setAgreedTerms(v === true)}
                   className="mt-0.5 flex-shrink-0"
                 />
-                <label htmlFor="agreeTerms" className="cursor-pointer leading-relaxed text-xs text-muted-foreground">
+                <label htmlFor="agreeTerms" className="cursor-pointer leading-relaxed" style={{ fontFamily: "system-ui, -apple-system, sans-serif", fontSize: "12px", color: "var(--muted-foreground)" }}>
                   Принимаю{" "}
                   <Link href="/user-agreement" className="text-primary hover:underline">
                     пользовательское соглашение
@@ -216,10 +144,10 @@ export default function RegisterPage() {
                 <Checkbox
                   id="agreePrivacy"
                   checked={agreedPrivacy}
-                  onCheckedChange={(value) => setAgreedPrivacy(value === true)}
+                  onCheckedChange={(v) => setAgreedPrivacy(v === true)}
                   className="mt-0.5 flex-shrink-0"
                 />
-                <label htmlFor="agreePrivacy" className="cursor-pointer leading-relaxed text-xs text-muted-foreground">
+                <label htmlFor="agreePrivacy" className="cursor-pointer leading-relaxed" style={{ fontFamily: "system-ui, -apple-system, sans-serif", fontSize: "12px", color: "var(--muted-foreground)" }}>
                   Принимаю{" "}
                   <Link href="/privacy-policy" className="text-primary hover:underline">
                     политику конфиденциальности
@@ -228,9 +156,9 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {error ? (
+            {error && (
               <p className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2">{error}</p>
-            ) : null}
+            )}
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (

@@ -1,16 +1,49 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react"
+import {
+  clearStoredSiteToken,
+  fetchAdminUsers,
+  fetchCurrentSiteUser,
+  fetchUserTariffHistory,
+  loginSiteUser,
+  patchUserAccess,
+  patchUserTariff,
+  readStoredSiteToken,
+  registerSiteUser,
+  writeStoredSiteToken,
+  type SiteTariffHistoryItem,
+  type SiteUserPayload,
+} from "@/lib/site-api"
 
 export type UserRole = "user" | "admin"
 
 export type User = {
   id: string
+  login: string
   name: string
   email: string
   registeredAt: string
+  lastLoginAt: string | null
   role: UserRole
   blocked: boolean
+  tariffCode: string
+  tariffTitle: string
+  tariffStatus: string
+  tariffGrantedAt: string | null
+  tariffStartsAt: string | null
+  tariffExpiresAt: string | null
+  tariffDaysLeft: number | null
+  isTariffExpired: boolean
+  siteRole: string
 }
 
 export type Subscription = {
@@ -18,7 +51,7 @@ export type Subscription = {
   userId: string
   productId: string
   productName: string
-  tariff: string // "1 мес." / "3 мес." / "6 мес."
+  tariff: string
   months: number
   price: number
   paidAt: string
@@ -27,321 +60,345 @@ export type Subscription = {
   active: boolean
 }
 
-type Credential = { userId: string; password: string }
+type AuthResult = {
+  ok: boolean
+  error?: string
+}
 
-type StoredData = {
-  currentUserId: string | null
-  users: User[]
-  credentials: Credential[]
-  subscriptions: Subscription[]
-  schemaVersion: number
+type RegisterPayload = {
+  login: string
+  name: string
+  email: string
+  password: string
+  tariffCode: string
+}
+
+type TariffPatchPayload = {
+  tariffCode: string
+  tariffStatus: string
+  startsAt?: string | null
+  expiresAt?: string | null
+  note?: string
+}
+
+type AccessPatchPayload = {
+  siteRole: string
+  isActive: boolean
+  note?: string
 }
 
 type AuthContextType = {
+  ready: boolean
+  loading: boolean
   user: User | null
-  subscriptions: Subscription[] // current user's subs
-  allUsers: User[] // admin only
-  allSubscriptions: Subscription[] // admin only
-  login: (email: string, password: string) => { ok: boolean; error?: string }
-  register: (name: string, email: string, password: string) => { ok: boolean; error?: string }
+  subscriptions: Subscription[]
+  allUsers: User[]
+  allSubscriptions: Subscription[]
+  login: (loginOrEmail: string, password: string) => Promise<AuthResult>
+  register: (payload: RegisterPayload) => Promise<AuthResult>
   logout: () => void
-  changePassword: (oldPassword: string, newPassword: string) => boolean
-  updateNickname: (nickname: string) => boolean
-  updateEmail: (email: string) => { ok: boolean; error?: string }
-  terminateSessions: () => void
-  purchaseProduct: (productId: string, tariff: string) => Subscription | null
-  // Admin actions
-  adminToggleBlockUser: (userId: string) => void
-  adminToggleAdmin: (userId: string) => void
-  adminDeleteUser: (userId: string) => void
-  adminDeleteSubscription: (subId: string) => void
-  adminToggleSubscriptionActive: (subId: string) => void
-  adminExtendSubscription: (subId: string, addMonths: number) => void
+  refreshUser: () => Promise<void>
+  refreshAdminData: () => Promise<void>
+  loadTariffHistory: (userId: string, limit?: number) => Promise<SiteTariffHistoryItem[]>
+  updateUserTariff: (userId: string, payload: TariffPatchPayload) => Promise<AuthResult>
+  updateUserAccess: (userId: string, payload: AccessPatchPayload) => Promise<AuthResult>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export function useAuth() {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider")
-  return ctx
+  const context = useContext(AuthContext)
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider")
+  }
+  return context
 }
 
-const STORAGE_KEY = "twizz_auth_v2"
-const SCHEMA_VERSION = 2
+function isAdminUser(payload: SiteUserPayload | User | null) {
+  if (!payload) return false
+  const siteRole = String("siteRole" in payload ? payload.siteRole : "").trim().toLowerCase()
+  return siteRole === "admin" || siteRole === "main_admin"
+}
 
-const ADMIN_EMAIL = "admin@twizz.local"
-const ADMIN_PASSWORD = "admin123"
-
-function emptyStore(): StoredData {
+function mapUser(payload: SiteUserPayload): User {
   return {
-    currentUserId: null,
-    users: [],
-    credentials: [],
-    subscriptions: [],
-    schemaVersion: SCHEMA_VERSION,
+    id: String(payload.id || ""),
+    login: String(payload.login || ""),
+    name: String(payload.name || payload.login || ""),
+    email: String(payload.email || ""),
+    registeredAt: String(payload.registeredAt || payload.createdAt || new Date().toISOString()),
+    lastLoginAt: payload.lastLoginAt || null,
+    role: isAdminUser(payload) ? "admin" : "user",
+    blocked: !payload.isActive,
+    tariffCode: String(payload.tariff?.code || "base"),
+    tariffTitle: String(payload.tariff?.title || "Base"),
+    tariffStatus: String(payload.tariff?.status || "inactive"),
+    tariffGrantedAt: payload.tariff?.grantedAt || null,
+    tariffStartsAt: payload.tariff?.startsAt || null,
+    tariffExpiresAt: payload.tariff?.expiresAt || null,
+    tariffDaysLeft: typeof payload.tariff?.daysLeft === "number" ? payload.tariff.daysLeft : null,
+    isTariffExpired: Boolean(payload.tariff?.isExpired),
+    siteRole: String(payload.siteRole || "user"),
   }
 }
 
-function seedAdmin(store: StoredData): StoredData {
-  if (store.users.some((u) => u.role === "admin")) return store
-  const adminId =
-    typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "admin-seed"
-  const admin: User = {
-    id: adminId,
-    name: "Admin",
-    email: ADMIN_EMAIL,
-    registeredAt: new Date().toISOString(),
-    role: "admin",
-    blocked: false,
-  }
-  return {
-    ...store,
-    users: [...store.users, admin],
-    credentials: [...store.credentials, { userId: adminId, password: ADMIN_PASSWORD }],
-  }
+function iconForTariff(tariffCode: string) {
+  if (tariffCode === "pro" || tariffCode === "admin") return "Shield"
+  if (tariffCode === "manager") return "Layers"
+  return "Target"
 }
 
-function getStored(): StoredData {
-  if (typeof window === "undefined") return emptyStore()
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) {
-      const parsed = JSON.parse(raw) as StoredData
-      if (parsed.schemaVersion === SCHEMA_VERSION) {
-        return seedAdmin(parsed)
-      }
-    }
-  } catch {}
-  // Cleanup legacy keys
-  try {
-    localStorage.removeItem("twizz_auth")
-  } catch {}
-  return seedAdmin(emptyStore())
+function productIdForTariff(tariffCode: string) {
+  if (tariffCode === "pro" || tariffCode === "admin") return "scoutscope-pro"
+  if (tariffCode === "manager") return "performancecoach-scoutscope"
+  return "scoutscope-basic"
 }
 
-function setStored(data: StoredData) {
-  if (typeof window === "undefined") return
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+function productNameForTariff(user: User) {
+  if (user.tariffCode === "admin") return "Admin Access"
+  if (user.tariffCode === "manager") return "Manager"
+  if (user.tariffCode === "pro") return "ScoutScope Pro"
+  return "ScoutScope Basic"
 }
 
-const productMeta: Record<string, { name: string; icon: string }> = {
-  "performancecoach-crm": { name: "PerformanceCoach CRM", icon: "Settings2" },
-  "scoutscope-basic": { name: "ScoutScope Basic", icon: "Target" },
-  "scoutscope-pro": { name: "ScoutScope Pro", icon: "Shield" },
-  "performancecoach-scoutscope": { name: "PerformanceCoach CRM + ScoutScope", icon: "Layers" },
+function monthsBetween(start: string | null, end: string | null) {
+  if (!start || !end) return 0
+  const startDate = new Date(start)
+  const endDate = new Date(end)
+  if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) return 0
+  const diffMonths =
+    (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth())
+  return Math.max(0, diffMonths || 1)
 }
 
-function monthsFromTariff(tariff: string): number {
-  if (tariff.includes("6")) return 6
-  if (tariff.includes("3")) return 3
-  return 1
+function mapSubscriptions(users: User[]) {
+  return users
+    .filter((user) => user.tariffCode)
+    .map<Subscription>((user) => ({
+      id: `tariff-${user.id}`,
+      userId: user.id,
+      productId: productIdForTariff(user.tariffCode),
+      productName: productNameForTariff(user),
+      tariff: user.tariffTitle,
+      months: monthsBetween(user.tariffStartsAt, user.tariffExpiresAt),
+      price: 0,
+      paidAt: user.tariffGrantedAt || user.registeredAt,
+      expiresAt: user.tariffExpiresAt || user.registeredAt,
+      icon: iconForTariff(user.tariffCode),
+      active: !user.blocked && user.tariffStatus === "active" && !user.isTariffExpired,
+    }))
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [store, setStoreState] = useState<StoredData>(emptyStore())
-  const [loaded, setLoaded] = useState(false)
+  const [ready, setReady] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [token, setToken] = useState("")
+  const [user, setUser] = useState<User | null>(null)
+  const [allUsers, setAllUsers] = useState<User[]>([])
 
-  useEffect(() => {
-    setStoreState(getStored())
-    setLoaded(true)
+  const logout = useCallback(() => {
+    clearStoredSiteToken()
+    setToken("")
+    setUser(null)
+    setAllUsers([])
   }, [])
 
+  const refreshAdminData = useCallback(
+    async (overrideToken?: string) => {
+      const effectiveToken = overrideToken || token
+      if (!effectiveToken || !isAdminUser(user)) {
+        setAllUsers([])
+        return
+      }
+      const payload = await fetchAdminUsers(effectiveToken, { limit: 200, offset: 0 })
+      setAllUsers(payload.items.map(mapUser))
+    },
+    [token, user]
+  )
+
+  const refreshUser = useCallback(
+    async (overrideToken?: string) => {
+      const effectiveToken = overrideToken || token
+      if (!effectiveToken) {
+        setUser(null)
+        setAllUsers([])
+        return
+      }
+      const payload = await fetchCurrentSiteUser(effectiveToken)
+      const nextUser = mapUser(payload.user)
+      setUser(nextUser)
+      if (isAdminUser(nextUser)) {
+        const adminPayload = await fetchAdminUsers(effectiveToken, { limit: 200, offset: 0 })
+        setAllUsers(adminPayload.items.map(mapUser))
+      } else {
+        setAllUsers([])
+      }
+    },
+    [token]
+  )
+
   useEffect(() => {
-    if (!loaded) return
-    setStored(store)
-  }, [store, loaded])
+    let active = true
 
-  const user = store.users.find((u) => u.id === store.currentUserId) ?? null
-  const subscriptions = user ? store.subscriptions.filter((s) => s.userId === user.id) : []
+    async function bootstrap() {
+      const storedToken = readStoredSiteToken()
+      if (!storedToken) {
+        if (!active) return
+        setReady(true)
+        setLoading(false)
+        return
+      }
 
-  const login = (email: string, password: string) => {
-    const normEmail = email.trim().toLowerCase()
-    const target = store.users.find((u) => u.email.toLowerCase() === normEmail)
-    if (!target) return { ok: false, error: "Неверный email или пароль" }
-    if (target.blocked) return { ok: false, error: "Аккаунт заблокирован администратором" }
-    const cred = store.credentials.find((c) => c.userId === target.id && c.password === password)
-    if (!cred) return { ok: false, error: "Неверный email или пароль" }
-    setStoreState((s) => ({ ...s, currentUserId: target.id }))
-    return { ok: true }
-  }
-
-  const register = (name: string, email: string, password: string) => {
-    const normEmail = email.trim().toLowerCase()
-    if (store.users.some((u) => u.email.toLowerCase() === normEmail)) {
-      return { ok: false, error: "Пользователь с таким email уже существует" }
+      try {
+        if (!active) return
+        setToken(storedToken)
+        const payload = await fetchCurrentSiteUser(storedToken)
+        if (!active) return
+        const nextUser = mapUser(payload.user)
+        setUser(nextUser)
+        if (isAdminUser(nextUser)) {
+          const adminPayload = await fetchAdminUsers(storedToken, { limit: 200, offset: 0 })
+          if (!active) return
+          setAllUsers(adminPayload.items.map(mapUser))
+        }
+      } catch {
+        if (active) {
+          logout()
+        }
+      } finally {
+        if (active) {
+          setReady(true)
+          setLoading(false)
+        }
+      }
     }
-    const id = crypto.randomUUID()
-    const newUser: User = {
-      id,
-      name: name.trim() || normEmail.split("@")[0],
-      email: normEmail,
-      registeredAt: new Date().toISOString(),
-      role: "user",
-      blocked: false,
+
+    bootstrap()
+
+    return () => {
+      active = false
     }
-    setStoreState((s) => ({
-      ...s,
-      users: [...s.users, newUser],
-      credentials: [...s.credentials, { userId: id, password }],
-      currentUserId: id,
-    }))
-    return { ok: true }
-  }
+  }, [logout])
 
-  const logout = () => setStoreState((s) => ({ ...s, currentUserId: null }))
-
-  const changePassword = (oldPassword: string, newPassword: string) => {
-    if (!user) return false
-    const cred = store.credentials.find((c) => c.userId === user.id)
-    if (!cred || cred.password !== oldPassword) return false
-    setStoreState((s) => ({
-      ...s,
-      credentials: s.credentials.map((c) =>
-        c.userId === user.id ? { ...c, password: newPassword } : c
-      ),
-    }))
-    return true
-  }
-
-  const updateNickname = (nickname: string) => {
-    if (!user) return false
-    const trimmed = nickname.trim()
-    if (!trimmed) return false
-    setStoreState((s) => ({
-      ...s,
-      users: s.users.map((u) => (u.id === user.id ? { ...u, name: trimmed } : u)),
-    }))
-    return true
-  }
-
-  const updateEmail = (email: string) => {
-    if (!user) return { ok: false, error: "Не авторизован" }
-    const trimmed = email.trim().toLowerCase()
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      return { ok: false, error: "Некорректный email" }
+  const login = useCallback(async (loginOrEmail: string, password: string) => {
+    try {
+      setLoading(true)
+      const payload = await loginSiteUser(loginOrEmail, password)
+      writeStoredSiteToken(payload.token)
+      setToken(payload.token)
+      const nextUser = mapUser(payload.user)
+      setUser(nextUser)
+      if (isAdminUser(nextUser)) {
+        const adminPayload = await fetchAdminUsers(payload.token, { limit: 200, offset: 0 })
+        setAllUsers(adminPayload.items.map(mapUser))
+      } else {
+        setAllUsers([])
+      }
+      return { ok: true }
+    } catch (error) {
+      return {
+        ok: false,
+        error: error instanceof Error ? error.message : "Login failed.",
+      }
+    } finally {
+      setReady(true)
+      setLoading(false)
     }
-    if (trimmed === user.email) return { ok: true }
-    if (store.users.some((u) => u.id !== user.id && u.email.toLowerCase() === trimmed)) {
-      return { ok: false, error: "Этот email уже используется" }
+  }, [])
+
+  const register = useCallback(async (payload: RegisterPayload) => {
+    try {
+      setLoading(true)
+      const response = await registerSiteUser(payload)
+      writeStoredSiteToken(response.token)
+      setToken(response.token)
+      const nextUser = mapUser(response.user)
+      setUser(nextUser)
+      if (isAdminUser(nextUser)) {
+        const adminPayload = await fetchAdminUsers(response.token, { limit: 200, offset: 0 })
+        setAllUsers(adminPayload.items.map(mapUser))
+      } else {
+        setAllUsers([])
+      }
+      return { ok: true }
+    } catch (error) {
+      return {
+        ok: false,
+        error: error instanceof Error ? error.message : "Registration failed.",
+      }
+    } finally {
+      setReady(true)
+      setLoading(false)
     }
-    setStoreState((s) => ({
-      ...s,
-      users: s.users.map((u) => (u.id === user.id ? { ...u, email: trimmed } : u)),
-    }))
-    return { ok: true }
-  }
+  }, [])
 
-  const terminateSessions = () => {
-    // frontend-only stub
-  }
+  const loadTariffHistory = useCallback(
+    async (userId: string, limit = 20) => {
+      if (!token) return []
+      const payload = await fetchUserTariffHistory(token, userId, limit)
+      return payload.items || []
+    },
+    [token]
+  )
 
-  const purchaseProduct = (productId: string, tariff: string): Subscription | null => {
-    if (!user) return null
-    const meta = productMeta[productId]
-    if (!meta) return null
-    const months = monthsFromTariff(tariff)
-    const now = new Date()
-    const expires = new Date(now)
-    expires.setMonth(expires.getMonth() + months)
+  const updateUserTariff = useCallback(
+    async (userId: string, payload: TariffPatchPayload) => {
+      if (!token) {
+        return { ok: false, error: "No active admin session." }
+      }
+      try {
+        await patchUserTariff(token, userId, payload)
+        await refreshUser(token)
+        return { ok: true }
+      } catch (error) {
+        return {
+          ok: false,
+          error: error instanceof Error ? error.message : "Failed to update tariff.",
+        }
+      }
+    },
+    [refreshUser, token]
+  )
 
-    const sub: Subscription = {
-      id: crypto.randomUUID(),
-      userId: user.id,
-      productId,
-      productName: meta.name,
-      tariff,
-      months,
-      price: 0,
-      paidAt: now.toISOString(),
-      expiresAt: expires.toISOString(),
-      icon: meta.icon,
-      active: true,
-    }
-    setStoreState((s) => ({ ...s, subscriptions: [...s.subscriptions, sub] }))
-    return sub
-  }
+  const updateUserAccess = useCallback(
+    async (userId: string, payload: AccessPatchPayload) => {
+      if (!token) {
+        return { ok: false, error: "No active admin session." }
+      }
+      try {
+        await patchUserAccess(token, userId, payload)
+        await refreshUser(token)
+        return { ok: true }
+      } catch (error) {
+        return {
+          ok: false,
+          error: error instanceof Error ? error.message : "Failed to update account access.",
+        }
+      }
+    },
+    [refreshUser, token]
+  )
 
-  // ---------- Admin ----------
-  const adminToggleBlockUser = (userId: string) => {
-    setStoreState((s) => ({
-      ...s,
-      users: s.users.map((u) => (u.id === userId ? { ...u, blocked: !u.blocked } : u)),
-      // If blocking currently logged-in user, log out
-      currentUserId:
-        s.currentUserId === userId && !s.users.find((u) => u.id === userId)?.blocked
-          ? null
-          : s.currentUserId,
-    }))
-  }
-
-  const adminToggleAdmin = (userId: string) => {
-    setStoreState((s) => ({
-      ...s,
-      users: s.users.map((u) =>
-        u.id === userId ? { ...u, role: u.role === "admin" ? "user" : "admin" } : u
-      ),
-    }))
-  }
-
-  const adminDeleteUser = (userId: string) => {
-    setStoreState((s) => ({
-      ...s,
-      users: s.users.filter((u) => u.id !== userId),
-      credentials: s.credentials.filter((c) => c.userId !== userId),
-      subscriptions: s.subscriptions.filter((sub) => sub.userId !== userId),
-      currentUserId: s.currentUserId === userId ? null : s.currentUserId,
-    }))
-  }
-
-  const adminDeleteSubscription = (subId: string) => {
-    setStoreState((s) => ({ ...s, subscriptions: s.subscriptions.filter((sub) => sub.id !== subId) }))
-  }
-
-  const adminToggleSubscriptionActive = (subId: string) => {
-    setStoreState((s) => ({
-      ...s,
-      subscriptions: s.subscriptions.map((sub) =>
-        sub.id === subId ? { ...sub, active: !sub.active } : sub
-      ),
-    }))
-  }
-
-  const adminExtendSubscription = (subId: string, addMonths: number) => {
-    setStoreState((s) => ({
-      ...s,
-      subscriptions: s.subscriptions.map((sub) => {
-        if (sub.id !== subId) return sub
-        const newExpires = new Date(sub.expiresAt)
-        newExpires.setMonth(newExpires.getMonth() + addMonths)
-        return { ...sub, expiresAt: newExpires.toISOString() }
-      }),
-    }))
-  }
-
-  if (!loaded) return null
+  const subscriptions = useMemo(() => (user ? mapSubscriptions([user]) : []), [user])
+  const allSubscriptions = useMemo(() => mapSubscriptions(allUsers), [allUsers])
 
   return (
     <AuthContext.Provider
       value={{
+        ready,
+        loading,
         user,
         subscriptions,
-        allUsers: store.users,
-        allSubscriptions: store.subscriptions,
+        allUsers,
+        allSubscriptions,
         login,
         register,
         logout,
-        changePassword,
-        updateNickname,
-        updateEmail,
-        terminateSessions,
-        purchaseProduct,
-        adminToggleBlockUser,
-        adminToggleAdmin,
-        adminDeleteUser,
-        adminDeleteSubscription,
-        adminToggleSubscriptionActive,
-        adminExtendSubscription,
+        refreshUser: () => refreshUser(),
+        refreshAdminData: () => refreshAdminData(),
+        loadTariffHistory,
+        updateUserTariff,
+        updateUserAccess,
       }}
     >
       {children}

@@ -7,16 +7,16 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import type { ReactNode } from "react"
 
 function DashboardGuard({ children }: { children: ReactNode }) {
-  const { user, ready } = useAuth()
+  const { user } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (ready && !user) {
-      router.replace("/auth/login")
+    if (user === null) {
+      router.push("/auth/login")
     }
-  }, [ready, router, user])
+  }, [user, router])
 
-  if (!ready || !user) {
+  if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <span className="h-8 w-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />

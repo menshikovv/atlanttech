@@ -1,393 +1,196 @@
 "use client"
 
-import { useState } from "react"
+import type { ReactNode } from "react"
+import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import {
-  User,
-  Mail,
   Calendar,
-  Shield,
-  Package,
-  Lock,
-  LogOut,
-  Check,
-  Eye,
-  EyeOff,
-  Pencil,
-  X,
-  Sparkles,
   Clock,
+  CreditCard,
+  Mail,
+  ShieldCheck,
+  User,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
+
+function formatDate(value: string | null) {
+  if (!value) return "—"
+  return new Date(value).toLocaleString("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
+
+function roleLabel(role: string, siteRole: string) {
+  const normalizedSiteRole = String(siteRole || "").trim().toLowerCase()
+  if (normalizedSiteRole === "main_admin") return "Main Admin"
+  if (normalizedSiteRole === "admin" || role === "admin") return "Администратор"
+  return "Пользователь"
+}
 
 export default function AccountPage() {
-  const { user, subscriptions, changePassword, updateNickname, updateEmail, terminateSessions } = useAuth()
-  const [editingNickname, setEditingNickname] = useState(false)
-  const [nicknameInput, setNicknameInput] = useState("")
-  const [editingEmail, setEditingEmail] = useState(false)
-  const [emailInput, setEmailInput] = useState("")
-  const [emailError, setEmailError] = useState<string | null>(null)
-  const [showChangePassword, setShowChangePassword] = useState(false)
-  const [oldPassword, setOldPassword] = useState("")
-  const [newPassword, setNewPassword] = useState("")
-  const [showOld, setShowOld] = useState(false)
-  const [showNew, setShowNew] = useState(false)
-  const [pwMsg, setPwMsg] = useState<{ ok: boolean; text: string } | null>(null)
-  const [sessionsMsg, setSessionsMsg] = useState(false)
-
-  const handleChangePassword = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!oldPassword || !newPassword) {
-      setPwMsg({ ok: false, text: "Заполните оба поля" })
-      return
-    }
-    if (newPassword.length < 6) {
-      setPwMsg({ ok: false, text: "Минимум 6 символов" })
-      return
-    }
-    const ok = changePassword(oldPassword, newPassword)
-    if (ok) {
-      setPwMsg({ ok: true, text: "Пароль успешно изменён" })
-      setOldPassword("")
-      setNewPassword("")
-      setTimeout(() => {
-        setShowChangePassword(false)
-        setPwMsg(null)
-      }, 2000)
-    } else {
-      setPwMsg({ ok: false, text: "Неверный текущий пароль" })
-    }
-  }
-
-  const startEditNickname = () => {
-    setNicknameInput(user?.name ?? "")
-    setEditingNickname(true)
-  }
-
-  const saveNickname = () => {
-    if (updateNickname(nicknameInput)) {
-      setEditingNickname(false)
-    }
-  }
-
-  const startEditEmail = () => {
-    setEmailInput(user?.email ?? "")
-    setEmailError(null)
-    setEditingEmail(true)
-  }
-
-  const saveEmail = () => {
-    const res = updateEmail(emailInput)
-    if (res.ok) {
-      setEditingEmail(false)
-      setEmailError(null)
-    } else {
-      setEmailError(res.error ?? "Ошибка")
-    }
-  }
-
-  const handleTerminate = () => {
-    terminateSessions()
-    setSessionsMsg(true)
-    setTimeout(() => setSessionsMsg(false), 3000)
-  }
-
-  const formatDate = (iso: string) => {
-    return new Date(iso).toLocaleDateString("ru-RU", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    })
-  }
-
-  const plural = (n: number, forms: [string, string, string]) => {
-    const mod10 = n % 10
-    const mod100 = n % 100
-    if (mod10 === 1 && mod100 !== 11) return forms[0]
-    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return forms[1]
-    return forms[2]
-  }
-
-  const membershipDuration = (iso: string) => {
-    const start = new Date(iso)
-    const now = new Date()
-    const days = Math.max(0, Math.floor((now.getTime() - start.getTime()) / 86400000))
-    if (days === 0) return "сегодня"
-    const years = Math.floor(days / 365)
-    const months = Math.floor((days % 365) / 30)
-    const parts: string[] = []
-    if (years > 0) parts.push(`${years} ${plural(years, ["год", "года", "лет"])}`)
-    if (months > 0) parts.push(`${months} ${plural(months, ["месяц", "месяца", "месяцев"])}`)
-    if (parts.length === 0) parts.push(`${days} ${plural(days, ["день", "дня", "дней"])}`)
-    return parts.join(" ")
-  }
+  const { user, subscriptions } = useAuth()
 
   if (!user) return null
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
-      <h1 className="text-2xl md:text-3xl font-bold mb-8">Аккаунт</h1>
+    <div className="container mx-auto px-4 py-8 md:py-12 max-w-5xl">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-8">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold">Аккаунт</h1>
+          <p className="text-sm text-muted-foreground mt-2">
+            Данные загружаются из серверной базы пользователей ScoutScope.
+          </p>
+        </div>
+        {user.role === "admin" ? (
+          <Link
+            href="/dashboard/admin"
+            className="inline-flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10"
+          >
+            <ShieldCheck className="h-4 w-4" />
+            Открыть админ-панель
+          </Link>
+        ) : null}
+      </div>
 
-      {/* Basic info */}
       <section className="glass-strong rounded-2xl p-6 md:p-8 mb-6">
         <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
           <User className="h-5 w-5 text-primary" />
-          Основная информация
+          Профиль
         </h2>
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="flex items-center gap-3 rounded-xl border border-border bg-secondary/30 p-4">
-            <User className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Никнейм</p>
-              {editingNickname ? (
-                <div className="flex items-center gap-2 mt-1">
-                  <Input
-                    value={nicknameInput}
-                    onChange={(e) => setNicknameInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") saveNickname()
-                      if (e.key === "Escape") setEditingNickname(false)
-                    }}
-                    autoFocus
-                    className="h-8 text-sm"
-                  />
-                  <button
-                    type="button"
-                    onClick={saveNickname}
-                    className="text-primary hover:text-primary/80 transition-colors flex-shrink-0"
-                    aria-label="Сохранить"
-                  >
-                    <Check className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditingNickname(false)}
-                    className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
-                    aria-label="Отменить"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-medium truncate">{user.name}</p>
-                  <button
-                    type="button"
-                    onClick={startEditNickname}
-                    className="text-muted-foreground hover:text-primary transition-colors flex-shrink-0"
-                    aria-label="Редактировать никнейм"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-3 rounded-xl border border-border bg-secondary/30 p-4">
-            <Mail className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-            <div className="min-w-0 flex-1">
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Email</p>
-              {editingEmail ? (
-                <div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Input
-                      type="email"
-                      value={emailInput}
-                      onChange={(e) => setEmailInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") saveEmail()
-                        if (e.key === "Escape") setEditingEmail(false)
-                      }}
-                      autoFocus
-                      className="h-8 text-sm"
-                    />
-                    <button
-                      type="button"
-                      onClick={saveEmail}
-                      className="text-primary hover:text-primary/80 transition-colors flex-shrink-0"
-                      aria-label="Сохранить"
-                    >
-                      <Check className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditingEmail(false)}
-                      className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
-                      aria-label="Отменить"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                  {emailError && <p className="text-xs text-destructive mt-1.5">{emailError}</p>}
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-medium truncate">{user.email}</p>
-                  <button
-                    type="button"
-                    onClick={startEditEmail}
-                    className="text-muted-foreground hover:text-primary transition-colors flex-shrink-0"
-                    aria-label="Редактировать email"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-4 rounded-xl border border-primary/15 bg-gradient-to-br from-primary/5 to-transparent p-4 md:col-span-2">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 flex-shrink-0">
-              <Calendar className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Дата регистрации</p>
-                <p className="text-sm font-medium">{formatDate(user.registeredAt)}</p>
-              </div>
-              <div className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 self-start sm:self-auto">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                <span className="text-xs font-medium text-primary">
-                  С нами уже {membershipDuration(user.registeredAt)}
-                </span>
-              </div>
-            </div>
-          </div>
+          <InfoCard icon={<User className="h-5 w-5 text-muted-foreground" />} label="Логин" value={user.login} />
+          <InfoCard icon={<User className="h-5 w-5 text-muted-foreground" />} label="Имя" value={user.name} />
+          <InfoCard icon={<Mail className="h-5 w-5 text-muted-foreground" />} label="Email" value={user.email} />
+          <InfoCard
+            icon={<ShieldCheck className="h-5 w-5 text-muted-foreground" />}
+            label="Роль"
+            value={roleLabel(user.role, user.siteRole)}
+          />
+          <InfoCard
+            icon={<Calendar className="h-5 w-5 text-muted-foreground" />}
+            label="Дата регистрации"
+            value={formatDate(user.registeredAt)}
+          />
+          <InfoCard
+            icon={<Clock className="h-5 w-5 text-muted-foreground" />}
+            label="Последний вход"
+            value={formatDate(user.lastLoginAt)}
+          />
         </div>
       </section>
 
-      {/* Security */}
       <section className="glass-strong rounded-2xl p-6 md:p-8 mb-6">
         <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
-          <Shield className="h-5 w-5 text-primary" />
-          Безопасность
+          <CreditCard className="h-5 w-5 text-primary" />
+          Текущий доступ
         </h2>
-        <div className="space-y-4">
-          <div>
-            <Button
-              variant="outline"
-              onClick={() => setShowChangePassword(!showChangePassword)}
-              className="gap-2"
-            >
-              <Lock className="h-4 w-4" />
-              Сменить пароль
-            </Button>
-
-            {showChangePassword && (
-              <form onSubmit={handleChangePassword} className="mt-4 max-w-md space-y-4 p-4 rounded-xl bg-secondary/30 border border-border">
-                <div className="space-y-2">
-                  <Label>Текущий пароль</Label>
-                  <div className="relative">
-                    <Input
-                      type={showOld ? "text" : "password"}
-                      value={oldPassword}
-                      onChange={(e) => setOldPassword(e.target.value)}
-                    />
-                    <button type="button" onClick={() => setShowOld(!showOld)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary hover:scale-110 active:scale-95 transition-all duration-200">
-                      {showOld ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Новый пароль</Label>
-                  <div className="relative">
-                    <Input
-                      type={showNew ? "text" : "password"}
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                    />
-                    <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary hover:scale-110 active:scale-95 transition-all duration-200">
-                      {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-                {pwMsg && (
-                  <p className={cn("text-sm rounded-lg px-3 py-2", pwMsg.ok ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive")}>
-                    {pwMsg.text}
-                  </p>
-                )}
-                <Button type="submit" size="sm">Сохранить</Button>
-              </form>
-            )}
-          </div>
-
-          <div>
-            <Button variant="outline" onClick={handleTerminate} className="gap-2">
-              <LogOut className="h-4 w-4" />
-              Завершить все сессии
-            </Button>
-            {sessionsMsg && (
-              <p className="mt-2 text-sm text-primary bg-primary/10 rounded-lg px-3 py-2 inline-block">
-                Все сессии завершены
-              </p>
-            )}
-          </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <TariffCard
+            label="Тариф"
+            value={user.tariffTitle}
+            accent={user.tariffCode}
+            extra={`Код: ${user.tariffCode}`}
+          />
+          <TariffCard
+            label="Статус"
+            value={user.tariffStatus}
+            accent={user.tariffStatus}
+            extra={user.blocked ? "Аккаунт отключен" : "Аккаунт активен"}
+          />
+          <TariffCard
+            label="Действует до"
+            value={formatDate(user.tariffExpiresAt)}
+            extra={user.tariffDaysLeft === null ? "Без ограничений" : `Осталось дней: ${user.tariffDaysLeft}`}
+          />
+          <TariffCard
+            label="Выдан"
+            value={formatDate(user.tariffGrantedAt)}
+            extra={user.tariffStartsAt ? `Старт: ${formatDate(user.tariffStartsAt)}` : "Дата старта не указана"}
+          />
         </div>
       </section>
 
-      {/* Subscriptions */}
       <section className="glass-strong rounded-2xl p-6 md:p-8">
         <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
-          <Package className="h-5 w-5 text-primary" />
-          Мои подписки
+          <CreditCard className="h-5 w-5 text-primary" />
+          Подписки и продукты
         </h2>
 
         {subscriptions.length === 0 ? (
-          <div className="text-center py-8">
-            <Package className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
-            <p className="text-muted-foreground text-sm">У вас пока нет активных подписок</p>
-            <Button asChild variant="outline" className="mt-4" size="sm">
-              <a href="/dashboard/subscriptions">Перейти к продуктам</a>
-            </Button>
+          <div className="rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
+            Для этого пользователя не найдено активных продуктов.
           </div>
         ) : (
-          <div className="space-y-3">
-            {subscriptions.map((sub) => {
-              const expired = new Date(sub.expiresAt) <= new Date()
-              const isActive = sub.active && !expired
-              return (
-                <div
-                  key={sub.id}
-                  className="flex flex-col md:flex-row md:items-center justify-between gap-3 rounded-xl border border-border p-4 bg-secondary/20"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-medium text-sm">{sub.productName}</p>
-                      <Badge
-                        variant={isActive ? "default" : "secondary"}
-                        className={cn(
-                          "text-[10px]",
-                          isActive
-                            ? "bg-primary/10 text-primary border-0"
-                            : "bg-muted text-muted-foreground border-0"
-                        )}
-                      >
-                        {isActive ? "Активна" : expired ? "Истекла" : "Отключена"}
-                      </Badge>
-                      <Badge variant="outline" className="text-[10px]">
-                        {sub.tariff}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        Оплачена: {formatDate(sub.paidAt)}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        До: {formatDate(sub.expiresAt)}
-                      </span>
-                    </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            {subscriptions.map((subscription) => (
+              <div key={subscription.id} className="rounded-2xl border border-border bg-secondary/30 p-5">
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <div>
+                    <p className="text-sm font-semibold">{subscription.productName}</p>
+                    <p className="text-xs text-muted-foreground">Привязано к тарифу пользователя</p>
                   </div>
+                  <Badge className="bg-primary/10 text-primary border-0">{subscription.tariff}</Badge>
                 </div>
-              )
-            })}
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p>Доступ до: {formatDate(subscription.expiresAt)}</p>
+                  <p>Статус: {subscription.active ? "Активен" : "Неактивен"}</p>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </section>
+    </div>
+  )
+}
+
+function InfoCard({
+  icon,
+  label,
+  value,
+}: {
+  icon: ReactNode
+  label: string
+  value: string
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-border bg-secondary/30 p-4">
+      <div className="flex-shrink-0">{icon}</div>
+      <div className="min-w-0">
+        <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</p>
+        <p className="text-sm font-medium break-words">{value}</p>
+      </div>
+    </div>
+  )
+}
+
+function TariffCard({
+  label,
+  value,
+  extra,
+  accent,
+}: {
+  label: string
+  value: string
+  extra: string
+  accent?: string
+}) {
+  const tone =
+    accent === "admin"
+      ? "border-primary/30 bg-primary/5"
+      : accent === "active"
+        ? "border-emerald-500/20 bg-emerald-500/5"
+        : "border-border bg-secondary/30"
+
+  return (
+    <div className={`rounded-2xl border p-5 ${tone}`}>
+      <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</p>
+      <p className="text-lg font-semibold mt-2">{value}</p>
+      <p className="text-xs text-muted-foreground mt-3 leading-relaxed">{extra}</p>
     </div>
   )
 }

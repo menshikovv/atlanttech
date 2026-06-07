@@ -1,7 +1,6 @@
 "use client"
 
-import type { FormEvent } from "react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
@@ -12,38 +11,31 @@ import { AtlantLogo } from "@/components/twizz-logo"
 import { Eye, EyeOff, LogIn } from "lucide-react"
 
 export default function LoginPage() {
-  const { login, ready, user } = useAuth()
+  const { login } = useAuth()
   const router = useRouter()
-  const [loginOrEmail, setLoginOrEmail] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    if (ready && user) {
-      router.replace("/dashboard/account")
-    }
-  }, [ready, router, user])
-
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault()
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
     setError("")
-    if (!loginOrEmail || !password) {
-      setError("Заполните логин и пароль.")
+    if (!email || !password) {
+      setError("Заполните все поля")
       return
     }
-
     setLoading(true)
-    const result = await login(loginOrEmail, password)
-    setLoading(false)
-
-    if (result.ok) {
-      router.push("/dashboard/account")
-      return
-    }
-
-    setError(result.error || "Не удалось войти.")
+    setTimeout(() => {
+      const res = login(email, password)
+      if (res.ok) {
+        router.push("/dashboard")
+      } else {
+        setError(res.error ?? "Неверный email или пароль")
+      }
+      setLoading(false)
+    }, 500)
   }
 
   return (
@@ -54,22 +46,20 @@ export default function LoginPage() {
             <AtlantLogo variant="icon" className="h-10 w-auto mx-auto" />
           </Link>
           <h1 className="mt-6 text-2xl font-bold">Вход в аккаунт</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Используйте логин или email от серверной учетной записи.
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground">Войдите, чтобы перейти в личный кабинет</p>
         </div>
 
         <div className="glass-strong rounded-2xl p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="loginOrEmail">Логин или email</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="loginOrEmail"
-                type="text"
-                placeholder="diletant или you@example.com"
-                value={loginOrEmail}
-                onChange={(event) => setLoginOrEmail(event.target.value)}
-                autoComplete="username"
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
               />
             </div>
 
@@ -81,22 +71,22 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={password}
-                  onChange={(event) => setPassword(event.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   autoComplete="current-password"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword((value) => !value)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary hover:scale-110 active:scale-95 transition-all duration-200"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
 
-            {error ? (
+            {error && (
               <p className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2">{error}</p>
-            ) : null}
+            )}
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
