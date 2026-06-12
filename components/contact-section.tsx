@@ -58,6 +58,12 @@ export function ContactSection() {
       const result = await sendContactForm(formData)
 
       if (result.success) {
+        fetch("/api/support", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }).catch(() => {})
+
         setIsSuccess(true)
         setFormData({ name: "", email: "", subject: "", message: "" })
         setTimeout(() => setIsSuccess(false), 5000)

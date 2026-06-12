@@ -14,7 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ArrowLeft, Package } from "lucide-react"
+import { ArrowLeft, Package, Eye, Star, DollarSign, ListOrdered, Hash, Tag, FileText, UserCheck } from "lucide-react"
 
 const PRODUCT_ICON_OPTIONS = ["Settings2", "Target", "Shield", "Layers"]
 
@@ -54,6 +54,7 @@ export default function CatalogProductsPage() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [statusMessage, setStatusMessage] = useState("")
+  const [statusType, setStatusType] = useState<"success" | "error" | "info">("info")
   const [selectedProductId, setSelectedProductId] = useState("")
   const [productFormState, setProductFormState] = useState(createEmptyProductFormState())
 
@@ -77,7 +78,9 @@ export default function CatalogProductsPage() {
           setSelectedProductId(payload.products[0].id)
         }
       })
-      .catch(() => setStatusMessage("Не удалось загрузить каталог."))
+      .catch(() => {
+        setStatus("Не удалось загрузить каталог.", "error")
+      })
       .finally(() => setLoading(false))
   }, [user])
 
@@ -105,16 +108,21 @@ export default function CatalogProductsPage() {
     })
   }, [selectedProduct])
 
+  const setStatus = (msg: string, type: "success" | "error" | "info" = "info") => {
+    setStatusMessage(msg)
+    setStatusType(type)
+  }
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
     if (!selectedProduct) return
     if (!canManage) {
-      setStatusMessage("Только main admin может менять витрину продуктов.")
+      setStatus("Только main admin может менять витрину продуктов.", "error")
       return
     }
     const token = readStoredSiteToken()
     if (!token) {
-      setStatusMessage("Нет активной admin-сессии.")
+      setStatus("Нет активной admin-сессии.", "error")
       return
     }
 
@@ -152,9 +160,9 @@ export default function CatalogProductsPage() {
         benefits: arrayToLines(updated.benefits),
         features: arrayToLines(updated.features),
       })
-      setStatusMessage(`Продукт ${selectedProduct.id} обновлен.`)
+      setStatus(`Продукт "${updated.name}" обновлён.`, "success")
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "Не удалось обновить продукт.")
+      setStatus(error instanceof Error ? error.message : "Не удалось обновить продукт.", "error")
     } finally {
       setSubmitting(false)
     }
@@ -162,206 +170,321 @@ export default function CatalogProductsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <span className="text-foreground/70">Загружаю каталог...</span>
+      <div className="relative min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 rounded-full border-4 border-primary/30 border-t-primary animate-spin" />
+          <p className="text-sm text-muted-foreground">Загружаю каталог...</p>
+        </div>
       </div>
     )
   }
 
+  const statusColors = {
+    success: "border-emerald-500/20 bg-emerald-500/10 text-emerald-600",
+    error: "border-red-500/20 bg-red-500/10 text-red-600",
+    info: "border-primary/20 bg-primary/5 text-primary",
+  }
+
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-4 md:p-8">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => router.push("/dashboard/admin")}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs text-primary">
-            <Package className="h-3.5 w-3.5" />
-            Каталог продуктов
+    <div className="relative min-h-screen">
+      {/* Background blobs */}
+      <div className="fixed top-0 left-1/4 h-[400px] w-[400px] rounded-full bg-primary/5 blur-[150px] pointer-events-none" />
+      <div className="fixed bottom-0 right-0 h-[350px] w-[350px] rounded-full bg-primary/5 blur-[170px] pointer-events-none" />
+
+      <div className="container relative z-10 mx-auto px-4 py-8 md:py-12 max-w-4xl">
+        {/* ─── Hero Header ─── */}
+        <div className="relative mb-8 overflow-hidden rounded-3xl border border-border/50 bg-gradient-to-br from-primary/10 via-primary/5 to-background p-8">
+          <div className="absolute top-0 right-0 h-32 w-32 translate-x-1/4 -translate-y-1/4 rounded-full bg-primary/20 blur-[80px]" />
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="icon" onClick={() => router.push("/dashboard/admin")} className="shrink-0 bg-background/50 backdrop-blur-sm">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary mb-3">
+                <Package className="h-3.5 w-3.5" />
+                Каталог продуктов
+              </div>
+              <h1 className="text-2xl font-bold md:text-3xl">Редактирование продуктов</h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {canManage
+                  ? "Описание, цены, фичи, иконка, видимость и связанный тариф."
+                  : "Просмотр. Только main admin может редактировать."}
+              </p>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold mt-2">Редактирование продуктов</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Можно менять описание, цены, фичи, иконку, видимость и связанный тариф.
-          </p>
+        </div>
+
+        {/* ─── Status ─── */}
+        {statusMessage && (
+          <div className={`mb-6 flex items-center gap-3 rounded-2xl border px-5 py-3 text-sm backdrop-blur-sm ${statusColors[statusType]}`}>
+            <div className={`h-2 w-2 rounded-full ${statusType === "success" ? "bg-emerald-500 animate-pulse" : statusType === "error" ? "bg-red-500" : "bg-primary"}`} />
+            {statusMessage}
+          </div>
+        )}
+
+        {/* ─── Form ─── */}
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Product selector */}
+          <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" />
+                <h2 className="text-base font-bold">Выбор продукта</h2>
+              </div>
+              <Badge variant="outline" className={canManage ? "border-primary/20 bg-primary/5 text-primary" : ""}>
+                {canManage ? "main admin" : "read only"}
+              </Badge>
+            </div>
+            <select
+              value={selectedProductId}
+              onChange={(event) => setSelectedProductId(event.target.value)}
+              className="flex h-11 w-full rounded-xl border border-input bg-background px-4 py-2 text-sm transition-colors focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+            >
+              {(catalog?.products || []).map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.id} — {item.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Основная информация */}
+          <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-5">
+              <FileText className="h-5 w-5 text-primary" />
+              <h2 className="text-base font-bold">Основная информация</h2>
+            </div>
+            <div className="grid gap-5 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="flex items-center gap-1.5 text-sm font-medium">
+                  <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+                  Tag
+                </label>
+                <Input
+                  value={productFormState.tag}
+                  onChange={(event) => setProductFormState((state) => ({ ...state, tag: event.target.value }))}
+                  disabled={!canManage}
+                  className="rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-1.5 text-sm font-medium">
+                  <Package className="h-3.5 w-3.5 text-muted-foreground" />
+                  Название
+                </label>
+                <Input
+                  value={productFormState.name}
+                  onChange={(event) => setProductFormState((state) => ({ ...state, name: event.target.value }))}
+                  disabled={!canManage}
+                  className="rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div className="mt-5 space-y-2">
+              <label className="flex items-center gap-1.5 text-sm font-medium">
+                <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                Описание
+              </label>
+              <textarea
+                value={productFormState.description}
+                onChange={(event) => setProductFormState((state) => ({ ...state, description: event.target.value }))}
+                className="flex min-h-[100px] w-full rounded-xl border border-input bg-background px-4 py-3 text-sm transition-colors focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+                disabled={!canManage}
+              />
+            </div>
+
+            <div className="mt-5 space-y-2">
+              <label className="flex items-center gap-1.5 text-sm font-medium">
+                <UserCheck className="h-3.5 w-3.5 text-muted-foreground" />
+                Для кого
+              </label>
+              <Input
+                value={productFormState.forWhom}
+                onChange={(event) => setProductFormState((state) => ({ ...state, forWhom: event.target.value }))}
+                disabled={!canManage}
+                className="rounded-xl"
+              />
+            </div>
+          </div>
+
+          {/* Цены и настройки */}
+          <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-5">
+              <DollarSign className="h-5 w-5 text-primary" />
+              <h2 className="text-base font-bold">Цены и настройки</h2>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-3">
+              <div className="space-y-2">
+                <label className="flex items-center gap-1.5 text-sm font-medium">
+                  <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
+                  Цена RUB
+                </label>
+                <Input
+                  type="number"
+                  value={productFormState.priceRub}
+                  onChange={(event) => setProductFormState((state) => ({ ...state, priceRub: event.target.value }))}
+                  disabled={!canManage}
+                  className="rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-1.5 text-sm font-medium">
+                  <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
+                  Цена USD
+                </label>
+                <Input
+                  type="number"
+                  value={productFormState.priceUsd}
+                  onChange={(event) => setProductFormState((state) => ({ ...state, priceUsd: event.target.value }))}
+                  disabled={!canManage}
+                  className="rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-1.5 text-sm font-medium">
+                  <ListOrdered className="h-3.5 w-3.5 text-muted-foreground" />
+                  Порядок
+                </label>
+                <Input
+                  type="number"
+                  value={productFormState.order}
+                  onChange={(event) => setProductFormState((state) => ({ ...state, order: Number(event.target.value) || 0 }))}
+                  disabled={!canManage}
+                  className="rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-5 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="flex items-center gap-1.5 text-sm font-medium">
+                  <Hash className="h-3.5 w-3.5 text-muted-foreground" />
+                  Связанный тариф
+                </label>
+                <select
+                  value={productFormState.tariffCode}
+                  onChange={(event) => setProductFormState((state) => ({ ...state, tariffCode: event.target.value }))}
+                  className="flex h-11 w-full rounded-xl border border-input bg-background px-4 py-2 text-sm transition-colors focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+                  disabled={!canManage}
+                >
+                  <option value="">—</option>
+                  {(catalog?.tariffs || []).map((item) => (
+                    <option key={item.code} value={item.code}>
+                      {item.code} — {item.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-1.5 text-sm font-medium">
+                  <Package className="h-3.5 w-3.5 text-muted-foreground" />
+                  Иконка
+                </label>
+                <select
+                  value={productFormState.icon}
+                  onChange={(event) => setProductFormState((state) => ({ ...state, icon: event.target.value }))}
+                  className="flex h-11 w-full rounded-xl border border-input bg-background px-4 py-2 text-sm transition-colors focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+                  disabled={!canManage}
+                >
+                  {PRODUCT_ICON_OPTIONS.map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-5 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="flex items-center gap-1.5 text-sm font-medium">
+                  <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                  Публичность
+                </label>
+                <select
+                  value={productFormState.visible ? "visible" : "hidden"}
+                  onChange={(event) => setProductFormState((state) => ({ ...state, visible: event.target.value === "visible" }))}
+                  className="flex h-11 w-full rounded-xl border border-input bg-background px-4 py-2 text-sm transition-colors focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+                  disabled={!canManage}
+                >
+                  <option value="visible">visible</option>
+                  <option value="hidden">hidden</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="flex items-center gap-1.5 text-sm font-medium">
+                  <Star className="h-3.5 w-3.5 text-muted-foreground" />
+                  Статус
+                </label>
+                <select
+                  value={productFormState.popular ? "popular" : "regular"}
+                  onChange={(event) => setProductFormState((state) => ({ ...state, popular: event.target.value === "popular" }))}
+                  className="flex h-11 w-full rounded-xl border border-input bg-background px-4 py-2 text-sm transition-colors focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+                  disabled={!canManage}
+                >
+                  <option value="regular">regular</option>
+                  <option value="popular">popular</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Преимущества и фичи */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <Star className="h-5 w-5 text-primary" />
+                <h2 className="text-base font-bold">Преимущества</h2>
+              </div>
+              <textarea
+                value={productFormState.benefits}
+                onChange={(event) => setProductFormState((state) => ({ ...state, benefits: event.target.value }))}
+                className="flex min-h-[140px] w-full rounded-xl border border-input bg-background px-4 py-3 text-sm transition-colors focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+                disabled={!canManage}
+                placeholder="Одна строка = одно преимущество"
+              />
+            </div>
+
+            <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <FileText className="h-5 w-5 text-primary" />
+                <h2 className="text-base font-bold">Фичи</h2>
+              </div>
+              <textarea
+                value={productFormState.features}
+                onChange={(event) => setProductFormState((state) => ({ ...state, features: event.target.value }))}
+                className="flex min-h-[140px] w-full rounded-xl border border-input bg-background px-4 py-3 text-sm transition-colors focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+                disabled={!canManage}
+                placeholder="Одна строка = одна фича"
+              />
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full h-12 rounded-xl text-base font-medium bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/25 transition-all disabled:opacity-50"
+            disabled={!canManage || submitting}
+          >
+            {submitting ? (
+              <span className="flex items-center gap-2">
+                <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                Сохраняю...
+              </span>
+            ) : (
+              "Сохранить продукт"
+            )}
+          </Button>
+        </form>
+
+        {/* ─── Footer ─── */}
+        <div className="mt-8 rounded-2xl border border-border/40 bg-secondary/20 px-6 py-4 text-center text-xs text-muted-foreground">
+          {canManage
+            ? "Все изменения применяются сразу к витрине сайта."
+            : "Для редактирования обратитесь к main admin."}
         </div>
       </div>
-
-      {statusMessage && (
-        <div className="rounded-2xl border border-border bg-secondary/20 px-4 py-3 text-sm">{statusMessage}</div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">Продукт</label>
-          <Badge variant="outline">{canManage ? "main admin" : "read only"}</Badge>
-        </div>
-        <select
-          value={selectedProductId}
-          onChange={(event) => setSelectedProductId(event.target.value)}
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-        >
-          {(catalog?.products || []).map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.id} — {item.name}
-            </option>
-          ))}
-        </select>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Tag</label>
-            <Input
-              value={productFormState.tag}
-              onChange={(event) => setProductFormState((state) => ({ ...state, tag: event.target.value }))}
-              disabled={!canManage}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Название</label>
-            <Input
-              value={productFormState.name}
-              onChange={(event) => setProductFormState((state) => ({ ...state, name: event.target.value }))}
-              disabled={!canManage}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Описание</label>
-          <textarea
-            value={productFormState.description}
-            onChange={(event) => setProductFormState((state) => ({ ...state, description: event.target.value }))}
-            className="flex min-h-[110px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            disabled={!canManage}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Для кого</label>
-          <Input
-            value={productFormState.forWhom}
-            onChange={(event) => setProductFormState((state) => ({ ...state, forWhom: event.target.value }))}
-            disabled={!canManage}
-          />
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Связанный тариф</label>
-            <select
-              value={productFormState.tariffCode}
-              onChange={(event) => setProductFormState((state) => ({ ...state, tariffCode: event.target.value }))}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              disabled={!canManage}
-            >
-              <option value="">—</option>
-              {(catalog?.tariffs || []).map((item) => (
-                <option key={item.code} value={item.code}>
-                  {item.code}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Иконка</label>
-            <select
-              value={productFormState.icon}
-              onChange={(event) => setProductFormState((state) => ({ ...state, icon: event.target.value }))}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              disabled={!canManage}
-            >
-              {PRODUCT_ICON_OPTIONS.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Цена RUB</label>
-            <Input
-              type="number"
-              value={productFormState.priceRub}
-              onChange={(event) => setProductFormState((state) => ({ ...state, priceRub: event.target.value }))}
-              disabled={!canManage}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Цена USD</label>
-            <Input
-              type="number"
-              value={productFormState.priceUsd}
-              onChange={(event) => setProductFormState((state) => ({ ...state, priceUsd: event.target.value }))}
-              disabled={!canManage}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Порядок</label>
-            <Input
-              type="number"
-              value={productFormState.order}
-              onChange={(event) => setProductFormState((state) => ({ ...state, order: Number(event.target.value) || 0 }))}
-              disabled={!canManage}
-            />
-          </div>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Публичность</label>
-            <select
-              value={productFormState.visible ? "visible" : "hidden"}
-              onChange={(event) => setProductFormState((state) => ({ ...state, visible: event.target.value === "visible" }))}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              disabled={!canManage}
-            >
-              <option value="visible">visible</option>
-              <option value="hidden">hidden</option>
-            </select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Статус</label>
-            <select
-              value={productFormState.popular ? "popular" : "regular"}
-              onChange={(event) => setProductFormState((state) => ({ ...state, popular: event.target.value === "popular" }))}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              disabled={!canManage}
-            >
-              <option value="regular">regular</option>
-              <option value="popular">popular</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Преимущества</label>
-          <textarea
-            value={productFormState.benefits}
-            onChange={(event) => setProductFormState((state) => ({ ...state, benefits: event.target.value }))}
-            className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            disabled={!canManage}
-            placeholder="Одна строка = одно преимущество"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Фичи</label>
-          <textarea
-            value={productFormState.features}
-            onChange={(event) => setProductFormState((state) => ({ ...state, features: event.target.value }))}
-            className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            disabled={!canManage}
-            placeholder="Одна строка = одна фича"
-          />
-        </div>
-
-        <Button type="submit" className="w-full" disabled={!canManage || submitting}>
-          {submitting ? "Сохраняю..." : "Сохранить продукт"}
-        </Button>
-      </form>
     </div>
   )
 }

@@ -5,15 +5,112 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { ArrowRight, Check, Sparkles, BarChart3, Target, Trophy, Settings2, Shield, Layers } from "lucide-react"
+import {
+  fetchPublicCatalog,
+  type SiteCatalogProduct,
+  type SiteCatalogTariff,
+  type SiteCatalogResponse,
+  type SiteSubscriptionPeriod,
+} from "@/lib/site-api"
 
-/* ─────────────────── Data ─────────────────── */
+/* ─────────────────── Icon map ─────────────────── */
 
-type Period = { label: string; months: 1 | 3 | 6; discount: number }
-const periods: Period[] = [
-  { label: "1 мес.", months: 1, discount: 0 },
-  { label: "3 мес.", months: 3, discount: 0.1 },
-  { label: "6 мес.", months: 6, discount: 0.15 },
-]
+const iconMap: Record<string, React.ReactNode> = {
+  Settings2: <Settings2 className="h-6 w-6 text-primary" />,
+  Target: <Target className="h-6 w-6 text-primary" />,
+  Shield: <Shield className="h-6 w-6 text-primary" />,
+  Layers: <Layers className="h-6 w-6 text-primary" />,
+}
+
+/* ─────────────────── Static fallback ─────────────────── */
+
+function buildFallbackPeriods(): SiteSubscriptionPeriod[] {
+  return [
+    { label: "1 мес.", months: 1, discount: 0 },
+    { label: "3 мес.", months: 3, discount: 0.1 },
+    { label: "6 мес.", months: 6, discount: 0.15 },
+  ]
+}
+
+function buildFallbackPlans(): TeamPlan[] {
+  return [
+    {
+      tag: "КОМАНДНАЯ ПОДПИСКА",
+      name: "PerformanceCoach CRM",
+      description: "Полная версия CRM для команды: управление игроками, процессами и ежедневной коммуникацией штаба.",
+      priceRub: 23900,
+      priceUsd: 299,
+      icon: <Settings2 className="h-6 w-6 text-primary" />,
+      features: ["Командный доступ", "Рабочие процессы штаба", "Расширенная CRM-логика"],
+    },
+    {
+      tag: "СТАНДАРТНАЯ ВЕРСИЯ",
+      name: "ScoutScope Basic",
+      description: "Базовая scouting-система для структурного поиска кандидатов и ведения общей базы просмотров.",
+      priceRub: 19990,
+      priceUsd: 250,
+      icon: <Target className="h-6 w-6 text-primary" />,
+      features: [
+        "Воронка скаутинга",
+        "Карточки кандидатов",
+        "Сравнение до 3 игроков",
+        "Обновление базы раз в 24 часа",
+      ],
+    },
+    {
+      tag: "РАСШИРЕННАЯ ВЕРСИЯ",
+      name: "ScoutScope Pro",
+      description: "Продвинутый пакет, в который входит всё из ScoutScope Basic, но с обновлением базы раз в 12 часов.",
+      priceRub: 31990,
+      priceUsd: 399,
+      popular: true,
+      icon: <Shield className="h-6 w-6 text-primary" />,
+      features: [
+        "Воронка скаутинга",
+        "Карточки кандидатов",
+        "Сравнение до 3 игроков",
+        "Обновление базы раз в 12 часов",
+      ],
+    },
+    {
+      tag: "КОМПЛЕКСНОЕ РЕШЕНИЕ",
+      name: "PerformanceCoach CRM + ScoutScope",
+      description: "Pro-версия ScoutScope и полная версия PerformanceCoach CRM в одном решении для команды.",
+      priceRub: 43990,
+      priceUsd: 550,
+      icon: <Layers className="h-6 w-6 text-primary" />,
+      features: [
+        "Полная версия PerformanceCoach CRM",
+        "Pro-версия ScoutScope",
+        "Сквозной процесс для команды",
+      ],
+    },
+  ]
+}
+
+function productsToPlans(products: SiteCatalogProduct[], tariffs: SiteCatalogTariff[]): TeamPlan[] {
+  const tariffByCode = new Map(tariffs.map((t) => [t.code, t]))
+  return [...products]
+    .filter((p) => p.visible)
+    .sort((a, b) => a.order - b.order)
+    .map((p) => {
+      const linked = p.tariffCode ? tariffByCode.get(p.tariffCode) : undefined
+      return {
+        tag: linked?.tag ?? p.tag,
+        name: linked?.title ?? p.name,
+        description: linked?.description ?? p.description,
+        priceRub: p.priceRub,
+        priceUsd: p.priceUsd,
+        features: p.features,
+        popular: p.popular,
+        icon: iconMap[p.icon] ?? <Target className="h-6 w-6 text-primary" />,
+      }
+    })
+}
+
+/* ─────────────────── Data types ─────────────────── */
+
+type Period = { label: string; months: number; discount: number }
 
 type TeamPlan = {
   tag: string
@@ -25,60 +122,6 @@ type TeamPlan = {
   popular?: boolean
   icon: React.ReactNode
 }
-
-const teamPlans: TeamPlan[] = [
-  {
-    tag: "КОМАНДНАЯ ПОДПИСКА",
-    name: "PerformanceCoach CRM",
-    description: "Полная версия CRM для команды: управление игроками, процессами и ежедневной коммуникацией штаба.",
-    priceRub: 23900,
-    priceUsd: 299,
-    icon: <Settings2 className="h-6 w-6 text-primary" />,
-    features: ["Командный доступ", "Рабочие процессы штаба", "Расширенная CRM-логика"],
-  },
-  {
-    tag: "СТАНДАРТНАЯ ВЕРСИЯ",
-    name: "ScoutScope Basic",
-    description: "Базовая scouting-система для структурного поиска кандидатов и ведения общей базы просмотров.",
-    priceRub: 19990,
-    priceUsd: 250,
-    icon: <Target className="h-6 w-6 text-primary" />,
-    features: [
-      "Воронка скаутинга",
-      "Карточки кандидатов",
-      "Сравнение до 3 игроков",
-      "Обновление базы раз в 24 часа",
-    ],
-  },
-  {
-    tag: "РАСШИРЕННАЯ ВЕРСИЯ",
-    name: "ScoutScope Pro",
-    description: "Продвинутый пакет, в который входит всё из ScoutScope Basic, но с обновлением базы раз в 12 часов.",
-    priceRub: 31990,
-    priceUsd: 399,
-    popular: true,
-    icon: <Shield className="h-6 w-6 text-primary" />,
-    features: [
-      "Воронка скаутинга",
-      "Карточки кандидатов",
-      "Сравнение до 3 игроков",
-      "Обновление базы раз в 12 часов",
-    ],
-  },
-  {
-    tag: "КОМПЛЕКСНОЕ РЕШЕНИЕ",
-    name: "PerformanceCoach CRM + ScoutScope",
-    description: "Pro-версия ScoutScope и полная версия PerformanceCoach CRM в одном решении для команды.",
-    priceRub: 43990,
-    priceUsd: 550,
-    icon: <Layers className="h-6 w-6 text-primary" />,
-    features: [
-      "Полная версия PerformanceCoach CRM",
-      "Pro-версия ScoutScope",
-      "Сквозной процесс для команды",
-    ],
-  },
-]
 
 type Module = {
   name: string
@@ -110,7 +153,7 @@ const modules: Module[] = [
 
 /* ─────────────────── Components ─────────────────── */
 
-function TeamPlanCard({ plan }: { plan: TeamPlan }) {
+function TeamPlanCard({ plan, periods }: { plan: TeamPlan; periods: Period[] }) {
   const [period, setPeriod] = useState(0)
   const p = periods[period]
   const total = Math.round(plan.priceRub * p.months * (1 - p.discount))
@@ -218,6 +261,28 @@ export function PricingSection() {
   const soloRef = useRef<HTMLDivElement>(null)
   const teamRef = useRef<HTMLDivElement>(null)
 
+  const [catalog, setCatalog] = useState<SiteCatalogResponse | null>(null)
+  const [catalogLoaded, setCatalogLoaded] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    fetchPublicCatalog()
+      .then((payload) => {
+        if (!active) return
+        setCatalog(payload)
+      })
+      .catch(() => {
+        if (!active) return
+        setCatalog(null)
+      })
+      .finally(() => {
+        if (active) setCatalogLoaded(true)
+      })
+    return () => {
+      active = false
+    }
+  }, [])
+
   useEffect(() => {
     const observe = (ref: React.RefObject<HTMLDivElement | null>, set: (v: boolean) => void, threshold = 0.15) => {
       const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) set(true) }, { threshold })
@@ -229,6 +294,14 @@ export function PricingSection() {
     const o3 = observe(teamRef, setTeamVisible)
     return () => { o1.disconnect(); o2.disconnect(); o3.disconnect() }
   }, [])
+
+  const periods: Period[] = catalog?.subscriptionPeriods?.length
+    ? catalog.subscriptionPeriods
+    : buildFallbackPeriods()
+
+  const teamPlans: TeamPlan[] = catalog
+    ? productsToPlans(catalog.products, catalog.tariffs)
+    : buildFallbackPlans()
 
   return (
     <section id="pricing" className="relative overflow-hidden py-24 md:py-32">
@@ -404,9 +477,32 @@ export function PricingSection() {
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-            {teamPlans.map((plan) => (
-              <TeamPlanCard key={plan.name} plan={plan} />
-            ))}
+            {!catalogLoaded ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-sm animate-pulse">
+                  <div className="mb-4 h-12 w-12 rounded-xl bg-secondary" />
+                  <div className="mb-2 h-3 w-24 rounded-full bg-secondary" />
+                  <div className="mb-2 h-5 w-40 rounded bg-secondary" />
+                  <div className="mb-6 h-4 w-full rounded bg-secondary" />
+                  <div className="mb-5 flex gap-2">
+                    <div className="h-8 w-16 rounded-full bg-secondary" />
+                    <div className="h-8 w-16 rounded-full bg-secondary" />
+                    <div className="h-8 w-16 rounded-full bg-secondary" />
+                  </div>
+                  <div className="mb-4 h-24 rounded-xl bg-secondary" />
+                  <div className="space-y-3">
+                    {Array.from({ length: 3 }).map((_, j) => (
+                      <div key={j} className="h-4 w-full rounded bg-secondary" />
+                    ))}
+                  </div>
+                  <div className="mt-6 h-10 w-full rounded-xl bg-secondary" />
+                </div>
+              ))
+            ) : (
+              teamPlans.map((plan) => (
+                <TeamPlanCard key={plan.name} plan={plan} periods={periods} />
+              ))
+            )}
           </div>
         </div>
       </div>

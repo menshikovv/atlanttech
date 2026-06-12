@@ -148,12 +148,6 @@ export default function AdminUsersPage() {
   const editingSelf = Boolean(selectedUser && user && selectedUser.id === user.id)
 
   useEffect(() => {
-    if (!selectedUserId && filteredUsers.length) {
-      setSelectedUserId(filteredUsers[0].id)
-    }
-  }, [filteredUsers, selectedUserId])
-
-  useEffect(() => {
     setDeleteConfirm("")
     const currentUser =
       filteredUsers.find((item) => item.id === selectedUserId) ||
@@ -295,8 +289,8 @@ export default function AdminUsersPage() {
         {statusMessage}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr] xl:items-start">
-        <section className="glass-strong rounded-2xl border border-border overflow-hidden xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:flex xl:flex-col">
+      <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
+        <div className="glass-strong rounded-2xl border border-border overflow-hidden xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:flex xl:flex-col">
           <header className="flex flex-col gap-3 border-b border-border bg-secondary/30 px-5 py-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-sm font-bold uppercase tracking-wider">Пользователи</h2>
@@ -354,11 +348,10 @@ export default function AdminUsersPage() {
               </tbody>
             </table>
           </div>
-        </section>
+        </div>
 
         <section className="space-y-6">
           <div className="glass-strong rounded-2xl border border-border p-6">
-            <h2 className="text-lg font-bold mb-4">Карточка пользователя</h2>
             {selectedUser ? (
               <div className="space-y-4">
                 <div className="rounded-2xl border border-border bg-secondary/30 p-4">
@@ -392,20 +385,6 @@ export default function AdminUsersPage() {
                           {item.title}
                         </option>
                       ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Статус тарифа</label>
-                    <select
-                      value={tariffFormState.tariffStatus}
-                      onChange={(event) => setTariffFormState((state) => ({ ...state, tariffStatus: event.target.value }))}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                      disabled={!canManageTariffs}
-                    >
-                      <option value="active">active</option>
-                      <option value="inactive">inactive</option>
-                      <option value="expired">expired</option>
                     </select>
                   </div>
 
@@ -578,11 +557,13 @@ export default function AdminUsersPage() {
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">Выберите пользователя из таблицы слева.</p>
+              <div className="flex items-center justify-center h-full min-h-[300px] text-sm text-muted-foreground">
+                Выберите пользователя из таблицы
+              </div>
             )}
           </div>
         </section>
-      </div>
+    </div>
     </div>
   )
 }
