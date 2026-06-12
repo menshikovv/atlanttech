@@ -165,7 +165,6 @@ function TeamPlanCard({ plan }: { plan: TeamPlan }) {
         </div>
       </div>
 
-      {/* Price */}
       <div className="mt-5 rounded-xl bg-secondary/50 p-4">
         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Стоимость
@@ -195,7 +194,6 @@ function TeamPlanCard({ plan }: { plan: TeamPlan }) {
         ))}
       </ul>
 
-      {/* CTA */}
       <Button
         asChild
         variant="default"

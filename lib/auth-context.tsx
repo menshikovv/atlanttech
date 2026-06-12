@@ -11,6 +11,7 @@ import {
 } from "react"
 import {
   clearStoredSiteToken,
+  deleteUser as deleteUserApi,
   fetchAdminUsers,
   fetchCurrentSiteUser,
   fetchUserTariffHistory,
@@ -102,6 +103,7 @@ type AuthContextType = {
   loadTariffHistory: (userId: string, limit?: number) => Promise<SiteTariffHistoryItem[]>
   updateUserTariff: (userId: string, payload: TariffPatchPayload) => Promise<AuthResult>
   updateUserAccess: (userId: string, payload: AccessPatchPayload) => Promise<AuthResult>
+  deleteUser: (userId: string) => Promise<AuthResult>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -381,6 +383,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [token]
   )
 
+  const deleteUser = useCallback(
+    async (userId: string) => {
+      if (!token) {
+        return { ok: false, error: "No active admin session." }
+      }
+      try {
+        await deleteUserApi(token, userId)
+        setAllUsers((prev) => prev.filter((u) => u.id !== userId))
+        return { ok: true }
+      } catch (error) {
+        return {
+          ok: false,
+          error: error instanceof Error ? error.message : "Failed to delete user.",
+        }
+      }
+    },
+    [token]
+  )
+
   const subscriptions = useMemo(() => (user ? mapSubscriptions([user]) : []), [user])
   const allSubscriptions = useMemo(() => mapSubscriptions(allUsers), [allUsers])
 
@@ -401,6 +422,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loadTariffHistory,
         updateUserTariff,
         updateUserAccess,
+        deleteUser,
       }}
     >
       {children}

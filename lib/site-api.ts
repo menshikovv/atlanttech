@@ -307,6 +307,13 @@ export async function patchUserAccess(
   })
 }
 
+export async function deleteUser(token: string, userId: string) {
+  return request<SiteUserMutationResponse>(`/admin/users/${encodeURIComponent(userId)}`, {
+    method: "DELETE",
+    token,
+  })
+}
+
 export async function patchCatalogTariff(
   token: string,
   tariffCode: string,
