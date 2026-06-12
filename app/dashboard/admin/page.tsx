@@ -248,30 +248,35 @@ export default function AdminPage() {
   }, [filteredUsers, selectedUserId])
 
   useEffect(() => {
-    if (!selectedUser) {
+    const currentUser =
+      filteredUsers.find((item) => item.id === selectedUserId) ||
+      allUsers.find((item) => item.id === selectedUserId) ||
+      null
+
+    if (!currentUser) {
       setTariffFormState({ tariffCode: "base", tariffStatus: "active", startsAt: "", expiresAt: "", note: "" })
       setAccessFormState({ siteRole: "user", isActive: true, note: "" })
       return
     }
 
     setTariffFormState({
-      tariffCode: selectedUser.tariffCode,
-      tariffStatus: selectedUser.tariffStatus,
-      startsAt: toInputDateTime(selectedUser.tariffStartsAt),
-      expiresAt: toInputDateTime(selectedUser.tariffExpiresAt),
+      tariffCode: currentUser.tariffCode,
+      tariffStatus: currentUser.tariffStatus,
+      startsAt: toInputDateTime(currentUser.tariffStartsAt),
+      expiresAt: toInputDateTime(currentUser.tariffExpiresAt),
       note: "",
     })
     setAccessFormState({
-      siteRole: selectedUser.siteRole || "user",
-      isActive: !selectedUser.blocked,
+      siteRole: currentUser.siteRole || "user",
+      isActive: !currentUser.blocked,
       note: "",
     })
     setTariffOptions((options) =>
-      options.some((item) => item.code === selectedUser.tariffCode)
+      options.some((item) => item.code === currentUser.tariffCode)
         ? options
-        : [...options, { code: selectedUser.tariffCode, title: selectedUser.tariffTitle || selectedUser.tariffCode }]
+        : [...options, { code: currentUser.tariffCode, title: currentUser.tariffTitle || currentUser.tariffCode }]
     )
-  }, [selectedUser])
+  }, [selectedUserId, allUsers])
 
   useEffect(() => {
     let active = true
@@ -386,9 +391,12 @@ export default function AdminPage() {
     }
 
     setStatusMessage(`Тариф «${title}» выдан пользователю ${selectedUser.email}.`)
-    await refreshAdminData()
-    const items = await loadTariffHistory(selectedUser.id, 20)
-    setHistory(items)
+    try {
+      const items = await loadTariffHistory(selectedUser.id, 20)
+      setHistory(items)
+    } catch {
+      setStatusMessage(`Тариф «${title}» выдан, но не удалось загрузить историю.`)
+    }
   }
 
   const handleTariffSubmit = async (event: FormEvent) => {
@@ -418,9 +426,12 @@ export default function AdminPage() {
     }
 
     setStatusMessage(`Тариф пользователя ${selectedUser.email} обновлен.`)
-    await refreshAdminData()
-    const items = await loadTariffHistory(selectedUser.id, 20)
-    setHistory(items)
+    try {
+      const items = await loadTariffHistory(selectedUser.id, 20)
+      setHistory(items)
+    } catch {
+      setStatusMessage(`Тариф пользователя ${selectedUser.email} обновлен, но не удалось загрузить историю.`)
+    }
   }
 
   const handleAccessSubmit = async (event: FormEvent) => {
@@ -448,9 +459,12 @@ export default function AdminPage() {
     }
 
     setStatusMessage(`Доступы пользователя ${selectedUser.email} обновлены.`)
-    await refreshAdminData()
-    const items = await loadTariffHistory(selectedUser.id, 20)
-    setHistory(items)
+    try {
+      const items = await loadTariffHistory(selectedUser.id, 20)
+      setHistory(items)
+    } catch {
+      setStatusMessage(`Доступы пользователя ${selectedUser.email} обновлены, но не удалось загрузить историю.`)
+    }
   }
 
   const handleCatalogTariffSubmit = async (event: FormEvent) => {
@@ -480,6 +494,21 @@ export default function AdminPage() {
         order: Number(catalogTariffFormState.order) || 0,
       })
       setCatalog(payload.catalog)
+      setTariffOptions(
+        payload.catalog.tariffs.map((item) => ({
+          code: item.code,
+          title: item.title,
+        }))
+      )
+      const updated = payload.item as SiteCatalogTariff
+      setCatalogTariffFormState({
+        tag: updated.tag,
+        title: updated.title,
+        description: updated.description,
+        productId: updated.productId || "",
+        visible: updated.visible,
+        order: updated.order,
+      })
       setStatusMessage(`Витрина тарифа ${selectedCatalogTariff.code} обновлена.`)
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "Не удалось обновить витрину тарифа.")
@@ -522,6 +551,22 @@ export default function AdminPage() {
         features: linesToArray(catalogProductFormState.features),
       })
       setCatalog(payload.catalog)
+      const updated = payload.item as SiteCatalogProduct
+      setCatalogProductFormState({
+        tag: updated.tag,
+        name: updated.name,
+        description: updated.description,
+        forWhom: updated.forWhom,
+        tariffCode: updated.tariffCode || "",
+        priceRub: String(updated.priceRub),
+        priceUsd: String(updated.priceUsd),
+        icon: updated.icon,
+        visible: updated.visible,
+        popular: updated.popular,
+        order: updated.order,
+        benefits: arrayToLines(updated.benefits),
+        features: arrayToLines(updated.features),
+      })
       setStatusMessage(`Продукт ${selectedCatalogProduct.id} обновлен.`)
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "Не удалось обновить продукт.")

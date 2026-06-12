@@ -198,11 +198,8 @@ function TeamPlanCard({ plan }: { plan: TeamPlan }) {
       {/* CTA */}
       <Button
         asChild
-        variant={plan.popular ? "default" : "outline"}
-        className={cn(
-          "mt-6 w-full rounded-xl",
-          plan.popular && "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25",
-        )}
+        variant="default"
+        className="mt-6 w-full rounded-xl shadow-lg shadow-primary/25"
       >
         <a href="https://t.me/atlant_tech_bot" target="_blank" rel="noopener noreferrer">
           Обсудить тариф

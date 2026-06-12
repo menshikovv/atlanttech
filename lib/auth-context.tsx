@@ -347,8 +347,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { ok: false, error: "No active admin session." }
       }
       try {
-        await patchUserTariff(token, userId, payload)
-        await refreshUser(token)
+        const response = await patchUserTariff(token, userId, payload)
+        const updated = mapUser(response.user)
+        setAllUsers((prev) => prev.map((u) => (u.id === userId ? updated : u)))
         return { ok: true }
       } catch (error) {
         return {
@@ -357,7 +358,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
     },
-    [refreshUser, token]
+    [token]
   )
 
   const updateUserAccess = useCallback(
@@ -366,8 +367,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { ok: false, error: "No active admin session." }
       }
       try {
-        await patchUserAccess(token, userId, payload)
-        await refreshUser(token)
+        const response = await patchUserAccess(token, userId, payload)
+        const updated = mapUser(response.user)
+        setAllUsers((prev) => prev.map((u) => (u.id === userId ? updated : u)))
         return { ok: true }
       } catch (error) {
         return {
@@ -376,7 +378,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
     },
-    [refreshUser, token]
+    [token]
   )
 
   const subscriptions = useMemo(() => (user ? mapSubscriptions([user]) : []), [user])
