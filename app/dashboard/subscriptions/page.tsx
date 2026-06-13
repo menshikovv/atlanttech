@@ -170,6 +170,7 @@ function AvailableTariffCard({
 export default function SubscriptionsPage() {
   const { subscriptions } = useAuth()
   const [catalog, setCatalog] = useState<SiteCatalogResponse | null>(null)
+  const [catalogLoaded, setCatalogLoaded] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -181,6 +182,9 @@ export default function SubscriptionsPage() {
       .catch(() => {
         if (!active) return
         setCatalog(buildFallbackCatalog())
+      })
+      .finally(() => {
+        if (active) setCatalogLoaded(true)
       })
 
     return () => {
@@ -260,13 +264,40 @@ export default function SubscriptionsPage() {
         </h2>
 
         <div className="grid gap-4 md:grid-cols-2">
-          {publicTariffs.map((tariff) => (
-            <AvailableTariffCard
-              key={tariff.code}
-              tariff={tariff}
-              product={catalog?.products.find((item) => item.id === tariff.productId) || null}
-            />
-          ))}
+          {!catalogLoaded
+            ? Array.from({ length: 2 }).map((_, i) => (
+                <div key={i} className="glass-strong rounded-2xl border border-border p-6 animate-pulse">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-2">
+                      <div className="h-3 w-32 rounded-full bg-secondary" />
+                      <div className="h-5 w-44 rounded bg-secondary" />
+                    </div>
+                    <div className="h-6 w-14 rounded-full bg-secondary" />
+                  </div>
+                  <div className="mt-4 space-y-2">
+                    <div className="h-3 w-full rounded bg-secondary" />
+                    <div className="h-3 w-5/6 rounded bg-secondary" />
+                  </div>
+                  <div className="mt-5 space-y-2">
+                    <div className="h-10 w-full rounded-xl bg-secondary" />
+                    <div className="h-10 w-full rounded-xl bg-secondary" />
+                  </div>
+                  <div className="mt-6 flex items-center justify-between gap-3">
+                    <div className="space-y-2">
+                      <div className="h-4 w-32 rounded bg-secondary" />
+                      <div className="h-3 w-24 rounded bg-secondary" />
+                    </div>
+                    <div className="h-9 w-32 rounded-md bg-secondary" />
+                  </div>
+                </div>
+              ))
+            : publicTariffs.map((tariff) => (
+                <AvailableTariffCard
+                  key={tariff.code}
+                  tariff={tariff}
+                  product={catalog?.products.find((item) => item.id === tariff.productId) || null}
+                />
+              ))}
         </div>
 
         <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 mt-6 text-sm text-primary flex items-start gap-3">

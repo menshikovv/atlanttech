@@ -152,6 +152,7 @@ export default function ProductsPage() {
   const searchParams = useSearchParams()
   const selectedProductId = String(searchParams.get("product") || "").trim()
   const [catalog, setCatalog] = useState<SiteCatalogResponse | null>(null)
+  const [catalogLoaded, setCatalogLoaded] = useState(false)
   const [periodByProductId, setPeriodByProductId] = useState<Record<string, number>>({})
   const [checkoutLoadingId, setCheckoutLoadingId] = useState("")
   const [checkoutMessage, setCheckoutMessage] = useState("")
@@ -166,6 +167,9 @@ export default function ProductsPage() {
       .catch(() => {
         if (!active) return
         setCatalog(buildFallbackCatalog())
+      })
+      .finally(() => {
+        if (active) setCatalogLoaded(true)
       })
     return () => {
       active = false
@@ -233,7 +237,46 @@ export default function ProductsPage() {
       ) : null}
 
       <div className="space-y-8">
-        {products.map((product) => {
+        {!catalogLoaded
+          ? Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="glass-strong rounded-2xl border border-border p-6 md:p-8 animate-pulse">
+                <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+                  <div className="xl:max-w-3xl flex-1">
+                    <div className="flex items-start gap-4 mb-5">
+                      <div className="h-14 w-14 rounded-2xl bg-secondary flex-shrink-0" />
+                      <div className="space-y-2 flex-1">
+                        <div className="h-3 w-32 rounded-full bg-secondary" />
+                        <div className="h-5 w-48 rounded bg-secondary" />
+                        <div className="h-3 w-full rounded bg-secondary" />
+                        <div className="h-3 w-5/6 rounded bg-secondary" />
+                      </div>
+                    </div>
+                    <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+                      <div className="h-28 rounded-2xl bg-secondary" />
+                      <div className="h-28 rounded-2xl bg-secondary" />
+                    </div>
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      <div className="h-6 w-20 rounded-full bg-secondary" />
+                      <div className="h-6 w-24 rounded-full bg-secondary" />
+                      <div className="h-6 w-16 rounded-full bg-secondary" />
+                    </div>
+                  </div>
+                  <div className="xl:w-[340px] rounded-2xl border border-primary/20 bg-primary/5 p-5 space-y-4">
+                    <div className="h-3 w-32 rounded-full bg-secondary" />
+                    <div className="h-7 w-40 rounded bg-secondary" />
+                    <div className="h-3 w-36 rounded bg-secondary" />
+                    <div className="flex gap-2">
+                      <div className="h-8 w-16 rounded-full bg-secondary" />
+                      <div className="h-8 w-16 rounded-full bg-secondary" />
+                      <div className="h-8 w-16 rounded-full bg-secondary" />
+                    </div>
+                    <div className="h-16 rounded-xl bg-secondary" />
+                    <div className="h-10 rounded-md bg-secondary" />
+                  </div>
+                </div>
+              </div>
+            ))
+          : products.map((product) => {
           const selectedMonths = periodByProductId[product.id] || periods[0]?.months || 1
           const selectedPeriod = periods.find((item) => item.months === selectedMonths) || periods[0]
           const total = calculateTotal(product.priceRub, selectedPeriod)
