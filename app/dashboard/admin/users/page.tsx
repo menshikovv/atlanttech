@@ -290,7 +290,7 @@ export default function AdminUsersPage() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-        <div className="glass-strong rounded-2xl border border-border overflow-hidden xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:flex xl:flex-col">
+        <div className="glass-strong rounded-2xl border border-border xl:overflow-hidden xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:flex xl:flex-col">
           <header className="flex flex-col gap-3 border-b border-border bg-secondary/30 px-5 py-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-sm font-bold uppercase tracking-wider">Пользователи</h2>
@@ -307,8 +307,8 @@ export default function AdminUsersPage() {
             </div>
           </header>
 
-          <div className="overflow-auto xl:flex-1">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto xl:flex-1">
+            <table className="w-full text-sm min-w-[500px]">
               <thead className="sticky top-0 bg-secondary/95 backdrop-blur z-10">
                 <tr className="text-[10px] uppercase tracking-wider text-muted-foreground">
                   <th className="px-5 py-3 text-left font-semibold">Login</th>
@@ -331,7 +331,7 @@ export default function AdminUsersPage() {
                         <div className="font-medium">{item.login}</div>
                         <div className="text-xs text-muted-foreground">{item.name}</div>
                       </td>
-                      <td className="px-5 py-3 text-muted-foreground">{item.email}</td>
+                      <td className="px-5 py-3 text-muted-foreground max-w-[120px] truncate">{item.email}</td>
                       <td className="px-5 py-3">
                         <div className="flex flex-wrap gap-2">
                           <Badge className="bg-primary/10 text-primary border-0">{roleLabel(item.siteRole)}</Badge>
@@ -341,7 +341,7 @@ export default function AdminUsersPage() {
                       <td className="px-5 py-3">
                         <Badge className="bg-primary/10 text-primary border-0">{item.tariffTitle}</Badge>
                       </td>
-                      <td className="px-5 py-3 text-muted-foreground">{formatDate(item.tariffExpiresAt)}</td>
+                      <td className="px-5 py-3 text-muted-foreground whitespace-nowrap">{formatDate(item.tariffExpiresAt)}</td>
                     </tr>
                   )
                 })}

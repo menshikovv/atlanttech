@@ -237,16 +237,6 @@ function TeamPlanCard({ plan, periods }: { plan: TeamPlan; periods: Period[] }) 
         ))}
       </ul>
 
-      <Button
-        asChild
-        variant="default"
-        className="mt-6 w-full rounded-xl shadow-lg shadow-primary/25"
-      >
-        <a href="https://t.me/atlant_tech_bot" target="_blank" rel="noopener noreferrer">
-          Обсудить тариф
-          <ArrowRight className="ml-1 h-4 w-4" />
-        </a>
-      </Button>
     </div>
   )
 }

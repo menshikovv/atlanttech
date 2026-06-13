@@ -214,12 +214,70 @@ export default function AdminPage() {
 
         {/* ─── Navigation ─── */}
         <div>
-          <div className="mb-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-border" />
-            <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-              Разделы управления
-            </h2>
-            <div className="h-px flex-1 bg-border" />
+          <div className="mb-6 flex flex-col gap-3">
+            {/* ── mobile row ── */}
+            <div className="flex items-center gap-3 md:hidden">
+              <Button
+                variant="secondary"
+                size="sm"
+                className="flex-1 gap-1.5 whitespace-nowrap rounded-xl border border-primary/20 bg-primary/5 px-3 text-[11px] font-semibold text-primary shadow-sm transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-md hover:shadow-primary/25"
+                onClick={() => document.getElementById("upload-db-input")?.click()}
+              >
+                <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                </svg>
+                Загрузить базу
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="flex-1 gap-1.5 whitespace-nowrap rounded-xl border border-primary/20 bg-primary/5 px-3 text-[11px] font-semibold text-primary shadow-sm transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-md hover:shadow-primary/25"
+                onClick={() => document.getElementById("upload-scout-input")?.click()}
+              >
+                <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                </svg>
+                Загрузить ScoutScope
+              </Button>
+              <input id="upload-db-input" type="file" className="hidden" accept=".json,.csv,.xlsx" />
+              <input id="upload-scout-input" type="file" className="hidden" accept=".json,.csv,.xlsx" />
+            </div>
+
+            {/* ── desktop row ── */}
+            <div className="hidden md:flex md:items-center md:gap-3">
+              <Button
+                variant="secondary"
+                size="sm"
+                className="gap-1.5 whitespace-nowrap rounded-xl border border-primary/20 bg-primary/5 px-4 text-xs font-semibold text-primary shadow-sm transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-md hover:shadow-primary/25"
+                onClick={() => document.getElementById("upload-db-input-desktop")?.click()}
+              >
+                <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                </svg>
+                Загрузить базу
+              </Button>
+              <input id="upload-db-input-desktop" type="file" className="hidden" accept=".json,.csv,.xlsx" />
+              <div className="h-px flex-1 bg-gradient-to-r from-border/40 via-border to-border/40" />
+              <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-foreground/80 shrink-0">
+                <svg className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+                Разделы управления
+              </h2>
+              <div className="h-px flex-1 bg-gradient-to-r from-border/40 via-border to-border/40" />
+              <Button
+                variant="secondary"
+                size="sm"
+                className="gap-1.5 whitespace-nowrap rounded-xl border border-primary/20 bg-primary/5 px-4 text-xs font-semibold text-primary shadow-sm transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:shadow-md hover:shadow-primary/25"
+                onClick={() => document.getElementById("upload-scout-input-desktop")?.click()}
+              >
+                <svg className="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                </svg>
+                Загрузить ScoutScope
+              </Button>
+              <input id="upload-scout-input-desktop" type="file" className="hidden" accept=".json,.csv,.xlsx" />
+            </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">

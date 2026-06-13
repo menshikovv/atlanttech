@@ -147,12 +147,12 @@ export default function AdminSupportPage() {
 
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
         {/* Tickets list */}
-        <div className="glass-strong rounded-2xl border border-border overflow-hidden xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:flex xl:flex-col">
+        <div className="glass-strong rounded-2xl border border-border xl:overflow-hidden xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:flex xl:flex-col">
           <header className="border-b border-border bg-secondary/30 px-5 py-4">
             <h2 className="text-sm font-bold uppercase tracking-wider">Все заявки</h2>
           </header>
 
-          <div className="overflow-auto xl:flex-1">
+          <div className="overflow-x-auto xl:flex-1">
             {loading ? (
               <div className="flex items-center justify-center h-40 text-sm text-muted-foreground">
                 Загрузка...
@@ -162,7 +162,7 @@ export default function AdminSupportPage() {
                 Нет заявок
               </div>
             ) : (
-              <table className="w-full text-sm">
+              <table className="w-full text-sm min-w-[400px]">
                 <thead className="sticky top-0 bg-secondary/95 backdrop-blur z-10">
                   <tr className="text-[10px] uppercase tracking-wider text-muted-foreground">
                     <th className="px-5 py-3 text-left font-semibold">Дата</th>
@@ -186,7 +186,7 @@ export default function AdminSupportPage() {
                           {formatDate(ticket.createdAt)}
                         </td>
                         <td className="px-5 py-3">{ticket.subject}</td>
-                        <td className="px-5 py-3 text-muted-foreground">{ticket.name}</td>
+                        <td className="px-5 py-3 text-muted-foreground max-w-[100px] truncate">{ticket.name}</td>
                         <td className="px-5 py-3">
                           <Badge className={statusColors[ticket.status]} variant="outline">
                             {statusLabels[ticket.status]}
@@ -235,7 +235,7 @@ export default function AdminSupportPage() {
                   <p className="text-sm whitespace-pre-wrap leading-relaxed">{selected.message}</p>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {selected.status !== "read" && (
                     <Button
                       variant="outline"
@@ -258,7 +258,7 @@ export default function AdminSupportPage() {
                   )}
                   <Button
                     variant="outline"
-                    className="gap-2 ml-auto border-destructive/50 text-destructive hover:bg-destructive/10"
+                    className="gap-2 md:ml-auto border-destructive/50 text-destructive hover:bg-destructive/10"
                     onClick={() => deleteTicket(selected.id)}
                   >
                     <Trash2 className="h-4 w-4" />
