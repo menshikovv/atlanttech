@@ -12,7 +12,7 @@ function DashboardGuard({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (ready && !user) {
-      router.replace("/auth/login")
+      router.replace("/")
     }
   }, [ready, router, user])
 

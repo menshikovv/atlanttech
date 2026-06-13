@@ -176,6 +176,15 @@ export function clearStoredSiteToken() {
   window.localStorage.removeItem(TOKEN_STORAGE_KEY)
 }
 
+export class SiteApiError extends Error {
+  status: number
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = "SiteApiError"
+    this.status = status
+  }
+}
+
 async function request<T>(path: string, options: RequestOptions = {}) {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -193,7 +202,7 @@ async function request<T>(path: string, options: RequestOptions = {}) {
   const payload = await response.json().catch(() => ({}))
   if (!response.ok) {
     const message = payload?.error?.message || `Request failed with status ${response.status}`
-    throw new Error(message)
+    throw new SiteApiError(message, response.status)
   }
 
   return payload as T

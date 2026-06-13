@@ -144,7 +144,7 @@ export function ContactSection() {
 
               <div className="space-y-3 md:space-y-4">
                 <a
-                  href="https://t.me/atlant_tech_bot"
+                  href="https://t.me/atlanttechnology"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl md:rounded-2xl bg-secondary/50 hover:bg-primary/10 border border-transparent hover:border-primary/20 transition-all group"
@@ -154,7 +154,7 @@ export function ContactSection() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-sm md:text-base">Telegram</p>
-                    <p className="text-xs md:text-sm text-muted-foreground truncate">@atlant_tech_bot</p>
+                    <p className="text-xs md:text-sm text-muted-foreground truncate">@atlanttechnology</p>
                   </div>
                   <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
                 </a>

@@ -259,37 +259,37 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-12 max-w-7xl">
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="outline" size="icon" onClick={() => router.push("/dashboard/admin")}>
+    <div className="container mx-auto px-3 sm:px-4 py-6 md:py-12 max-w-7xl">
+      <div className="flex items-start gap-3 sm:gap-4 mb-6 md:mb-8">
+        <Button variant="outline" size="icon" className="flex-shrink-0" onClick={() => router.push("/dashboard/admin")}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs text-primary mb-3">
+        <div className="min-w-0">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs text-primary mb-2 md:mb-3">
             <Users className="h-3.5 w-3.5" />
             Управление
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold">Пользователи</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Пользователи</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Main admin управляет пользователями, тарифами и доступами.
           </p>
         </div>
       </div>
 
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 mb-6 md:mb-8">
         <StatCard label="Всего пользователей" value={stats.totalUsers} icon={<Users className="h-5 w-5" />} />
         <StatCard label="Активных" value={stats.activeUsers} icon={<ShieldCheck className="h-5 w-5" />} />
         <StatCard label="Админов" value={stats.adminUsers} icon={<Crown className="h-5 w-5" />} />
         <StatCard label="Активных тарифов" value={stats.activeTariffs} icon={<Calendar className="h-5 w-5" />} />
       </div>
 
-      <div className="rounded-2xl border border-border bg-secondary/20 px-4 py-3 text-sm text-muted-foreground mb-6">
+      <div className="rounded-2xl border border-border bg-secondary/20 px-3 sm:px-4 py-3 text-xs sm:text-sm text-muted-foreground mb-4 md:mb-6 break-words">
         {statusMessage}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-        <div className="glass-strong rounded-2xl border border-border xl:overflow-hidden xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:flex xl:flex-col">
-          <header className="flex flex-col gap-3 border-b border-border bg-secondary/30 px-5 py-4 md:flex-row md:items-center md:justify-between">
+      <div className="grid gap-4 md:gap-6 xl:grid-cols-[1.5fr_1fr]">
+        <div className="glass-strong rounded-2xl border border-border overflow-hidden xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:flex xl:flex-col">
+          <header className="flex flex-col gap-3 border-b border-border bg-secondary/30 px-3 sm:px-5 py-3 sm:py-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-sm font-bold uppercase tracking-wider">Пользователи</h2>
               <p className="text-xs text-muted-foreground mt-1">Выберите пользователя, чтобы управлять тарифом и доступом.</p>
@@ -305,15 +305,46 @@ export default function AdminUsersPage() {
             </div>
           </header>
 
-          <div className="overflow-x-auto xl:flex-1">
-            <table className="w-full text-sm min-w-[500px]">
+          {/* Mobile: card list */}
+          <ul className="sm:hidden divide-y divide-border/60">
+            {filteredUsers.map((item) => {
+              const isSelected = item.id === selectedUserId
+              return (
+                <li
+                  key={item.id}
+                  onClick={() => setSelectedUserId(item.id)}
+                  className={`px-4 py-3 cursor-pointer transition-colors ${isSelected ? "bg-primary/5" : "active:bg-secondary/30"}`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-medium truncate">{item.login}</div>
+                      <div className="text-xs text-muted-foreground truncate">{item.name}</div>
+                      <div className="text-xs text-muted-foreground truncate mt-0.5">{item.email}</div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                      <Badge className="bg-primary/10 text-primary border-0 text-[10px]">{roleLabel(item.siteRole)}</Badge>
+                      {item.blocked ? <Badge variant="outline" className="text-[10px]">disabled</Badge> : null}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 mt-2">
+                    <Badge className="bg-primary/10 text-primary border-0 text-[10px] truncate max-w-[60%]">{item.tariffTitle}</Badge>
+                    <span className="text-[10px] text-muted-foreground whitespace-nowrap">{formatDate(item.tariffExpiresAt)}</span>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+
+          {/* Tablet+: table */}
+          <div className="hidden sm:block overflow-x-auto xl:flex-1">
+            <table className="w-full text-sm">
               <thead className="sticky top-0 bg-secondary/95 backdrop-blur z-10">
                 <tr className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  <th className="px-5 py-3 text-left font-semibold">Login</th>
-                  <th className="px-5 py-3 text-left font-semibold">Email</th>
-                  <th className="px-5 py-3 text-left font-semibold">Role</th>
-                  <th className="px-5 py-3 text-left font-semibold">Тариф</th>
-                  <th className="px-5 py-3 text-left font-semibold">До</th>
+                  <th className="px-3 lg:px-5 py-3 text-left font-semibold">Login</th>
+                  <th className="px-3 lg:px-5 py-3 text-left font-semibold hidden lg:table-cell">Email</th>
+                  <th className="px-3 lg:px-5 py-3 text-left font-semibold">Role</th>
+                  <th className="px-3 lg:px-5 py-3 text-left font-semibold">Тариф</th>
+                  <th className="px-3 lg:px-5 py-3 text-left font-semibold hidden md:table-cell">До</th>
                 </tr>
               </thead>
               <tbody>
@@ -325,21 +356,21 @@ export default function AdminUsersPage() {
                       onClick={() => setSelectedUserId(item.id)}
                       className={`border-t border-border/60 transition-colors cursor-pointer ${isSelected ? "bg-primary/5" : "hover:bg-secondary/20"}`}
                     >
-                      <td className="px-5 py-3">
+                      <td className="px-3 lg:px-5 py-3">
                         <div className="font-medium">{item.login}</div>
                         <div className="text-xs text-muted-foreground">{item.name}</div>
                       </td>
-                      <td className="px-5 py-3 text-muted-foreground max-w-[120px] truncate">{item.email}</td>
-                      <td className="px-5 py-3">
+                      <td className="px-3 lg:px-5 py-3 text-muted-foreground max-w-[160px] truncate hidden lg:table-cell">{item.email}</td>
+                      <td className="px-3 lg:px-5 py-3">
                         <div className="flex flex-wrap gap-2">
                           <Badge className="bg-primary/10 text-primary border-0">{roleLabel(item.siteRole)}</Badge>
                           {item.blocked ? <Badge variant="outline">disabled</Badge> : null}
                         </div>
                       </td>
-                      <td className="px-5 py-3">
+                      <td className="px-3 lg:px-5 py-3">
                         <Badge className="bg-primary/10 text-primary border-0">{item.tariffTitle}</Badge>
                       </td>
-                      <td className="px-5 py-3 text-muted-foreground whitespace-nowrap">{formatDate(item.tariffExpiresAt)}</td>
+                      <td className="px-3 lg:px-5 py-3 text-muted-foreground whitespace-nowrap hidden md:table-cell">{formatDate(item.tariffExpiresAt)}</td>
                     </tr>
                   )
                 })}
@@ -348,13 +379,13 @@ export default function AdminUsersPage() {
           </div>
         </div>
 
-        <section className="space-y-6">
-          <div className="glass-strong rounded-2xl border border-border p-6">
+        <section className="space-y-4 md:space-y-6">
+          <div className="glass-strong rounded-2xl border border-border p-4 sm:p-6">
             {selectedUser ? (
               <div className="space-y-4">
-                <div className="rounded-2xl border border-border bg-secondary/30 p-4">
-                  <p className="text-sm font-semibold">{selectedUser.name}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{selectedUser.email}</p>
+                <div className="rounded-2xl border border-border bg-secondary/30 p-3 sm:p-4">
+                  <p className="text-sm font-semibold break-words">{selectedUser.name}</p>
+                  <p className="text-xs text-muted-foreground mt-1 break-all">{selectedUser.email}</p>
                   <div className="flex flex-wrap gap-2 mt-3">
                     <Badge className="bg-primary/10 text-primary border-0">{selectedUser.tariffCode}</Badge>
                     <Badge variant="outline">{roleLabel(selectedUser.siteRole)}</Badge>
@@ -372,21 +403,24 @@ export default function AdminUsersPage() {
                 <form onSubmit={handleTariffSubmit} className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Тариф</label>
-                    <select
-                      value={tariffFormState.tariffCode}
-                      onChange={(event) => setTariffFormState((state) => ({ ...state, tariffCode: event.target.value }))}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                      disabled={!canManageTariffs}
-                    >
-                      {tariffOptions.map((item) => (
-                        <option key={item.code} value={item.code}>
-                          {item.title}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={tariffFormState.tariffCode}
+                        onChange={(event) => setTariffFormState((state) => ({ ...state, tariffCode: event.target.value }))}
+                        className="flex h-10 w-full max-w-full appearance-none truncate rounded-md border border-input bg-background pl-3 pr-9 py-2 text-sm"
+                        disabled={!canManageTariffs}
+                      >
+                        {tariffOptions.map((item) => (
+                          <option key={item.code} value={item.code}>
+                            {item.title}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    </div>
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Дата старта</label>
                       <Input
@@ -427,15 +461,15 @@ export default function AdminUsersPage() {
                 </form>
 
                 <Collapsible open={accessOpen} onOpenChange={setAccessOpen} asChild>
-                  <form onSubmit={handleAccessSubmit} className="space-y-4 rounded-2xl border border-border bg-secondary/20 p-4">
+                  <form onSubmit={handleAccessSubmit} className="space-y-4 rounded-2xl border border-border bg-secondary/20 p-3 sm:p-4">
                     <CollapsibleTrigger asChild>
                       <div className="flex cursor-pointer items-center justify-between gap-3 select-none">
-                        <div>
+                        <div className="min-w-0">
                           <h3 className="text-sm font-semibold">Доступ к админке</h3>
                           <p className="text-xs text-muted-foreground">Main admin управляет ролями, отключением аккаунтов и снятием админ-доступа.</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline">{canManageAccess ? "main admin" : "read only"}</Badge>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <Badge variant="outline" className="hidden sm:inline-flex">{canManageAccess ? "main admin" : "read only"}</Badge>
                           <ChevronDown className={`size-4 transition-transform ${accessOpen ? "rotate-180" : ""}`} />
                         </div>
                       </div>
@@ -444,18 +478,21 @@ export default function AdminUsersPage() {
                   <CollapsibleContent className="space-y-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Role</label>
-                      <select
-                        value={accessFormState.siteRole}
-                        onChange={(event) => setAccessFormState((state) => ({ ...state, siteRole: event.target.value }))}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                        disabled={!canManageAccess || editingSelf}
-                      >
-                        {SITE_ROLE_OPTIONS.map((item) => (
-                          <option key={item.value} value={item.value}>
-                            {item.label}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={accessFormState.siteRole}
+                          onChange={(event) => setAccessFormState((state) => ({ ...state, siteRole: event.target.value }))}
+                          className="flex h-10 w-full max-w-full appearance-none truncate rounded-md border border-input bg-background pl-3 pr-9 py-2 text-sm"
+                          disabled={!canManageAccess || editingSelf}
+                        >
+                          {SITE_ROLE_OPTIONS.map((item) => (
+                            <option key={item.value} value={item.value}>
+                              {item.label}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -563,13 +600,13 @@ function StatCard({
   icon: ReactNode
 }) {
   return (
-    <div className="glass-strong rounded-2xl border border-border p-5">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</p>
-          <p className="text-2xl font-bold mt-3">{value}</p>
+    <div className="glass-strong rounded-2xl border border-border p-3 sm:p-5">
+      <div className="flex items-center justify-between gap-2 sm:gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground truncate">{label}</p>
+          <p className="text-xl sm:text-2xl font-bold mt-2 sm:mt-3">{value}</p>
         </div>
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+        <div className="flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary flex-shrink-0">
           {icon}
         </div>
       </div>

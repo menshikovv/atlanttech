@@ -91,7 +91,7 @@ export function DashboardHeader() {
             )}
           </nav>
 
-          <div className="relative" ref={menuRef}>
+          <div className="relative ml-auto" ref={menuRef}>
             <button
               onClick={() => {
                 setMenuOpen(!menuOpen)
@@ -111,7 +111,7 @@ export function DashboardHeader() {
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-72 rounded-2xl border border-border bg-card shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute right-0 mt-2 w-[min(18rem,calc(100vw-1.5rem))] rounded-2xl border border-border bg-card shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="px-4 py-3 border-b border-border bg-secondary/30">
                   <p className="text-sm font-medium truncate">{user?.name}</p>
                   <p className="text-xs text-muted-foreground truncate">{user?.email}</p>

@@ -20,6 +20,7 @@ import {
   patchUserTariff,
   readStoredSiteToken,
   registerSiteUser,
+  SiteApiError,
   writeStoredSiteToken,
   type SiteTariffHistoryItem,
   type SiteUserPayload,
@@ -263,9 +264,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (!active) return
           setAllUsers(adminPayload.items.map(mapUser))
         }
-      } catch {
-        if (active) {
+      } catch (error) {
+        if (!active) return
+        if (error instanceof SiteApiError && (error.status === 401 || error.status === 403)) {
           logout()
+        } else {
+          // Transient (network/server) failure — keep the token so the session can be restored on next load.
+          setUser(null)
+          setAllUsers([])
         }
       } finally {
         if (active) {
