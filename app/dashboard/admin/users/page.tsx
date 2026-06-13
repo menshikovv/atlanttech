@@ -149,16 +149,13 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     setDeleteConfirm("")
-    const currentUser =
-      filteredUsers.find((item) => item.id === selectedUserId) ||
-      allUsers.find((item) => item.id === selectedUserId) ||
-      null
-
-    if (!currentUser) {
+    if (!selectedUserId) {
       setTariffFormState({ tariffCode: "base", tariffStatus: "active", startsAt: "", expiresAt: "", note: "" })
       setAccessFormState({ siteRole: "user", isActive: true, note: "" })
       return
     }
+    const currentUser = allUsers.find((item) => item.id === selectedUserId) || null
+    if (!currentUser) return
 
     setTariffFormState({
       tariffCode: currentUser.tariffCode,
@@ -177,7 +174,8 @@ export default function AdminUsersPage() {
         ? options
         : [...options, { code: currentUser.tariffCode, title: currentUser.tariffTitle || currentUser.tariffCode }]
     )
-  }, [selectedUserId, allUsers])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedUserId])
 
   const handleDeleteUser = async () => {
     if (!selectedUser || deleteConfirm !== selectedUser.login) return
@@ -457,19 +455,6 @@ export default function AdminUsersPage() {
                             {item.label}
                           </option>
                         ))}
-                      </select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Аккаунт</label>
-                      <select
-                        value={accessFormState.isActive ? "active" : "disabled"}
-                        onChange={(event) => setAccessFormState((state) => ({ ...state, isActive: event.target.value === "active" }))}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                        disabled={!canManageAccess || editingSelf}
-                      >
-                        <option value="active">active</option>
-                        <option value="disabled">disabled</option>
                       </select>
                     </div>
 
