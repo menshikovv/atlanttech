@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -35,6 +36,7 @@ function buildFallbackPeriods(): SiteSubscriptionPeriod[] {
 function buildFallbackPlans(): TeamPlan[] {
   return [
     {
+      id: "performancecoach-crm",
       tag: "КОМАНДНАЯ ПОДПИСКА",
       name: "PerformanceCoach CRM",
       description: "Полная версия CRM для команды: управление игроками, процессами и ежедневной коммуникацией штаба.",
@@ -44,6 +46,7 @@ function buildFallbackPlans(): TeamPlan[] {
       features: ["Командный доступ", "Рабочие процессы штаба", "Расширенная CRM-логика"],
     },
     {
+      id: "scoutscope-basic",
       tag: "СТАНДАРТНАЯ ВЕРСИЯ",
       name: "ScoutScope Basic",
       description: "Базовая scouting-система для структурного поиска кандидатов и ведения общей базы просмотров.",
@@ -58,6 +61,7 @@ function buildFallbackPlans(): TeamPlan[] {
       ],
     },
     {
+      id: "scoutscope-pro",
       tag: "РАСШИРЕННАЯ ВЕРСИЯ",
       name: "ScoutScope Pro",
       description: "Продвинутый пакет, в который входит всё из ScoutScope Basic, но с обновлением базы раз в 12 часов.",
@@ -73,6 +77,7 @@ function buildFallbackPlans(): TeamPlan[] {
       ],
     },
     {
+      id: "performancecoach-scoutscope",
       tag: "КОМПЛЕКСНОЕ РЕШЕНИЕ",
       name: "PerformanceCoach CRM + ScoutScope",
       description: "Pro-версия ScoutScope и полная версия PerformanceCoach CRM в одном решении для команды.",
@@ -96,6 +101,7 @@ function productsToPlans(products: SiteCatalogProduct[], tariffs: SiteCatalogTar
     .map((p) => {
       const linked = p.tariffCode ? tariffByCode.get(p.tariffCode) : undefined
       return {
+        id: p.id,
         tag: linked?.tag ?? p.tag,
         name: linked?.title ?? p.name,
         description: linked?.description ?? p.description,
@@ -113,6 +119,7 @@ function productsToPlans(products: SiteCatalogProduct[], tariffs: SiteCatalogTar
 type Period = { label: string; months: number; discount: number }
 
 type TeamPlan = {
+  id?: string
   tag: string
   name: string
   description: string
@@ -237,6 +244,20 @@ function TeamPlanCard({ plan, periods }: { plan: TeamPlan; periods: Period[] }) 
         ))}
       </ul>
 
+      <Button
+        asChild
+        className={cn(
+          "mt-6 w-full rounded-xl shadow-lg",
+          plan.popular
+            ? "bg-primary text-primary-foreground shadow-primary/25 hover:bg-primary/90"
+            : "shadow-primary/10",
+        )}
+      >
+        <Link href={plan.id ? `/dashboard/products?product=${encodeURIComponent(plan.id)}` : "/dashboard/products"}>
+          Купить
+          <ArrowRight className="ml-1 h-4 w-4" />
+        </Link>
+      </Button>
     </div>
   )
 }
