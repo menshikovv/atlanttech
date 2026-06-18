@@ -1,8 +1,8 @@
 "use client"
 
 import type { FormEvent } from "react"
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { Suspense, useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
@@ -11,9 +11,16 @@ import { Label } from "@/components/ui/label"
 import { AtlantLogo } from "@/components/twizz-logo"
 import { Eye, EyeOff, LogIn } from "lucide-react"
 
-export default function LoginPage() {
+function safeRedirect(value: string | null) {
+  if (value && value.startsWith("/") && !value.startsWith("//")) return value
+  return "/dashboard/account"
+}
+
+function LoginContent() {
   const { login, ready, user } = useAuth()
   const router = useRouter()
+  const params = useSearchParams()
+  const redirect = safeRedirect(params.get("redirect"))
   const [loginOrEmail, setLoginOrEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -22,9 +29,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (ready && user) {
-      router.replace("/dashboard/account")
+      router.replace(redirect)
     }
-  }, [ready, router, user])
+  }, [ready, redirect, router, user])
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
@@ -39,7 +46,7 @@ export default function LoginPage() {
     setLoading(false)
 
     if (result.ok) {
-      router.push("/dashboard/account")
+      router.push(redirect)
       return
     }
 
@@ -116,7 +123,10 @@ export default function LoginPage() {
           <div className="mt-6 text-center text-sm">
             <p className="text-muted-foreground">
               Нет аккаунта?{" "}
-              <Link href="/auth/register" className="text-primary hover:underline font-medium">
+              <Link
+                href={`/auth/register?redirect=${encodeURIComponent(redirect)}`}
+                className="text-primary hover:underline font-medium"
+              >
                 Регистрация
               </Link>
             </p>
@@ -124,5 +134,19 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <span className="h-8 w-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   )
 }

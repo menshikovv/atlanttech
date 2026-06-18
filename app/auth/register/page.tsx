@@ -1,8 +1,8 @@
 "use client"
 
 import type { FormEvent } from "react"
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { Suspense, useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { fetchPublicTariffs, type SiteTariff } from "@/lib/site-api"
@@ -13,9 +13,16 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { AtlantLogo } from "@/components/twizz-logo"
 import { Eye, EyeOff, UserPlus } from "lucide-react"
 
-export default function RegisterPage() {
+function safeRedirect(value: string | null) {
+  if (value && value.startsWith("/") && !value.startsWith("//")) return value
+  return "/dashboard/account"
+}
+
+function RegisterContent() {
   const { register, ready, user } = useAuth()
   const router = useRouter()
+  const params = useSearchParams()
+  const redirect = safeRedirect(params.get("redirect"))
   const [login, setLogin] = useState("")
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -31,9 +38,9 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (ready && user) {
-      router.replace("/dashboard/account")
+      router.replace(redirect)
     }
-  }, [ready, router, user])
+  }, [ready, redirect, router, user])
 
   useEffect(() => {
     let active = true
@@ -90,7 +97,7 @@ export default function RegisterPage() {
     setLoading(false)
 
     if (result.ok) {
-      router.push("/dashboard/account")
+      router.push(redirect)
       return
     }
 
@@ -250,7 +257,10 @@ export default function RegisterPage() {
           <div className="mt-6 text-center text-sm">
             <p className="text-muted-foreground">
               Уже есть аккаунт?{" "}
-              <Link href="/auth/login" className="text-primary hover:underline font-medium">
+              <Link
+                href={`/auth/login?redirect=${encodeURIComponent(redirect)}`}
+                className="text-primary hover:underline font-medium"
+              >
                 Войти
               </Link>
             </p>
@@ -258,5 +268,19 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <span className="h-8 w-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <RegisterContent />
+    </Suspense>
   )
 }

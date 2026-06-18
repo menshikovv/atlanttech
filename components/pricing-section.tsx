@@ -253,7 +253,11 @@ function TeamPlanCard({ plan, periods }: { plan: TeamPlan; periods: Period[] }) 
             : "shadow-primary/10",
         )}
       >
-        <Link href={plan.id ? `/dashboard/products?product=${encodeURIComponent(plan.id)}` : "/dashboard/products"}>
+        <Link
+          href={`/auth/login?redirect=${encodeURIComponent(
+            plan.id ? `/dashboard/products?product=${plan.id}` : "/dashboard/products",
+          )}`}
+        >
           Купить
           <ArrowRight className="ml-1 h-4 w-4" />
         </Link>
