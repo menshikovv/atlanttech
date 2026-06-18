@@ -10,10 +10,19 @@ import {
   Calendar,
   Clock,
   CreditCard,
+  Download,
   ShieldCheck,
   Sparkles,
   Target,
 } from "lucide-react"
+
+// Ссылки на сборки приложения по коду тарифа.
+// TODO: заменить плейсхолдеры на реальные URL загрузки.
+const APP_DOWNLOAD_LINKS: Record<string, string> = {
+  base: "https://atlanttech.pro/download/scoutscope-basic",
+  pro: "https://atlanttech.pro/download/scoutscope-pro",
+  manager: "https://atlanttech.pro/download/manager",
+}
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString("ru-RU", {
@@ -130,6 +139,7 @@ function AvailableTariffCard({
   const href = product ? `/dashboard/products?product=${encodeURIComponent(product.id)}` : "/dashboard/products"
   const priceRubText = product ? `от ${product.priceRub.toLocaleString("ru-RU")} ₽ / мес` : "Подробнее в каталоге"
   const priceUsdText = product ? `≈ $${product.priceUsd.toLocaleString("en-US")} / мес` : null
+  const downloadHref = APP_DOWNLOAD_LINKS[tariff.code]
 
   return (
     <article className="glass-strong rounded-2xl border border-border p-6 transition-all hover:-translate-y-1 hover:shadow-lg">
@@ -163,6 +173,15 @@ function AvailableTariffCard({
           <Link href={href}>Открыть продукт</Link>
         </Button>
       </div>
+
+      {downloadHref && (
+        <Button asChild variant="outline" className="mt-3 w-full gap-2">
+          <a href={downloadHref} target="_blank" rel="noopener noreferrer">
+            <Download className="h-4 w-4" />
+            Скачать приложение
+          </a>
+        </Button>
+      )}
     </article>
   )
 }
