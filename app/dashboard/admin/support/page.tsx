@@ -118,24 +118,24 @@ export default function AdminSupportPage() {
   const newCount = tickets.filter((t) => t.status === "new").length
 
   return (
-    <div className="container mx-auto px-4 py-8 md:py-12 max-w-7xl">
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="outline" size="icon" onClick={() => router.push("/dashboard/admin")}>
+    <div className="container mx-auto px-3 sm:px-4 py-6 md:py-12 max-w-7xl">
+      <div className="flex items-start gap-3 sm:gap-4 mb-6 md:mb-8">
+        <Button variant="outline" size="icon" className="flex-shrink-0" onClick={() => router.push("/dashboard/admin")}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs text-primary mb-3">
+        <div className="min-w-0">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs text-primary mb-2 md:mb-3">
             <MessageSquare className="h-3.5 w-3.5" />
             Поддержка
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold">Заявки в поддержку</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Заявки в поддержку</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Заявки, отправленные через форму на сайте
           </p>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-secondary/20 px-4 py-3 text-sm text-muted-foreground mb-6 flex items-center gap-2">
+      <div className="rounded-2xl border border-border bg-secondary/20 px-3 sm:px-4 py-3 text-xs sm:text-sm text-muted-foreground mb-4 md:mb-6 flex items-center gap-2">
         <Clock className="h-4 w-4" />
         {statusMessage}
         {newCount > 0 && (
@@ -145,24 +145,53 @@ export default function AdminSupportPage() {
         )}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
+      <div className="grid gap-4 md:gap-6 xl:grid-cols-[1.5fr_1fr]">
         {/* Tickets list */}
-        <div className="glass-strong rounded-2xl border border-border xl:overflow-hidden xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:flex xl:flex-col">
-          <header className="border-b border-border bg-secondary/30 px-5 py-4">
+        <div className="glass-strong rounded-2xl border border-border overflow-hidden xl:sticky xl:top-24 xl:max-h-[calc(100vh-7rem)] xl:flex xl:flex-col">
+          <header className="border-b border-border bg-secondary/30 px-3 sm:px-5 py-3 sm:py-4">
             <h2 className="text-sm font-bold uppercase tracking-wider">Все заявки</h2>
           </header>
 
-          <div className="overflow-x-auto xl:flex-1">
-            {loading ? (
-              <div className="flex items-center justify-center h-40 text-sm text-muted-foreground">
-                Загрузка...
-              </div>
-            ) : tickets.length === 0 ? (
-              <div className="flex items-center justify-center h-40 text-sm text-muted-foreground">
-                Нет заявок
-              </div>
-            ) : (
-              <table className="w-full text-sm min-w-[400px]">
+          {loading ? (
+            <div className="flex items-center justify-center h-40 text-sm text-muted-foreground">
+              Загрузка...
+            </div>
+          ) : tickets.length === 0 ? (
+            <div className="flex items-center justify-center h-40 text-sm text-muted-foreground">
+              Нет заявок
+            </div>
+          ) : (
+            <>
+              {/* Mobile: card list */}
+              <ul className="sm:hidden divide-y divide-border/60">
+                {tickets.map((ticket) => {
+                  const isSelected = ticket.id === selected?.id
+                  return (
+                    <li
+                      key={ticket.id}
+                      onClick={() => setSelectedId(ticket.id)}
+                      className={`px-4 py-3 cursor-pointer transition-colors ${
+                        isSelected ? "bg-primary/5" : "active:bg-secondary/30"
+                      } ${ticket.status === "new" ? "font-medium" : ""}`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="truncate">{ticket.subject}</div>
+                          <div className="text-xs text-muted-foreground truncate mt-0.5">{ticket.name}</div>
+                        </div>
+                        <Badge className={`${statusColors[ticket.status]} text-[10px] flex-shrink-0`} variant="outline">
+                          {statusLabels[ticket.status]}
+                        </Badge>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground mt-2">{formatDate(ticket.createdAt)}</div>
+                    </li>
+                  )
+                })}
+              </ul>
+
+              {/* Tablet+: table */}
+              <div className="hidden sm:block overflow-x-auto xl:flex-1">
+                <table className="w-full text-sm">
                 <thead className="sticky top-0 bg-secondary/95 backdrop-blur z-10">
                   <tr className="text-[10px] uppercase tracking-wider text-muted-foreground">
                     <th className="px-5 py-3 text-left font-semibold">Дата</th>
@@ -195,15 +224,16 @@ export default function AdminSupportPage() {
                       </tr>
                     )
                   })}
-                </tbody>
-              </table>
-            )}
-          </div>
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Ticket detail */}
         <section className="space-y-6">
-          <div className="glass-strong rounded-2xl border border-border p-6">
+          <div className="glass-strong rounded-2xl border border-border p-4 sm:p-6">
             {selected ? (
               <div className="space-y-6">
                 <div className="flex items-start justify-between gap-4">

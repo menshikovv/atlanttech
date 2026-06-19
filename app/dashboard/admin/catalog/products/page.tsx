@@ -134,10 +134,12 @@ export default function CatalogProductsPage() {
   }
 
   const isScoutScope = useMemo(() => {
-    if (!selectedProduct) return false
-    const haystack = `${selectedProduct.id} ${selectedProduct.name}`.toLowerCase()
+    const code = productFormState.tariffCode
+    if (!code) return false
+    const tariff = catalog?.tariffs.find((item) => item.code === code)
+    const haystack = `${code} ${tariff?.title ?? ""}`.toLowerCase()
     return haystack.includes("scoutscope") || haystack.includes("scoute scope")
-  }, [selectedProduct])
+  }, [catalog, productFormState.tariffCode])
 
   const nextVersion = (current: UploadLog | null) => {
     const base = current ? Number(current.version.replace(/^v/, "")) || 0 : 0
@@ -239,20 +241,20 @@ export default function CatalogProductsPage() {
       <div className="fixed top-0 left-1/4 h-[400px] w-[400px] rounded-full bg-primary/5 blur-[150px] pointer-events-none" />
       <div className="fixed bottom-0 right-0 h-[350px] w-[350px] rounded-full bg-primary/5 blur-[170px] pointer-events-none" />
 
-      <div className="container relative z-10 mx-auto px-4 py-8 md:py-12 max-w-4xl">
+      <div className="container relative z-10 mx-auto px-3 sm:px-4 py-6 md:py-12 max-w-4xl">
         {/* ─── Hero Header ─── */}
-        <div className="relative mb-8 overflow-hidden rounded-3xl border border-border/50 bg-gradient-to-br from-primary/10 via-primary/5 to-background p-8">
+        <div className="relative mb-6 md:mb-8 overflow-hidden rounded-3xl border border-border/50 bg-gradient-to-br from-primary/10 via-primary/5 to-background p-5 sm:p-8">
           <div className="absolute top-0 right-0 h-32 w-32 translate-x-1/4 -translate-y-1/4 rounded-full bg-primary/20 blur-[80px]" />
-          <div className="flex items-center gap-4">
+          <div className="flex items-start gap-3 sm:gap-4">
             <Button variant="outline" size="icon" onClick={() => router.push("/dashboard/admin")} className="shrink-0 bg-background/50 backdrop-blur-sm">
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary mb-3">
+            <div className="min-w-0">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 sm:px-4 py-1.5 text-xs font-semibold text-primary mb-2 md:mb-3">
                 <Package className="h-3.5 w-3.5" />
                 Каталог продуктов
               </div>
-              <h1 className="text-2xl font-bold md:text-3xl">Редактирование продуктов</h1>
+              <h1 className="text-xl sm:text-2xl font-bold md:text-3xl">Редактирование продуктов</h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 {canManage
                   ? "Описание, цены, фичи, иконка, видимость и связанный тариф."

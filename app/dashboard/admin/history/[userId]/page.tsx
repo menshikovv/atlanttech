@@ -95,16 +95,72 @@ export default function TariffHistoryPage() {
     fetchHistory()
   }
 
+  const renderActions = (item: SiteTariffHistoryItem) => (
+    <div className="flex flex-wrap items-center gap-2">
+      <Button
+        variant="outline"
+        size="sm"
+        className="border-destructive/50 text-destructive hover:bg-destructive/10 h-8 text-xs"
+        onClick={() => handleCancel(item)}
+        disabled={actionLoading === `cancel-${item.id}` || item.tariffStatus !== "active"}
+      >
+        {actionLoading === `cancel-${item.id}` ? "..." : "Аннулировать"}
+      </Button>
+
+      {extendingId === item.id ? (
+        <div className="flex items-center gap-1">
+          <select
+            value={extendMonths}
+            onChange={(e) => setExtendMonths(Number(e.target.value))}
+            className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+          >
+            {EXTEND_OPTIONS.map((opt) => (
+              <option key={opt.months} value={opt.months}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <Button
+            size="sm"
+            className="h-8 text-xs"
+            onClick={() => handleExtend(item)}
+            disabled={actionLoading === `extend-${item.id}`}
+          >
+            {actionLoading === `extend-${item.id}` ? "..." : "ОК"}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 text-xs"
+            onClick={() => { setExtendingId(null); setExtendMonths(1) }}
+          >
+            Отмена
+          </Button>
+        </div>
+      ) : (
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 text-xs"
+          onClick={() => setExtendingId(item.id)}
+          disabled={item.tariffStatus !== "active"}
+        >
+          Продлить
+        </Button>
+      )}
+    </div>
+  )
+
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-4 md:p-8">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => router.push("/dashboard/admin/users")}>
+      <div className="flex items-start gap-3 sm:gap-4">
+        <Button variant="outline" size="icon" className="flex-shrink-0" onClick={() => router.push("/dashboard/admin/users")}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div>
-          <h1 className="text-2xl font-bold">История тарифов</h1>
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold">История тарифов</h1>
           {selectedUser && (
-            <p className="text-sm text-foreground/80 mt-1">
+            <p className="text-xs sm:text-sm text-foreground/80 mt-1 break-words">
               {selectedUser.name} — {selectedUser.email}
             </p>
           )}
@@ -121,95 +177,76 @@ export default function TariffHistoryPage() {
           История для этого пользователя пока пуста.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-border">
-          <table className="w-full text-sm min-w-[700px]">
-            <thead>
-              <tr className="border-b border-border bg-secondary/50 text-[10px] uppercase tracking-wider text-muted-foreground">
-                <th className="px-4 py-3 text-left font-semibold">Пользователь</th>
-                <th className="px-4 py-3 text-left font-semibold">С какого по какое</th>
-                <th className="px-4 py-3 text-left font-semibold">Тариф</th>
-                <th className="px-4 py-3 text-left font-semibold">Дата приобретения</th>
-                <th className="px-4 py-3 text-left font-semibold">Как получен</th>
-                <th className="px-4 py-3 text-left font-semibold">Действия</th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.map((item) => (
-                <tr key={item.id} className="border-b border-border/60 transition-colors hover:bg-secondary/20">
-                  <td className="px-4 py-3 font-medium whitespace-nowrap">{selectedUser?.login || item.userId}</td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    {formatDate(item.startsAt)} — {formatDate(item.expiresAt)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge className="bg-primary/10 text-primary border-0">{item.tariffCode}</Badge>
-                      <Badge variant="outline" className="text-[10px]">
-                        {item.tariffStatus}
-                      </Badge>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{formatDate(item.grantedAt || item.createdAt)}</td>
-                  <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{sourceLabel(item.source)}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-destructive/50 text-destructive hover:bg-destructive/10 h-8 text-xs"
-                        onClick={() => handleCancel(item)}
-                        disabled={actionLoading === `cancel-${item.id}` || item.tariffStatus !== "active"}
-                      >
-                        {actionLoading === `cancel-${item.id}` ? "..." : "Аннулировать"}
-                      </Button>
+        <>
+          {/* Mobile: card list */}
+          <div className="space-y-3 md:hidden">
+            {history.map((item) => (
+              <div key={item.id} className="rounded-2xl border border-border bg-card p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <span className="font-medium break-all">{selectedUser?.login || item.userId}</span>
+                  <div className="flex flex-wrap items-center justify-end gap-2 flex-shrink-0">
+                    <Badge className="bg-primary/10 text-primary border-0">{item.tariffCode}</Badge>
+                    <Badge variant="outline" className="text-[10px]">{item.tariffStatus}</Badge>
+                  </div>
+                </div>
+                <dl className="space-y-1.5 text-xs">
+                  <div className="flex justify-between gap-3">
+                    <dt className="text-muted-foreground flex-shrink-0">Период</dt>
+                    <dd className="text-right">{formatDate(item.startsAt)} — {formatDate(item.expiresAt)}</dd>
+                  </div>
+                  <div className="flex justify-between gap-3">
+                    <dt className="text-muted-foreground flex-shrink-0">Приобретён</dt>
+                    <dd className="text-right">{formatDate(item.grantedAt || item.createdAt)}</dd>
+                  </div>
+                  <div className="flex justify-between gap-3">
+                    <dt className="text-muted-foreground flex-shrink-0">Как получен</dt>
+                    <dd className="text-right">{sourceLabel(item.source)}</dd>
+                  </div>
+                </dl>
+                {renderActions(item)}
+              </div>
+            ))}
+          </div>
 
-                      {extendingId === item.id ? (
-                        <div className="flex items-center gap-1">
-                          <select
-                            value={extendMonths}
-                            onChange={(e) => setExtendMonths(Number(e.target.value))}
-                            className="h-8 rounded-md border border-input bg-background px-2 text-xs"
-                          >
-                            {EXTEND_OPTIONS.map((opt) => (
-                              <option key={opt.months} value={opt.months}>
-                                {opt.label}
-                              </option>
-                            ))}
-                          </select>
-                          <Button
-                            size="sm"
-                            className="h-8 text-xs"
-                            onClick={() => handleExtend(item)}
-                            disabled={actionLoading === `extend-${item.id}`}
-                          >
-                            {actionLoading === `extend-${item.id}` ? "..." : "ОК"}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 text-xs"
-                            onClick={() => { setExtendingId(null); setExtendMonths(1) }}
-                          >
-                            Отмена
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8 text-xs"
-                          onClick={() => setExtendingId(item.id)}
-                          disabled={item.tariffStatus !== "active"}
-                        >
-                          Продлить
-                        </Button>
-                      )}
-                    </div>
-                  </td>
+          {/* Tablet+: table */}
+          <div className="hidden md:block overflow-x-auto rounded-2xl border border-border">
+            <table className="w-full text-sm min-w-[700px]">
+              <thead>
+                <tr className="border-b border-border bg-secondary/50 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <th className="px-4 py-3 text-left font-semibold">Пользователь</th>
+                  <th className="px-4 py-3 text-left font-semibold">С какого по какое</th>
+                  <th className="px-4 py-3 text-left font-semibold">Тариф</th>
+                  <th className="px-4 py-3 text-left font-semibold">Дата приобретения</th>
+                  <th className="px-4 py-3 text-left font-semibold">Как получен</th>
+                  <th className="px-4 py-3 text-left font-semibold">Действия</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {history.map((item) => (
+                  <tr key={item.id} className="border-b border-border/60 transition-colors hover:bg-secondary/20">
+                    <td className="px-4 py-3 font-medium whitespace-nowrap">{selectedUser?.login || item.userId}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {formatDate(item.startsAt)} — {formatDate(item.expiresAt)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge className="bg-primary/10 text-primary border-0">{item.tariffCode}</Badge>
+                        <Badge variant="outline" className="text-[10px]">
+                          {item.tariffStatus}
+                        </Badge>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{formatDate(item.grantedAt || item.createdAt)}</td>
+                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{sourceLabel(item.source)}</td>
+                    <td className="px-4 py-3">
+                      {renderActions(item)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   )
