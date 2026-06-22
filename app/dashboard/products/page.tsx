@@ -195,6 +195,13 @@ export default function ProductsPage() {
   }, [products, selectedProductId])
 
   const handleCheckout = async (product: SiteCatalogProduct) => {
+    if (!product.tariffCode) {
+      setCheckoutMessage(
+        `Для продукта «${product.name}» пока не настроен тариф, оплата временно недоступна. Свяжитесь с поддержкой.`
+      )
+      return
+    }
+
     const token = readStoredSiteToken()
     if (!token) {
       setCheckoutMessage("Сессия не найдена. Войдите заново, чтобы перейти к оплате.")
@@ -282,6 +289,7 @@ export default function ProductsPage() {
           const total = calculateTotal(product.priceRub, selectedPeriod)
           const totalUsd = calculateTotal(product.priceUsd, selectedPeriod)
           const highlighted = selectedProductId === product.id
+          const purchasable = Boolean(product.tariffCode)
 
           return (
             <article
@@ -373,17 +381,21 @@ export default function ProductsPage() {
                   </div>
 
                   <div className="mt-5 rounded-xl border border-border bg-background/80 p-4 text-sm">
-                    Сумма списания рассчитывается по выбранному периоду и будет передана в Robokassa.
+                    {purchasable
+                      ? "Сумма списания рассчитывается по выбранному периоду и будет передана в Robokassa."
+                      : "Для этого продукта пока не настроен тариф — оплата временно недоступна."}
                   </div>
 
                   <Button
                     type="button"
                     className="mt-5 w-full"
                     onClick={() => handleCheckout(product)}
-                    disabled={checkoutLoadingId === product.id}
+                    disabled={checkoutLoadingId === product.id || !purchasable}
                   >
                     {checkoutLoadingId === product.id ? (
                       "Подготавливаю оплату..."
+                    ) : !purchasable ? (
+                      "Оплата недоступна"
                     ) : (
                       <span className="flex items-center gap-2">
                         <ShoppingCart className="h-4 w-4" />

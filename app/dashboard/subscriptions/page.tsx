@@ -21,7 +21,6 @@ import {
 const APP_DOWNLOAD_LINKS: Record<string, string> = {
   base: "https://atlanttech.pro/download/scoutscope-basic",
   pro: "https://atlanttech.pro/download/scoutscope-pro",
-  manager: "https://atlanttech.pro/download/manager",
 }
 
 function formatDate(value: string) {

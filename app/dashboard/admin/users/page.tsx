@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
+import { fetchAdminCatalog, readStoredSiteToken } from "@/lib/site-api"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -78,11 +79,11 @@ export default function AdminUsersPage() {
   const [accessSubmitting, setAccessSubmitting] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState("")
   const [deleting, setDeleting] = useState(false)
+  // Тарифы подгружаются из реального каталога бэкенда, чтобы админ не мог
+  // выдать несуществующий код. Значения ниже — лишь fallback на случай сбоя загрузки.
   const [tariffOptions, setTariffOptions] = useState<Array<{ code: string; title: string }>>([
     { code: "base", title: "ScoutScope Basic" },
-    { code: "manager", title: "Manager" },
     { code: "pro", title: "ScoutScope Pro" },
-    { code: "admin", title: "Admin Access" },
   ])
   const [tariffFormState, setTariffFormState] = useState({
     tariffCode: "base",
@@ -110,6 +111,30 @@ export default function AdminUsersPage() {
       .then(() => setStatusMessage("Список пользователей обновлен."))
       .catch((error) => setStatusMessage(error instanceof Error ? error.message : "Не удалось загрузить пользователей."))
   }, [refreshAdminData, user])
+
+  // Загружаем актуальный список тарифов из каталога, чтобы выдавать только
+  // существующие на бэкенде коды (например base / pro), а не захардкоженные.
+  useEffect(() => {
+    if (!user || user.role !== "admin") return
+    const token = readStoredSiteToken()
+    if (!token) return
+    let active = true
+    fetchAdminCatalog(token)
+      .then((catalog) => {
+        if (!active) return
+        const options = (catalog.tariffs || [])
+          .slice()
+          .sort((left, right) => left.order - right.order)
+          .map((item) => ({ code: item.code, title: item.title || item.code }))
+        if (options.length) setTariffOptions(options)
+      })
+      .catch(() => {
+        // оставляем fallback-набор тарифов
+      })
+    return () => {
+      active = false
+    }
+  }, [user])
 
   const filteredUsers = useMemo(() => {
     const needle = search.trim().toLowerCase()
@@ -159,7 +184,9 @@ export default function AdminUsersPage() {
 
     setTariffFormState({
       tariffCode: currentUser.tariffCode,
-      tariffStatus: currentUser.tariffStatus,
+      // Форма «Сохранить тариф» = выдача доступа, поэтому статус всегда active.
+      // Аннулирование и продление делаются отдельно на странице истории тарифов.
+      tariffStatus: "active",
       startsAt: toInputDateTime(currentUser.tariffStartsAt),
       expiresAt: toInputDateTime(currentUser.tariffExpiresAt),
       note: "",
