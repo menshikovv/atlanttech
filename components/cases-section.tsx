@@ -17,8 +17,8 @@ const cases = [
     icon: Search,
     tags: ["AI", "Аналитика", "Скаутинг"],
     images: [
-      "https://s10.iimage.su/s/22/glArvSpxg1mFEvbFldMMZOzV7TdkYaGVESKjMNzgQ.png",
-      "https://s10.iimage.su/s/22/gTWu6BlxBFI5YXpDqF3kGZlGPmEOLzFRs5CqnLqRh.png"
+      "/photo/scout_scope1.png",
+      "/photo/scout_scope2.png",
     ],
     color: "from-blue-500 to-cyan-500",
   },
@@ -31,10 +31,12 @@ const cases = [
     icon: BarChart3,
     tags: ["CRM", "Дашборды", "Менеджмент"],
     images: [
-      "https://s10.iimage.su/s/22/g3bgZhRxlIYzisbfgzBdidoGjjNqoiIKNi79CUX5T.png",
-      "https://s10.iimage.su/s/22/gr2OiURxDTcVDwvcnemfIAGJFXMA7WhYMblyvzIur.png",
-      "https://s10.iimage.su/s/22/gbo1DmuxhOTCVDczkeA0Z0fwkvcZthCFQTp7zLuc4.png",
-      "https://s10.iimage.su/s/22/gNq4axuxyhNgOfgwmfQtAFWPlszXJHT5K3f0pOsFF.png",
+      "/photo/CRM.png",
+      "/photo/CRM2.png",
+      "/photo/CRM3.png",
+      "/photo/CRM4.png",
+      "/photo/CRM5.png",
+      "/photo/CRm6.png",
     ],
     color: "from-blue-600 to-indigo-600",
   },
@@ -47,7 +49,7 @@ const cases = [
     icon: Bot,
     tags: ["Telegram", "FaceIT", "Боты"],
     images: [
-      "https://storage.yandexcloud.net/file-talentio/bot.jpg",
+      "/photo/bot.jpg",
     ],
     color: "from-indigo-500 to-blue-500",
   },
