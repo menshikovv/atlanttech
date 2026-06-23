@@ -334,12 +334,6 @@ export function PricingSection() {
             headerVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0",
           )}
         >
-          <Badge
-            variant="outline"
-            className="mb-4 border-primary/30 bg-primary/5 text-primary"
-          >
-            Тарифы
-          </Badge>
           <h2 className="mb-4 text-3xl font-bold md:text-4xl lg:text-5xl">
             Гибкие тарифы для{" "}
             <span className="gradient-text">PerformanceCoach CRM</span>
@@ -460,12 +454,6 @@ export function PricingSection() {
 
         {/* ─── Divider header ─── */}
         <div className="mx-auto max-w-3xl mt-20 mb-14 text-center">
-          <Badge
-            variant="outline"
-            className="mb-4 border-primary/30 bg-primary/5 text-primary"
-          >
-            Для команд
-          </Badge>
           <h2 className="mb-4 text-3xl font-bold md:text-4xl lg:text-5xl">
             Тарифы для <span className="gradient-text">команд и организаций</span>
           </h2>

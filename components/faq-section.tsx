@@ -89,15 +89,6 @@ export function FaqSection() {
             headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
           )}
         >
-          <Badge
-            variant="outline"
-            className={cn(
-              "mb-4 border-primary/30 text-primary bg-primary/5 transition-all duration-500 delay-100",
-              headerVisible ? "opacity-100 scale-100" : "opacity-0 scale-90",
-            )}
-          >
-            FAQ
-          </Badge>
           <h2
             className={cn(
               "text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-balance transition-all duration-700 delay-200",

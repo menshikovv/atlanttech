@@ -104,16 +104,6 @@ export function ContactSection() {
 
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-12 md:mb-16">
-          <Badge
-            variant="secondary"
-            className={cn(
-              "mb-4 bg-primary/10 text-primary border-primary/20 transition-all duration-700",
-              isVisible ? "opacity-100 scale-100" : "opacity-0 scale-90",
-            )}
-          >
-            <Sparkles className="w-3 h-3 mr-1" />
-            Связаться с нами
-          </Badge>
           <h2
             className={cn(
               "text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 transition-all duration-700 delay-100 px-2",

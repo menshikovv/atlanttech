@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { AtlantLogo } from "./twizz-logo"
-import { Menu, X, LogIn } from "lucide-react"
+import { Menu, X, ArrowUpRight, LogIn } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,6 +18,12 @@ export function Header() {
     }
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  // Плавное появление навбара слева направо при загрузке/обновлении страницы.
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setMounted(true))
+    return () => cancelAnimationFrame(raf)
   }, [])
 
   useEffect(() => {
@@ -63,62 +70,68 @@ export function Header() {
 
   return (
     <>
-      <header
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-          isScrolled ? "bg-white/80 backdrop-blur-lg shadow-sm border-b border-border/50" : "bg-transparent",
-        )}
-      >
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16 md:h-20">
-            <div className="flex items-center">
-              <a href="#" className="flex items-center">
-                <AtlantLogo variant="icon" className="h-8 w-auto md:h-10 md:w-auto" />
+      <header className="fixed top-[18px] md:top-[30px] left-1/2 z-50 w-fit max-w-[calc(100%-1.5rem)] -translate-x-1/2">
+        <div
+          className="flex items-center gap-2 rounded-[16px] py-2 pl-3 pr-2 md:gap-6 md:pl-5 md:pr-3"
+          style={{
+            background: "rgba(255,255,255,0.3)",
+            backdropFilter: "blur(50px)",
+            WebkitBackdropFilter: "blur(50px)",
+            border: "1px solid rgba(0,0,0,0.1)",
+            boxShadow: isScrolled
+              ? "inset 0px 4px 4px 0px rgba(255,255,255,0.25), 0 12px 40px rgba(0,132,255,0.18)"
+              : "inset 0px 4px 4px 0px rgba(255,255,255,0.25), 0 8px 30px rgba(0,0,0,0.08)",
+            clipPath: mounted ? "inset(0 0% 0 0)" : "inset(0 100% 0 0)",
+            opacity: mounted ? 1 : 0,
+            transform: mounted ? "translateX(0)" : "translateX(-16px)",
+            transition:
+              "clip-path 2.8s cubic-bezier(0.22,1,0.36,1), transform 2.8s cubic-bezier(0.22,1,0.36,1), opacity 1.8s ease, box-shadow 0.5s ease",
+          }}
+        >
+          {/* Logo */}
+          <a href="#" className="flex shrink-0 items-center gap-2">
+            <AtlantLogo variant="icon" className="h-8 w-auto md:h-9 md:w-auto" />
+            <span className="hidden text-base font-bold tracking-tight text-[#0A0A0A] sm:block">Atlant</span>
+          </a>
+
+          {/* Nav links */}
+          <nav className="hidden items-center gap-7 md:flex">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium text-[#444] transition-colors hover:text-[#0084FF]"
+              >
+                {link.label}
               </a>
-            </div>
-            
-            <nav className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="text-muted-foreground hover:text-primary transition-colors font-medium relative group"
-                >
-                  {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
-                </a>
-              ))}
-              <Button
-                asChild
-                variant="outline"
-                className="border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-all"
-              >
-                <a href="#contact">Связаться</a>
-              </Button>
-            </nav>
+            ))}
+          </nav>
 
-            <div className="hidden md:flex items-center">
-              <Button
-                asChild
-                variant="outline"
-                className="border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-all gap-2"
-              >
-                <a href="/auth/login">
-                  <LogIn className="h-4 w-4" />
-                  Войти
-                </a>
-              </Button>
-            </div>
+          {/* Войти button (glassy) */}
+          <a
+            href="/auth/login"
+            className="hidden items-center gap-2 rounded-[12px] py-2 pl-4 pr-2 text-sm font-medium text-white transition-transform duration-300 hover:scale-[1.03] md:inline-flex"
+            style={{
+              background: "rgba(0,132,255,0.85)",
+              backdropFilter: "blur(2px)",
+              boxShadow: "inset 0px 4px 4px 0px rgba(255,255,255,0.35), 0 8px 22px rgba(0,132,255,0.3)",
+            }}
+          >
+            Войти
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-[#0084FF]">
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </span>
+          </a>
 
-            <button
-              className="md:hidden p-2 text-foreground rounded-lg hover:bg-secondary transition-colors z-60"
-              onClick={() => isMobileMenuOpen ? handleCloseMenu() : handleOpenMenu()}
-              aria-label="Toggle menu"
-              data-mobile-menu
-            >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
+          {/* Mobile burger */}
+          <button
+            className="z-60 rounded-[12px] p-2 text-[#0A0A0A] transition-colors hover:bg-white/40 md:hidden"
+            onClick={() => (isMobileMenuOpen ? handleCloseMenu() : handleOpenMenu())}
+            aria-label="Toggle menu"
+            data-mobile-menu
+          >
+            {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
       </header>
 
@@ -134,7 +147,7 @@ export function Header() {
           
           <div 
             className={cn(
-              "absolute top-16 right-4 left-4 bg-card rounded-2xl border border-border shadow-2xl overflow-hidden",
+              "absolute top-[84px] right-4 left-4 bg-card rounded-2xl border border-border shadow-2xl overflow-hidden",
               "transform transition-all duration-300 ease-out",
               isAnimating 
                 ? "translate-y-0 opacity-100 scale-100" 

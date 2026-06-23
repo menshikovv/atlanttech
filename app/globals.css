@@ -284,6 +284,70 @@
   opacity: 0.7;
 }
 
+/* ─── Text selection ─── */
+::selection {
+  background: oklch(0.55 0.22 250);
+  color: oklch(1 0 0);
+}
+::-moz-selection {
+  background: oklch(0.55 0.22 250);
+  color: oklch(1 0 0);
+}
+
+/* ─── Custom cursor ─── */
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 9999;
+  will-change: left, top, width, height;
+}
+.cursor-dot {
+  width: 7px;
+  height: 7px;
+  background: oklch(0.55 0.22 250);
+  transition: opacity 0.2s ease;
+}
+.cursor-ring {
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid oklch(0.55 0.22 250 / 0.5);
+  background: oklch(0.55 0.22 250 / 0);
+  transition: opacity 0.2s ease, width 0.22s ease, height 0.22s ease, background 0.22s ease,
+    border-color 0.22s ease;
+}
+.cursor-ring--active {
+  width: 54px;
+  height: 54px;
+  background: oklch(0.55 0.22 250 / 0.1);
+  border-color: oklch(0.55 0.22 250 / 0.8);
+}
+.cursor-ring--down {
+  width: 26px;
+  height: 26px;
+  background: oklch(0.55 0.22 250 / 0.18);
+}
+
+/* Прячем системный курсор только там, где работает кастомный (мышь/трекпад). */
+@media (pointer: fine) {
+  *,
+  *::before,
+  *::after {
+    cursor: none !important;
+  }
+}
+/* На тач-устройствах кастомный курсор не показываем. */
+@media (pointer: coarse) {
+  .cursor-dot,
+  .cursor-ring {
+    display: none;
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }

@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Suspense } from "react"
 import { Prosto_One } from "next/font/google"
 import { AnimatedBackground } from "@/components/animated-background"
+import { CustomCursor } from "@/components/custom-cursor"
 import { YandexMetrica } from "@/components/yandex-metrica"
 import { CookieConsent } from "@/components/cookie-consent"
 import { Footer } from "@/components/footer"
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="ru">
       <body className={`${prostoOne.className} antialiased`}>
         <AnimatedBackground />
+        <CustomCursor />
         {children}
         <Footer />
         <Suspense fallback={null}>

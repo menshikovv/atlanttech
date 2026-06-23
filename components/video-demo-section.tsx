@@ -73,16 +73,6 @@ export function VideoDemoSection() {
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           )}
         >
-          <Badge
-            variant="outline"
-            className={cn(
-              "mb-4 border-primary/30 text-primary bg-primary/5 transition-all duration-500 delay-100",
-              isVisible ? "opacity-100 scale-100" : "opacity-0 scale-90"
-            )}
-          >
-            <Eye className="w-4 h-4 mr-2" />
-            Демонстрация
-          </Badge>
 
           <h2
             className={cn(
