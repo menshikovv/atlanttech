@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils"
 // Логотипы партнёров переиспользуются из секции "Партнеры" ниже на странице.
 const trustedLogos = [
   { name: "Contur", src: "/contur.svg" },
-  { name: "Partner 1", src: "https://s10.iimage.su/s/24/gzeCTvDxbv80nVK0Ba1VArFlViy4ShVaikKv97na9.png" },
-  { name: "Partner 2", src: "https://s10.iimage.su/s/24/gfzlOLNxR7fzYbSlkZQzM0ZfmfDBlluqvmEiPvukc.png" },
+  { name: "Partner 1", src: "/rstu.png" },
+  { name: "Partner 2", src: "/overwolf.png" },
   { name: "Part 1", src: "/part1.svg" },
   { name: "Part 2", src: "/part2.svg" },
 ]
@@ -228,7 +228,7 @@ export function HeroSection() {
                 key={logo.name}
                 src={logo.src}
                 alt={logo.name}
-                className="h-9 w-auto max-w-[140px] object-contain opacity-50 grayscale transition-all duration-300 hover:opacity-90 hover:grayscale-0 md:h-11"
+                className="h-14 w-auto max-w-[200px] object-contain opacity-50 grayscale transition-all duration-300 hover:opacity-90 hover:grayscale-0 md:h-20"
               />
             ))}
           </div>

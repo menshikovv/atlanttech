@@ -78,9 +78,6 @@ export function Header() {
             backdropFilter: "blur(50px)",
             WebkitBackdropFilter: "blur(50px)",
             border: "1px solid rgba(0,0,0,0.1)",
-            boxShadow: isScrolled
-              ? "inset 0px 4px 4px 0px rgba(255,255,255,0.25), 0 12px 40px rgba(0,132,255,0.18)"
-              : "inset 0px 4px 4px 0px rgba(255,255,255,0.25), 0 8px 30px rgba(0,0,0,0.08)",
             clipPath: mounted ? "inset(0 0% 0 0)" : "inset(0 100% 0 0)",
             opacity: mounted ? 1 : 0,
             transform: mounted ? "translateX(0)" : "translateX(-16px)",
