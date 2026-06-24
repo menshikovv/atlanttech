@@ -1,7 +1,7 @@
 "use client"
 
 import type { FormEvent } from "react"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import {
@@ -11,26 +11,11 @@ import {
   type SiteCatalogProduct,
   type SiteCatalogResponse,
 } from "@/lib/site-api"
+import { AppUploadButton } from "@/components/app-upload-button"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ArrowLeft, Package, Eye, Star, DollarSign, ListOrdered, Hash, Tag, FileText, UserCheck, Upload, Database, Clock, GitBranch } from "lucide-react"
-
-type UploadLog = {
-  fileName: string
-  uploadedAt: string
-  version: string
-}
-
-function formatLogDate(value: string) {
-  return new Date(value).toLocaleString("ru-RU", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
-}
+import { ArrowLeft, Package, Eye, Star, DollarSign, ListOrdered, Hash, Tag, FileText, UserCheck, Database } from "lucide-react"
 
 const PRODUCT_ICON_OPTIONS = ["Settings2", "Target", "Shield", "Layers"]
 
@@ -73,10 +58,6 @@ export default function CatalogProductsPage() {
   const [statusType, setStatusType] = useState<"success" | "error" | "info">("info")
   const [selectedProductId, setSelectedProductId] = useState("")
   const [productFormState, setProductFormState] = useState(createEmptyProductFormState())
-  const dbInputRef = useRef<HTMLInputElement>(null)
-  const scoutInputRef = useRef<HTMLInputElement>(null)
-  const [dbLog, setDbLog] = useState<UploadLog | null>(null)
-  const [scoutLog, setScoutLog] = useState<UploadLog | null>(null)
 
   const canManage = user?.siteRole === "main_admin"
 
@@ -140,28 +121,6 @@ export default function CatalogProductsPage() {
     const haystack = `${code} ${tariff?.title ?? ""}`.toLowerCase()
     return haystack.includes("scoutscope") || haystack.includes("scoute scope")
   }, [catalog, productFormState.tariffCode])
-
-  const nextVersion = (current: UploadLog | null) => {
-    const base = current ? Number(current.version.replace(/^v/, "")) || 0 : 0
-    return `v${base + 1}`
-  }
-
-  const handleUpload = (
-    event: FormEvent<HTMLInputElement>,
-    setter: (log: UploadLog) => void,
-    current: UploadLog | null,
-    label: string
-  ) => {
-    const file = (event.target as HTMLInputElement).files?.[0]
-    if (!file) return
-    setter({
-      fileName: file.name,
-      uploadedAt: new Date().toISOString(),
-      version: nextVersion(current),
-    })
-    setStatus(`${label}: файл "${file.name}" загружен.`, "success")
-    ;(event.target as HTMLInputElement).value = ""
-  }
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
@@ -299,7 +258,7 @@ export default function CatalogProductsPage() {
           </div>
 
           {/* Загрузка данных ScoutScope */}
-          {isScoutScope && (
+          {isScoutScope && selectedProduct && (
             <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm">
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-2">
@@ -307,51 +266,27 @@ export default function CatalogProductsPage() {
                   <h2 className="text-base font-bold">Данные ScoutScope</h2>
                 </div>
                 <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary">
-                  {selectedProduct?.name}
+                  {selectedProduct.name}
                 </Badge>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="gap-2 rounded-xl border border-primary/20 bg-primary/5 text-primary hover:bg-primary hover:text-primary-foreground"
-                  onClick={() => dbInputRef.current?.click()}
-                  disabled={!canManage}
-                >
-                  <Upload className="h-4 w-4" />
-                  Загрузить базу
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  className="gap-2 rounded-xl border border-primary/20 bg-primary/5 text-primary hover:bg-primary hover:text-primary-foreground"
-                  onClick={() => scoutInputRef.current?.click()}
-                  disabled={!canManage}
-                >
-                  <Upload className="h-4 w-4" />
-                  Загрузить ScoutScope
-                </Button>
-                <input
-                  ref={dbInputRef}
-                  type="file"
-                  className="hidden"
-                  accept=".json,.csv,.xlsx"
-                  onChange={(event) => handleUpload(event, setDbLog, dbLog, "База")}
-                />
-                <input
-                  ref={scoutInputRef}
-                  type="file"
-                  className="hidden"
-                  accept=".json,.csv,.xlsx"
-                  onChange={(event) => handleUpload(event, setScoutLog, scoutLog, "ScoutScope")}
-                />
-              </div>
+              <p className="mb-4 text-xs text-muted-foreground">
+                Файлы загружаются на сервер. При повторной загрузке версия увеличивается, наведите
+                курсор на кнопку, чтобы увидеть текущую версию.
+              </p>
 
-              {/* Логи */}
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <UploadLogCard title="База игроков" log={dbLog} />
-                <UploadLogCard title="ScoutScope" log={scoutLog} />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <AppUploadButton
+                  slug={`${selectedProduct.id}-app`}
+                  label="Загрузить приложение"
+                  canManage={canManage}
+                />
+                <AppUploadButton
+                  slug={`${selectedProduct.id}-db`}
+                  label="Загрузить базу"
+                  accept=".json,.csv,.xlsx,.zip,.7z"
+                  canManage={canManage}
+                />
               </div>
             </div>
           )}
@@ -593,33 +528,6 @@ export default function CatalogProductsPage() {
             : "Для редактирования обратитесь к main admin."}
         </div>
       </div>
-    </div>
-  )
-}
-
-function UploadLogCard({ title, log }: { title: string; log: UploadLog | null }) {
-  return (
-    <div className="rounded-xl border border-border/60 bg-secondary/20 p-4">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-3">
-        {title}
-      </p>
-      {log ? (
-        <div className="space-y-2 text-sm">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Clock className="h-3.5 w-3.5 text-primary" />
-            <span>Дата загрузки:</span>
-            <span className="font-medium text-foreground">{formatLogDate(log.uploadedAt)}</span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <GitBranch className="h-3.5 w-3.5 text-primary" />
-            <span>Версия:</span>
-            <span className="font-medium text-foreground">{log.version}</span>
-          </div>
-          <p className="truncate text-xs text-muted-foreground">{log.fileName}</p>
-        </div>
-      ) : (
-        <p className="text-sm text-muted-foreground">Загрузок ещё не было.</p>
-      )}
     </div>
   )
 }
