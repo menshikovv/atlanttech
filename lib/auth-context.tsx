@@ -147,19 +147,16 @@ function mapUser(payload: SiteUserPayload): User {
 
 function iconForTariff(tariffCode: string) {
   if (tariffCode === "pro" || tariffCode === "admin") return "Shield"
-  if (tariffCode === "manager") return "Layers"
   return "Target"
 }
 
 function productIdForTariff(tariffCode: string) {
   if (tariffCode === "pro" || tariffCode === "admin") return "scoutscope-pro"
-  if (tariffCode === "manager") return "performancecoach-scoutscope"
   return "scoutscope-basic"
 }
 
 function productNameForTariff(user: User) {
   if (user.tariffCode === "admin") return "Admin Access"
-  if (user.tariffCode === "manager") return "Manager"
   if (user.tariffCode === "pro") return "ScoutScope Pro"
   return "ScoutScope Basic"
 }

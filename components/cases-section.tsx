@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { Search, Bot, BarChart3, TrendingUp, ChevronLeft, ChevronRight, X } from "lucide-react"
+import { Search, Bot, TrendingUp, ChevronLeft, ChevronRight, X } from "lucide-react"
 
 const CASE_SLIDE_INTERVAL_MS = 3000
 
@@ -21,24 +21,6 @@ const cases = [
       "/photo/scout_scope2.png",
     ],
     color: "from-blue-500 to-cyan-500",
-  },
-  {
-    title: "PerformanceCoach CRM",
-    description: "CRM для тренерского штаба: управление составом, тренировками и прогрессом игроков",
-    problem: "Данные о тренировках, заметки и прогресс игроков хранились в разных местах без единой системы",
-    solution: "Единая CRM с дашбордами прогресса, дневником тренировок и аналитическими модулями",
-    result: "40% рост эффективности тренировок",
-    icon: BarChart3,
-    tags: ["CRM", "Дашборды", "Менеджмент"],
-    images: [
-      "/photo/CRM.png",
-      "/photo/CRM2.png",
-      "/photo/CRM3.png",
-      "/photo/CRM4.png",
-      "/photo/CRM5.png",
-      "/photo/CRm6.png",
-    ],
-    color: "from-blue-600 to-indigo-600",
   },
   {
     title: "CIS FINDER BOT",

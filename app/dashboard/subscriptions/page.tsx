@@ -238,9 +238,7 @@ export default function SubscriptionsPage() {
                   ? "pro"
                   : subscription.productId === "scoutscope-basic"
                     ? "base"
-                    : subscription.productId === "performancecoach-scoutscope"
-                  ? "pro"
-                  : "",
+                    : "",
                 catalog
               )
             const title = subscription.productName || product?.name || "Тариф"

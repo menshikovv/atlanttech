@@ -44,22 +44,12 @@ export function Footer() {
             <ul className="mt-3 space-y-2">
               <li>
                 <a href="/dashboard/products" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  PerformanceCoach CRM
-                </a>
-              </li>
-              <li>
-                <a href="/dashboard/products" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   ScoutScope Basic
                 </a>
               </li>
               <li>
                 <a href="/dashboard/products" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                   ScoutScope Pro
-                </a>
-              </li>
-              <li>
-                <a href="/dashboard/products" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                  CRM + ScoutScope
                 </a>
               </li>
             </ul>
