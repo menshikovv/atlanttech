@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { ArrowRight, Check, Sparkles, Target, Shield } from "lucide-react"
+import { ArrowRight, Check, Sparkles, BarChart3, Target, Trophy, Settings2, Shield, Layers } from "lucide-react"
 import {
   fetchPublicCatalog,
   type SiteCatalogProduct,
@@ -17,8 +17,10 @@ import {
 /* ─────────────────── Icon map ─────────────────── */
 
 const iconMap: Record<string, React.ReactNode> = {
+  Settings2: <Settings2 className="h-6 w-6 text-primary" />,
   Target: <Target className="h-6 w-6 text-primary" />,
   Shield: <Shield className="h-6 w-6 text-primary" />,
+  Layers: <Layers className="h-6 w-6 text-primary" />,
 }
 
 /* ─────────────────── Static fallback ─────────────────── */
@@ -33,6 +35,16 @@ function buildFallbackPeriods(): SiteSubscriptionPeriod[] {
 
 function buildFallbackPlans(): TeamPlan[] {
   return [
+    {
+      id: "performancecoach-crm",
+      tag: "КОМАНДНАЯ ПОДПИСКА",
+      name: "PerformanceCoach CRM",
+      description: "Полная версия CRM для команды: управление игроками, процессами и ежедневной коммуникацией штаба.",
+      priceRub: 23900,
+      priceUsd: 299,
+      icon: <Settings2 className="h-6 w-6 text-primary" />,
+      features: ["Командный доступ", "Рабочие процессы штаба", "Расширенная CRM-логика"],
+    },
     {
       id: "scoutscope-basic",
       tag: "СТАНДАРТНАЯ ВЕРСИЯ",
@@ -64,6 +76,20 @@ function buildFallbackPlans(): TeamPlan[] {
         "Обновление базы раз в 12 часов",
       ],
     },
+    {
+      id: "performancecoach-scoutscope",
+      tag: "КОМПЛЕКСНОЕ РЕШЕНИЕ",
+      name: "PerformanceCoach CRM + ScoutScope",
+      description: "Pro-версия ScoutScope и полная версия PerformanceCoach CRM в одном решении для команды.",
+      priceRub: 43990,
+      priceUsd: 550,
+      icon: <Layers className="h-6 w-6 text-primary" />,
+      features: [
+        "Полная версия PerformanceCoach CRM",
+        "Pro-версия ScoutScope",
+        "Сквозной процесс для команды",
+      ],
+    },
   ]
 }
 
@@ -71,7 +97,6 @@ function productsToPlans(products: SiteCatalogProduct[], tariffs: SiteCatalogTar
   const tariffByCode = new Map(tariffs.map((t) => [t.code, t]))
   return [...products]
     .filter((p) => p.visible)
-    .filter((p) => !p.id.includes("performancecoach"))
     .sort((a, b) => a.order - b.order)
     .map((p) => {
       const linked = p.tariffCode ? tariffByCode.get(p.tariffCode) : undefined
@@ -104,6 +129,34 @@ type TeamPlan = {
   popular?: boolean
   icon: React.ReactNode
 }
+
+type Module = {
+  name: string
+  description: string
+  priceRub: number
+  icon: React.ReactNode
+}
+
+const modules: Module[] = [
+  {
+    name: "Корреляционный анализ",
+    description: "Связывает показатели между собой и помогает находить закономерности в развитии игрока.",
+    priceRub: 499,
+    icon: <BarChart3 className="h-6 w-6 text-primary" />,
+  },
+  {
+    name: "Метрики из спорта",
+    description: "Подтягивает спортивные показатели и делает оценку формы более прикладной для тренерского штаба.",
+    priceRub: 789,
+    icon: <Target className="h-6 w-6 text-primary" />,
+  },
+  {
+    name: "Игровая статистика",
+    description: "Собирает ключевую игровую статистику в понятный модуль для быстрого анализа результатов.",
+    priceRub: 399,
+    icon: <Trophy className="h-6 w-6 text-primary" />,
+  },
+]
 
 /* ─────────────────── Components ─────────────────── */
 
@@ -217,8 +270,10 @@ function TeamPlanCard({ plan, periods }: { plan: TeamPlan; periods: Period[] }) 
 
 export function PricingSection() {
   const [headerVisible, setHeaderVisible] = useState(false)
+  const [soloVisible, setSoloVisible] = useState(false)
   const [teamVisible, setTeamVisible] = useState(false)
   const headerRef = useRef<HTMLDivElement>(null)
+  const soloRef = useRef<HTMLDivElement>(null)
   const teamRef = useRef<HTMLDivElement>(null)
 
   const [catalog, setCatalog] = useState<SiteCatalogResponse | null>(null)
@@ -250,8 +305,9 @@ export function PricingSection() {
       return obs
     }
     const o1 = observe(headerRef, setHeaderVisible, 0.3)
-    const o2 = observe(teamRef, setTeamVisible)
-    return () => { o1.disconnect(); o2.disconnect() }
+    const o2 = observe(soloRef, setSoloVisible)
+    const o3 = observe(teamRef, setTeamVisible)
+    return () => { o1.disconnect(); o2.disconnect(); o3.disconnect() }
   }, [])
 
   const periods: Period[] = catalog?.subscriptionPeriods?.length
@@ -279,10 +335,130 @@ export function PricingSection() {
           )}
         >
           <h2 className="mb-4 text-3xl font-bold md:text-4xl lg:text-5xl">
-            Тарифы <span className="gradient-text">ScoutScope</span>
+            Гибкие тарифы для{" "}
+            <span className="gradient-text">PerformanceCoach CRM</span>
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-            Выберите подходящий тариф для профессионального скаутинга.
+            Базовый доступ остаётся бесплатным, а нужные аналитические модули можно подключать отдельно под вашу задачу.
+          </p>
+        </div>
+
+        {/* ─── Solo / Free + Modules ─── */}
+        <div
+          ref={soloRef}
+          className={cn(
+            "mx-auto mb-20 max-w-6xl grid gap-6 lg:grid-cols-5 transition-all duration-700",
+            soloVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0",
+          )}
+        >
+          {/* Solo card */}
+          <div className="lg:col-span-2 rounded-2xl border border-border bg-card p-6 md:p-8 shadow-sm">
+            <Badge className="mb-4 border-0 bg-primary/10 text-primary">
+              <Sparkles className="mr-1 h-3 w-3" />
+              Базовый тариф
+            </Badge>
+
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              SOLO
+            </p>
+            <h3 className="mt-2 text-2xl font-bold md:text-3xl">PerformanceCoach CRM</h3>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              Бесплатная база для персональной работы тренера: фиксируйте прогресс, ведите заметки и собирайте данные в одном месте, а аналитику подключайте по мере роста.
+            </p>
+
+            <div className="mt-6 flex items-end gap-3">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  Стоимость
+                </p>
+                <p className="text-3xl font-bold md:text-4xl">Бесплатно</p>
+              </div>
+              <div className="mb-1 rounded-lg bg-primary/10 px-3 py-1.5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">Старт</p>
+                <p className="text-xs text-muted-foreground">Без оплаты и без скрытых пакетов</p>
+              </div>
+            </div>
+
+            <ul className="mt-6 space-y-4">
+              {[
+                "Единая CRM для тренера и игрока",
+                "База сессий, заметок и прогресса",
+                "Быстрый старт без обязательной подписки",
+              ].map((f) => (
+                <li key={f} className="flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 text-sm">
+                  <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <Check className="h-3 w-3" />
+                  </span>
+                  {f}
+                </li>
+              ))}
+            </ul>
+
+            <Button
+              asChild
+              className="mt-6 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25"
+            >
+              <a href="https://perfomancecrm.pro/" target="_blank" rel="noopener noreferrer">
+                Оставить заявку
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </a>
+            </Button>
+          </div>
+
+          {/* Modules */}
+          <div className="lg:col-span-3">
+            <div className="mb-6">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Доп. модули
+              </p>
+              <h3 className="mt-2 text-2xl font-bold md:text-3xl">
+                Добавляйте только те инструменты, которые нужны вашей команде сейчас
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Подключайте только те инструменты, которые нужны вашей команде сейчас, без переплаты за лишний функционал.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              {modules.map((mod) => (
+                <div
+                  key={mod.name}
+                  className="flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-lg"
+                >
+                  <Badge variant="outline" className="mb-3 w-fit border-primary/30 bg-primary/5 text-primary text-[10px]">
+                    Модуль
+                  </Badge>
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                    {mod.icon}
+                  </div>
+                  <h4 className="text-sm font-bold leading-tight">{mod.name}</h4>
+                  <p className="mt-2 flex-1 text-xs leading-relaxed text-muted-foreground">{mod.description}</p>
+                  <div className="mt-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Цена</p>
+                    <p className="text-2xl font-bold">{mod.priceRub.toLocaleString("ru-RU")} ₽</p>
+                  </div>
+                  <a
+                    href="https://perfomancecrm.pro/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex items-center text-sm font-medium text-primary hover:underline"
+                  >
+                    Подключить
+                    <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ─── Divider header ─── */}
+        <div className="mx-auto max-w-3xl mt-20 mb-14 text-center">
+          <h2 className="mb-4 text-3xl font-bold md:text-4xl lg:text-5xl">
+            Тарифы для <span className="gradient-text">команд и организаций</span>
+          </h2>
+          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+            Выберите подходящий инструмент — ScoutScope для скаутинга или PerformanceCoach CRM для работы с командой.
           </p>
         </div>
 
@@ -303,9 +479,9 @@ export function PricingSection() {
             </h2>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-2">
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
             {!catalogLoaded ? (
-              Array.from({ length: 2 }).map((_, i) => (
+              Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-sm animate-pulse">
                   <div className="mb-4 h-12 w-12 rounded-xl bg-secondary" />
                   <div className="mb-2 h-3 w-24 rounded-full bg-secondary" />

@@ -18,6 +18,8 @@ import {
 import { cn } from "@/lib/utils"
 import {
   Check,
+  Layers,
+  Settings2,
   Shield,
   ShoppingCart,
   Sparkles,
@@ -26,8 +28,10 @@ import {
 } from "lucide-react"
 
 const iconMap: Record<string, ReactNode> = {
+  Settings2: <Settings2 className="h-7 w-7 text-primary" />,
   Target: <Target className="h-7 w-7 text-primary" />,
   Shield: <Shield className="h-7 w-7 text-primary" />,
+  Layers: <Layers className="h-7 w-7 text-primary" />,
 }
 
 function buildFallbackCatalog(): SiteCatalogResponse {
@@ -41,6 +45,25 @@ function buildFallbackCatalog(): SiteCatalogResponse {
     ],
     tariffs: [],
     products: [
+      {
+        id: "performancecoach-crm",
+        tariffCode: "",
+        tag: "КОМАНДНАЯ ПОДПИСКА",
+        name: "PerformanceCoach CRM",
+        description: "Полная версия CRM для команды: управление игроками, процессами и ежедневной коммуникацией штаба.",
+        forWhom: "Для тренерских штабов и менеджеров команд",
+        priceRub: 23900,
+        priceUsd: 299,
+        benefits: [
+          "Полный контроль над процессами команды",
+          "Единая система коммуникации штаба",
+        ],
+        features: ["Командный доступ", "Рабочие процессы штаба"],
+        icon: "Settings2",
+        popular: false,
+        visible: true,
+        order: 10,
+      },
       {
         id: "scoutscope-basic",
         tariffCode: "base",
@@ -78,6 +101,25 @@ function buildFallbackCatalog(): SiteCatalogResponse {
         popular: true,
         visible: true,
         order: 30,
+      },
+      {
+        id: "performancecoach-scoutscope",
+        tariffCode: "",
+        tag: "КОМПЛЕКСНОЕ РЕШЕНИЕ",
+        name: "PerformanceCoach CRM + ScoutScope",
+        description: "Pro-версия ScoutScope и полная версия PerformanceCoach CRM в одном решении для команды.",
+        forWhom: "Для команд с полным циклом работы",
+        priceRub: 43990,
+        priceUsd: 550,
+        benefits: [
+          "Единое решение для всех задач",
+          "Сквозной процесс для команды",
+        ],
+        features: ["CRM", "ScoutScope Pro", "Сквозной процесс для команды"],
+        icon: "Layers",
+        popular: false,
+        visible: true,
+        order: 40,
       },
     ],
   }
