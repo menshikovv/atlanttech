@@ -1,13 +1,14 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { ArrowRight, Check, Sparkles, BarChart3, Target, Trophy, Settings2, Shield, Layers } from "lucide-react"
 import {
   fetchPublicCatalog,
+  readStoredSiteToken,
   type SiteCatalogProduct,
   type SiteCatalogTariff,
   type SiteCatalogResponse,
@@ -86,7 +87,6 @@ function buildFallbackPlans(): TeamPlan[] {
 function productsToPlans(products: SiteCatalogProduct[], tariffs: SiteCatalogTariff[]): TeamPlan[] {
   const tariffByCode = new Map(tariffs.map((t) => [t.code, t]))
   return [...products]
-    .filter((p) => p.visible)
     .sort((a, b) => a.order - b.order)
     .map((p) => {
       const linked = p.tariffCode ? tariffByCode.get(p.tariffCode) : undefined
@@ -151,10 +151,21 @@ const modules: Module[] = [
 /* ─────────────────── Components ─────────────────── */
 
 function TeamPlanCard({ plan, periods }: { plan: TeamPlan; periods: Period[] }) {
+  const router = useRouter()
   const [period, setPeriod] = useState(0)
   const p = periods[period]
   const total = Math.round(plan.priceRub * p.months * (1 - p.discount))
   const perMonth = Math.round(total / p.months)
+
+  const handleBuy = () => {
+    const productPath = plan.id ? `/dashboard/products?product=${plan.id}` : "/dashboard/products"
+    const token = readStoredSiteToken()
+    if (token) {
+      router.push(productPath)
+    } else {
+      router.push(`/auth/login?redirect=${encodeURIComponent(productPath)}`)
+    }
+  }
 
   return (
     <div
@@ -235,22 +246,16 @@ function TeamPlanCard({ plan, periods }: { plan: TeamPlan; periods: Period[] }) 
       </ul>
 
       <Button
-        asChild
         className={cn(
           "mt-6 w-full rounded-xl shadow-lg",
           plan.popular
             ? "bg-primary text-primary-foreground shadow-primary/25 hover:bg-primary/90"
             : "shadow-primary/10",
         )}
+        onClick={handleBuy}
       >
-        <Link
-          href={`/auth/login?redirect=${encodeURIComponent(
-            plan.id ? `/dashboard/products?product=${plan.id}` : "/dashboard/products",
-          )}`}
-        >
-          Купить
-          <ArrowRight className="ml-1 h-4 w-4" />
-        </Link>
+        Купить
+        <ArrowRight className="ml-1 h-4 w-4" />
       </Button>
     </div>
   )

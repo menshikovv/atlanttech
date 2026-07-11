@@ -1,7 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import {
   Badge,
@@ -132,11 +132,13 @@ function submitRobokassaForm(action: string, fields: Record<string, string>) {
 export default function ProductsPage() {
   const searchParams = useSearchParams()
   const selectedProductId = String(searchParams.get("product") || "").trim()
+  const autoCheckout = searchParams.get("autoCheckout") === "true"
   const [catalog, setCatalog] = useState<SiteCatalogResponse | null>(null)
   const [catalogLoaded, setCatalogLoaded] = useState(false)
   const [periodByProductId, setPeriodByProductId] = useState<Record<string, number>>({})
   const [checkoutLoadingId, setCheckoutLoadingId] = useState("")
   const [checkoutMessage, setCheckoutMessage] = useState("")
+  const autoCheckoutTriggered = useRef(false)
 
   useEffect(() => {
     let active = true
@@ -174,6 +176,14 @@ export default function ProductsPage() {
     }, 100)
     return () => window.clearTimeout(handle)
   }, [products, selectedProductId])
+
+  useEffect(() => {
+    if (!autoCheckout || !catalogLoaded || !selectedProductId || autoCheckoutTriggered.current) return
+    const product = products.find((p) => p.id === selectedProductId)
+    if (!product || !product.tariffCode) return
+    autoCheckoutTriggered.current = true
+    handleCheckout(product)
+  }, [autoCheckout, catalogLoaded, selectedProductId, products])
 
   const handleCheckout = async (product: SiteCatalogProduct) => {
     if (!product.tariffCode) {
