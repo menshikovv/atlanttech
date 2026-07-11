@@ -36,16 +36,6 @@ function buildFallbackPeriods(): SiteSubscriptionPeriod[] {
 function buildFallbackPlans(): TeamPlan[] {
   return [
     {
-      id: "performancecoach-crm",
-      tag: "КОМАНДНАЯ ПОДПИСКА",
-      name: "PerformanceCoach CRM",
-      description: "Полная версия CRM для команды: управление игроками, процессами и ежедневной коммуникацией штаба.",
-      priceRub: 23900,
-      priceUsd: 299,
-      icon: <Settings2 className="h-6 w-6 text-primary" />,
-      features: ["Командный доступ", "Рабочие процессы штаба", "Расширенная CRM-логика"],
-    },
-    {
       id: "scoutscope-basic",
       tag: "СТАНДАРТНАЯ ВЕРСИЯ",
       name: "ScoutScope Basic",

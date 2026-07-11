@@ -14,22 +14,6 @@ export type ProductData = {
 
 export const productsData: ProductData[] = [
   {
-    id: "performancecoach-crm",
-    tag: "КОМАНДНАЯ ПОДПИСКА",
-    name: "PerformanceCoach CRM",
-    description: "Полная версия CRM для команды: управление игроками, процессами и ежедневной коммуникацией штаба.",
-    forWhom: "Для тренерских штабов и менеджеров команд",
-    priceRub: 23900,
-    priceUsd: 299,
-    icon: "Settings2",
-    benefits: [
-      "Полный контроль над процессами команды",
-      "Единая система коммуникации штаба",
-      "Автоматизация рутинных задач",
-    ],
-    features: ["Командный доступ", "Рабочие процессы штаба", "Расширенная CRM-логика"],
-  },
-  {
     id: "scoutscope-basic",
     tag: "СТАНДАРТНАЯ ВЕРСИЯ",
     name: "ScoutScope Basic",

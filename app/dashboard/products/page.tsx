@@ -46,25 +46,6 @@ function buildFallbackCatalog(): SiteCatalogResponse {
     tariffs: [],
     products: [
       {
-        id: "performancecoach-crm",
-        tariffCode: "",
-        tag: "КОМАНДНАЯ ПОДПИСКА",
-        name: "PerformanceCoach CRM",
-        description: "Полная версия CRM для команды: управление игроками, процессами и ежедневной коммуникацией штаба.",
-        forWhom: "Для тренерских штабов и менеджеров команд",
-        priceRub: 23900,
-        priceUsd: 299,
-        benefits: [
-          "Полный контроль над процессами команды",
-          "Единая система коммуникации штаба",
-        ],
-        features: ["Командный доступ", "Рабочие процессы штаба"],
-        icon: "Settings2",
-        popular: false,
-        visible: true,
-        order: 10,
-      },
-      {
         id: "scoutscope-basic",
         tariffCode: "base",
         tag: "СТАНДАРТНАЯ ВЕРСИЯ",
