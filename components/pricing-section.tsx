@@ -474,7 +474,7 @@ export function PricingSection() {
             </h2>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-6" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))" }}>
             {!catalogLoaded ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-sm animate-pulse">
